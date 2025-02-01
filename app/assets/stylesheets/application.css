@@ -15,7 +15,7 @@ body > .container {
 
 .badge-dimage {
   color: #ffffff;
-  background-color: #22aac4;
+  background-color: #be2f00;
 }
 
 .badge-dtag {
@@ -29,7 +29,7 @@ body > .container {
 }
 
 .border-docker {
-  border-color: #0db7ed !important;
+  border-color: #be2f00 !important;
 }
 
 .copy-to-clipboard-icon {
