@@ -1,4 +1,4 @@
-FROM ruby:3.4.1-alpine
+FROM docker.registry.gdutnic.com/library/ruby:3.4.1-alpine
 
 MAINTAINER Klaus Meyer <spam@klaus-meyer.net>
 
@@ -17,7 +17,8 @@ WORKDIR /app
 
 ADD . .
 
-RUN apk update \
+RUN sed -i 's#https\?://dl-cdn.alpinelinux.org/alpine#https://mirrors.cernet.edu.cn/alpine#g' /etc/apk/repositories
+ && apk update \
  && apk add build-base zlib-dev tzdata openssl-dev shared-mime-info libc6-compat \
  && rm -rf /var/cache/apk/* \
  && gem install bundler -v $(tail -n1 Gemfile.lock | xargs) \
