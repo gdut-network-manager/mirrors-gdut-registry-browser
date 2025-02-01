@@ -24,6 +24,7 @@ RUN sed -i 's#https\?://dl-cdn.alpinelinux.org/alpine#https://mirrors.cernet.edu
  && gem sources --add https://gems.ruby-china.com/ --remove https://rubygems.org/ \
  && gem install bundler -v $(tail -n1 Gemfile.lock | xargs) \
  && bundle config set without "development test" \
+ && bundle config mirror.https://rubygems.org https://gems.ruby-china.com/ \
  && bundle install \
  && bundle exec rails assets:precompile \
  && addgroup -S app && adduser -S app -G app -h /app \
