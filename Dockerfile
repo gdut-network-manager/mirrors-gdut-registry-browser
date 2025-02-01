@@ -17,7 +17,7 @@ WORKDIR /app
 
 ADD . .
 
-RUN sed -i 's#https\?://dl-cdn.alpinelinux.org/alpine#https://mirrors.cernet.edu.cn/alpine#g' /etc/apk/repositories
+RUN "sed -i 's#https\?://dl-cdn.alpinelinux.org/alpine#https://mirrors.cernet.edu.cn/alpine#g' /etc/apk/repositories"
  && apk update \
  && apk add build-base zlib-dev tzdata openssl-dev shared-mime-info libc6-compat \
  && rm -rf /var/cache/apk/* \
