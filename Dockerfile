@@ -1,4 +1,4 @@
-FROM registry.gdut.edu.cn/docker/library/ruby:3.4.1-alpine
+FROM registry.gdutnic.com/docker/library/ruby:3.4.1-alpine
 
 MAINTAINER Klaus Meyer <spam@klaus-meyer.net>
 
