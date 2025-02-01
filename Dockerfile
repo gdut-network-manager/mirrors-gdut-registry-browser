@@ -1,4 +1,4 @@
-FROM registry.gdutnic.com/docker/library/ruby:3.4.1-alpine
+FROM registry.gdut.edu.cn/docker/library/ruby:3.4.1-alpine
 
 MAINTAINER Klaus Meyer <spam@klaus-meyer.net>
 
@@ -21,10 +21,10 @@ RUN sed -i 's#https\?://dl-cdn.alpinelinux.org/alpine#https://mirrors.cernet.edu
  && apk update \
  && apk add build-base zlib-dev tzdata openssl-dev shared-mime-info libc6-compat \
  && rm -rf /var/cache/apk/* \
- && gem sources --add https://gems.ruby-china.com/ --remove https://rubygems.org/ \
+ && gem sources --add https://mirrors.tuna.tsinghua.edu.cn/rubygems/ --remove https://rubygems.org/ \
  && gem install bundler -v $(tail -n1 Gemfile.lock | xargs) \
  && bundle config set without "development test" \
- && bundle config mirror.https://rubygems.org https://gems.ruby-china.com/ \
+ && bundle config mirror.https://rubygems.org https://mirrors.tuna.tsinghua.edu.cn/rubygems/ \
  && bundle install \
  && bundle exec rails assets:precompile \
  && addgroup -S app && adduser -S app -G app -h /app \
