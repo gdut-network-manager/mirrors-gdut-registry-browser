@@ -42,14 +42,14 @@ docker-build-and-push:
     - echo "============================= LOGIN TO HARBOR =============================="
     - docker login -u ${USERNAME} -p ${PASSWORD} ${HARBORHOST}
     - echo "=========================== BUILD DOCKER IMAGES ============================"
-    - docker build -t ${HARBORHOST}/docker-registry-browser/docker-registry-browser:${BIG_VERSION}-$(echo $COMMIT_TIME) .
+    - docker build -t ${HARBORHOST}/docker-registry-browser/docker-registry-browser:$(echo $COMMIT_TIME) .
     - echo "========================== TAG IMAGES WITH LATEST =========================="
-    - docker tag ${HARBORHOST}/docker-registry-browser/docker-registry-browser:${BIG_VERSION}-$(echo $COMMIT_TIME) ${HARBORHOST}/docker-registry-browser/docker-registry-browser:latest
+    - docker tag ${HARBORHOST}/docker-registry-browser/docker-registry-browser:$(echo $COMMIT_TIME) ${HARBORHOST}/docker-registry-browser/docker-registry-browser:latest
     - echo "========================== PUSH IMAGES TO HARBOR ==========================="
-    - docker push ${HARBORHOST}/docker-registry-browser/docker-registry-browser:${BIG_VERSION}-$(echo $COMMIT_TIME)
+    - docker push ${HARBORHOST}/docker-registry-browser/docker-registry-browser:$(echo $COMMIT_TIME)
     - docker push ${HARBORHOST}/docker-registry-browser/docker-registry-browser:latest
     - echo "============================= CLEAN UP MIRRORS ============================="
-    - docker rmi ${HARBORHOST}/docker-registry-browser/docker-registry-browser:${BIG_VERSION}-$(echo $COMMIT_TIME)
+    - docker rmi ${HARBORHOST}/docker-registry-browser/docker-registry-browser:$(echo $COMMIT_TIME)
     - echo "============================ EXPORT IMAGE TAGS ============================="
     - echo "COMMIT_TIME=$COMMIT_TIME" >> build.env
   artifacts:
@@ -93,7 +93,7 @@ image-sign:
     - echo "=============================== IMAGE SIGN ================================="
     - cosign sign --key cosign.key ${HARBORHOST}/gdutdays/gdutdays:latest
     - echo "================================ CHART SIGN ================================"
-    - cosign sign --key cosign.key $HARBORHOST/gdutdays/gdutdays-helm:${BIG_VERSION}-$(echo $COMMIT_TIME)
+    - cosign sign --key cosign.key $HARBORHOST/gdutdays/gdutdays-helm:$(echo $COMMIT_TIME)
     - echo "================================ EXPORT KEY ================================"
     - echo "The Password of the key is Harbor account's password, the key will reserved for 30 minutes."
     - echo "COMMIT_TIME=${COMMIT_TIME}" >> build.env
