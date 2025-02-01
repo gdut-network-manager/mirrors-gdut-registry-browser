@@ -91,9 +91,9 @@ image-sign:
     - echo "============================= LOGIN TO HARBOR =============================="
     - cosign login -u ${USERNAME} -p ${PASSWORD} ${HARBORHOST}
     - echo "=============================== IMAGE SIGN ================================="
-    - cosign sign --key cosign.key ${HARBORHOST}/gdutdays/gdutdays:latest
+    - cosign sign --key cosign.key ${HARBORHOST}/docker-registry-browser/docker-registry-browser:latest
     - echo "================================ CHART SIGN ================================"
-    - cosign sign --key cosign.key $HARBORHOST/gdutdays/gdutdays-helm:$(echo $COMMIT_TIME)
+    - cosign sign --key cosign.key $HARBORHOST/docker-registry-browser/docker-registry-browser-helm:$(echo $COMMIT_TIME)
     - echo "================================ EXPORT KEY ================================"
     - echo "The Password of the key is Harbor account's password, the key will reserved for 30 minutes."
     - echo "COMMIT_TIME=${COMMIT_TIME}" >> build.env
