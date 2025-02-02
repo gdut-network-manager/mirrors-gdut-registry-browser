@@ -20,8 +20,17 @@ sonarqube-check:
     SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
     GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
   script: 
+    - echo "========================== GENERATE VERSION TAGS ==========================="
+    - export COMMIT_TIME=$(echo $CI_JOB_STARTED_AT | sed -E 's/^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})\+.*$/\1\2\3\4\5\6/g')
+    - echo "The commit timestamp is $(echo $COMMIT_TIME | sed 's/[-T:.]//g')"
     - sonar-scanner -Dsonar.host.url="${SONAR_HOST_URL}"
+    - echo "============================ EXPORT IMAGE TAGS ============================="
+    - echo "COMMIT_TIME=$COMMIT_TIME" >> build.env
   allow_failure: true
+  artifacts:
+    reports:
+      dotenv: build.env
+    expire_in: 30 min
   only:
     - merge_requests
     - master
@@ -36,9 +45,9 @@ docker-build-and-push:
   services:
     - name: docker:stable
   script:
-    - echo "========================== GENERATE VERSION TAGS ==========================="
-    - export COMMIT_TIME=$(echo $CI_JOB_STARTED_AT | sed -E 's/^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})\+.*$/\1\2\3\4\5\6/g')
-    - echo "The commit timestamp is $(echo $COMMIT_TIME | sed 's/[-T:.]//g')"
+    - echo "================================= LOAD ENV ================================="
+    - env
+    - echo "COMMIT_TIME=${COMMIT_TIME}"
     - echo "============================= LOGIN TO HARBOR =============================="
     - docker login -u ${USERNAME} -p ${PASSWORD} ${HARBORHOST}
     - echo "=========================== BUILD DOCKER IMAGES ============================"
@@ -71,9 +80,9 @@ helm-build:
     - helm repo add stable https://charts.helm.sh/stable
     - helm repo update
   script:
-    - echo "========================== GENERATE VERSION TAGS ==========================="
-    - export COMMIT_TIME=$(echo $CI_JOB_STARTED_AT | sed -E 's/^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})\+.*$/\1\2\3\4\5\6/g')
-    - echo "The commit timestamp is $(echo $COMMIT_TIME | sed 's/[-T:.]//g')"
+    - echo "================================= LOAD ENV ================================="
+    - env
+    - echo "COMMIT_TIME=${COMMIT_TIME}"
     - echo "============================= LOGIN TO HARBOR =============================="
     - helm registry login ${HARBORHOST} --username ${USERNAME} --password ${PASSWORD}
     - echo "============================== PACKAGE CHART ==============================="
