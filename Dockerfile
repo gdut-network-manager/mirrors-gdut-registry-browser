@@ -21,7 +21,7 @@ RUN sed -i 's#https\?://dl-cdn.alpinelinux.org/alpine#https://mirrors.cernet.edu
  && apk update \
  && apk add -v --progress build-base zlib-dev tzdata openssl-dev shared-mime-info libc6-compat \
  && rm -rf /var/cache/apk/* \
- && gem sources --add https://mirrors.tuna.tsinghua.edu.cn/rubygems/ --remove https://rubygems.org/ \
+ && gem sources --add https://mirrors.cernet.tsinghua.edu.cn/rubygems/ --remove https://rubygems.org/ \
  && gem install bundler -v $(tail -n1 Gemfile.lock | xargs) \
  && bundle config set without "development test" \
  && bundle config mirror.https://rubygems.org https://mirrors.cernet.edu.cn/rubygems/ \
