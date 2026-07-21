@@ -47,7 +47,6 @@ docker-build-and-push:
   script:
     - echo "================================= LOAD ENV ================================="
     - env
-    - echo "COMMIT_TIME=${COMMIT_TIME}"
     - echo "========================== GENERATE VERSION TAGS ==========================="
     - export COMMIT_TIME=$(echo $CI_JOB_STARTED_AT | sed -E 's/^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})\+.*$/\1\2\3\4\5\6/g')
     - echo "The commit timestamp is $(echo $COMMIT_TIME | sed 's/[-T:.]//g')"
@@ -85,7 +84,9 @@ helm-build:
   script:
     - echo "================================= LOAD ENV ================================="
     - env
-    - echo "COMMIT_TIME=${COMMIT_TIME}"
+    - echo "========================== GENERATE VERSION TAGS ==========================="
+    - export COMMIT_TIME=$(echo $CI_JOB_STARTED_AT | sed -E 's/^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})\+.*$/\1\2\3\4\5\6/g')
+    - echo "The commit timestamp is $(echo $COMMIT_TIME | sed 's/[-T:.]//g')"
     - echo "============================= LOGIN TO HARBOR =============================="
     - helm registry login ${HARBORHOST} --username ${USERNAME} --password ${PASSWORD}
     - echo "============================== PACKAGE CHART ==============================="
