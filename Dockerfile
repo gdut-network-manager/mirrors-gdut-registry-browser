@@ -19,7 +19,7 @@ ADD . .
 
 RUN sed -i 's#https\?://dl-cdn.alpinelinux.org/alpine#https://mirrors.cernet.edu.cn/alpine#g' /etc/apk/repositories \
  && apk update \
- && apk add build-base zlib-dev tzdata openssl-dev shared-mime-info libc6-compat \
+ && apk add -v --progress build-base zlib-dev tzdata openssl-dev shared-mime-info libc6-compat \
  && rm -rf /var/cache/apk/* \
  && gem sources --add https://mirrors.tuna.tsinghua.edu.cn/rubygems/ --remove https://rubygems.org/ \
  && gem install bundler -v $(tail -n1 Gemfile.lock | xargs) \
