@@ -1,14 +1,14 @@
-<div class="row justify-content-center">
+<div class="justify-content-center">
   <div class="col-md-6">
     <% if @repositories.any? %>
       <% @namespaces.each do |namespace, repos| %>
         <%- namespace_key = namespace.gsub("/", "-slash-") %>
-        <div class="card border-docker mb-5">
-          <%= content_tag :div, class: "card-header", id: "namespace-#{namespace_key}" do %>
-            <%= image_tag "icons/namespace.png", size: "50x50", align: "right" %>
+        <div class="island mb-5">
+          <%= content_tag :div, class: "island-header", id: "namespace-#{namespace_key}" do %>
+            <%= image_tag "icons/namespace.png", size: "50x50", align: "right", class: "island-icon" %>
 
-            <span class="text-muted small">Namespace</span>
-            <h5 class="card-title mb-0"><%= namespace.presence || "/" %></h5>
+            <span class="text-muted small">命名空间</span>
+            <h5 class="island-title mb-0"><%= namespace.presence || "/" %></h5>
           <% end %>
           <div>
           <%= content_tag :div, class: {collapse: configs.collapse_namespaces}, id: "namespace-#{namespace_key}-repos" do %>
@@ -24,7 +24,7 @@
               <% end %>
             </div>
           <% end %>
-          <%= content_tag :button, class: "collapsed btn btn-default w-100", data: { toggle: "collapse", target: "#namespace-#{namespace_key}-repos" } do %>
+          <%= content_tag :button, class: "collapsed btn btn-default w-100", data: { collapse_target: "#namespace-#{namespace_key}-repos" } do %>
             <span class="if-collapsed">&#8964;</span>
             <span class="if-not-collapsed">&#8963;</span>
           <% end if configs.collapse_namespaces %>
@@ -38,7 +38,7 @@
     <% if @repositories.more? %>
       <div class="text-center">
         <%= link_to root_path(last: @repositories.last.name), class: "btn btn-docker px-4" do %>
-          Load more…
+          加载更多…
         <% end %>
       </div>
     <% end %>

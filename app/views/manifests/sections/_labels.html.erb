@@ -1,15 +1,13 @@
 <% if manifest.labels.any? %>
-  <h5 class="mt-4">Labels</h5>
-  <ul class="list-group list-group-flush">
+  <h5 class="mt-4">标签（Labels）</h5>
+  <div class="labels-table">
     <% manifest.labels.each do |key, value| %>
-      <li class="list-group-item">
-        <div class="row">
-          <div class="col text-monospace small"><span class="badge-pill badge-dlayer"><%= key %></span></div>
-          <div class="col text-monospace small"><%= value %></div>
-        </div>
-      </li>
+      <div class="labels-row">
+        <span class="labels-key text-monospace small"><span class="badge-pill badge-dlayer"><%= key %></span></span>
+        <span class="labels-value text-monospace small"><%= value %></span>
+      </div>
     <% end %>
-  </ul>
+  </div>
 
   <hr />
 <% end %>

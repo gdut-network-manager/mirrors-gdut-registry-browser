@@ -1,49 +1,52 @@
-<div class="row justify-content-center">
-  <div class="col-md-10">
-    <%= render "breadcrumb" %>
+<div style="max-width: 900px; margin: 0 auto;">
+  <%= render "breadcrumb" %>
 
-    <div class="card border-docker mb-5">
-      <%= content_tag :div, class: "card-header" do %>
-        <%= image_tag "icons/tag.png", size: "75x75", align: "right" %>
+  <div class="island">
+    <div class="island-header">
+      <%= image_tag "icons/tag.png", size: "75x75", align: "right", class: "island-icon" %>
 
-        <span class="text-muted small">Namespace</span>
-        <h5 class="card-title mb-1"><%= @repository.namespace %></h5>
-
-        <span class="text-muted small">Image / Tag</span>
-        <h5 class="card-title mb-1"><%= @repository.image %>:<%= @tag.name %></h5>
-
-        <span class="text-muted small">Content Digest</span>
-        <h5 class="card-title mb-1"><%= @tag.content_digest %></h5>
-
-        <% if Rails.configuration.x.public_registry_url %>
-          <span class="text-muted small">Pull command</span>
-          <%= render partial: "shared/copy_to_clipboard", locals: { name: :pull_cmd, value: pull_command(@repository.name, @tag.name) } %>
-        <% end %>
-      <% end %>
-
-      <div class="card-body">
-        <ul class="nav nav-tabs">
-          <% @tag.manifests.each do |manifest| %>
-            <li class="nav-item">
-              <a data-toggle="tab" class="nav-link <% if @tag.manifests.first == manifest %>active<% end %>" href="#<%= manifest.id %>">
-                <%= manifest.os %> / <%= manifest.architecture %>
-              </a>
-            </li>
-          <% end %>
-        </ul>
-
-        <div class="tab-content">
-          <% @tag.manifests.each do |manifest| %>
-            <div class="tab-pane container <% if @tag.manifests.first == manifest %>active<% end %>" id="<%= manifest.id %>">
-              <%= render manifest %>
-            </div>
-          <% end %>
-        </div>
+      <div class="island-header-group">
+        <span class="text-muted small">命名空间</span>
+        <h5 class="island-title"><%= @repository.namespace %></h5>
       </div>
+
+      <div class="island-header-group">
+        <span class="text-muted small">镜像 / 标签</span>
+        <h5 class="island-title"><%= @repository.image %>:<%= @tag.name %></h5>
+      </div>
+
+      <% if Rails.configuration.x.public_registry_url %>
+        <div class="island-header-group">
+          <span class="text-muted small">拉取命令</span>
+          <%= render partial: "shared/copy_to_clipboard", locals: { name: :pull_cmd, value: pull_command(@repository.name, @tag.name) } %>
+        </div>
+      <% end %>
     </div>
 
-    <% if Rails.configuration.x.delete_enabled %>
-      <%= render "delete" %>
-    <% end %>
+    <div class="island-body">
+      <div class="nav-tabs">
+        <% @tag.manifests.each do |manifest| %>
+          <a class="nav-tab <% if @tag.manifests.first == manifest %>active<% end %>" href="#<%= manifest.id %>" onclick="
+            document.querySelectorAll('.nav-tab').forEach(function(t) { t.classList.remove('active'); });
+            document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+            this.classList.add('active');
+            document.getElementById('<%= manifest.id %>').classList.add('active');
+            return false;
+          ">
+            <%= manifest.os %> / <%= manifest.architecture %>
+          </a>
+        <% end %>
+      </div>
+
+      <% @tag.manifests.each do |manifest| %>
+        <div class="tab-content <% if @tag.manifests.first == manifest %>active<% end %>" id="<%= manifest.id %>">
+          <%= render manifest %>
+        </div>
+      <% end %>
+    </div>
   </div>
+
+  <% if Rails.configuration.x.delete_enabled %>
+    <%= render "delete" %>
+  <% end %>
 </div>

@@ -10,9 +10,9 @@ class TagsController < ApplicationController
     reject_destroy unless Rails.configuration.x.delete_enabled
 
     if @tag.delete
-      redirect_with_flash :notice, "The tag #{@tag.name} has been deleted."
+      redirect_with_flash :notice, "标签 #{@tag.name} 已删除。"
     else
-      redirect_with_flash :error, "The tag #{@tag.name} could not be deleted."
+      redirect_with_flash :error, "标签 #{@tag.name} 删除失败。"
     end
   rescue Faraday::ClientError => e
     case e.response[:status]
@@ -38,6 +38,6 @@ class TagsController < ApplicationController
   end
 
   def reject_destroy
-    raise "Tag deletion feature is not enabled.\nPlease set `ENABLE_DELETE_IMAGES=true` to enable it."
+    raise "标签删除功能未启用。\n请设置 `ENABLE_DELETE_IMAGES=true` 以启用该功能。"
   end
 end

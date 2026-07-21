@@ -15,13 +15,23 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
   </head>
-  <body>
+  <body class="fade-in">
+    <script>
+      (function() {
+        var saved = localStorage.getItem('theme');
+        if (saved === 'dark' || saved === 'light') {
+          document.documentElement.classList.add(saved === 'dark' ? 'dark-theme' : 'light-manual');
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          document.documentElement.classList.add('dark-theme');
+        }
+      })();
+    </script>
     <%= render "header" %>
 
-    <div class="container">
+    <main class="container">
       <%= render "flash" %>
       <%= yield %>
-    </div>
+    </main>
 
     <%= render "footer" %>
   </body>

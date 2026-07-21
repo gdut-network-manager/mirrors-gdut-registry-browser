@@ -1,20 +1,16 @@
-<footer class="fixed-bottom bg-light border-top p-4">
-  <div class="container text-center text-dark-50 small">
-    <div class="d-flex justify-content-between">
-      <div>
-        <%= image_tag "icons/docker-footer.png", size: "16x16" %>
-        <a href="https://github.com/klausmeyer/docker-registry-browser" class="text-reset">Docker Registry Browser</a>
-        &middot;
-        Version <%= Rails.application.config.x.version %>
-      </div>
-      <div>
-        <%= image_tag "icons/ruby.png", size: "16x16" %>
-        Running on Ruby <%= RUBY_VERSION %> and Rails <%= Rails.version %> in <%= Rails.env %> mode
-      </div>
-      <div>
-        <%= image_tag "icons/icons8.png", size: "16x16" %>
-        Icons by <a href="https://icons8.com" class="text-reset">icons8.com</a>
-      </div>
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-links">
+      <%= link_to root_path do %>
+        <%= image_tag "icons/docker-footer.png", size: "16x16", style: "vertical-align: middle;" %>
+        容器镜像库
+      <% end %>
+      <a href="https://github.com/klausmeyer/docker-registry-browser">Docker Registry Browser v<%= Rails.application.config.x.version %></a>
+      <a href="https://mirrors.gdut.edu.cn">镜像站主页</a>
+      <a href="https://registry.gdut.edu.cn">Harbor</a>
+    </div>
+    <div class="footer-copyright">
+      &copy; 2026 广东工业大学学生网管队 | Powered by Island UI
     </div>
   </div>
 </footer>
