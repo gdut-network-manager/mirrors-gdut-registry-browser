@@ -1,8 +1,8 @@
 # Harbor Proxy Cache Browser Helm Chart
 
-A Helm chart for deploying the Harbor Proxy Cache Browser.
+用于部署 Harbor Proxy Cache Browser 的 Helm Chart。
 
-## Usage
+## 使用方法
 
 ```shell
 helm install harbor-browser ./helm \
@@ -10,9 +10,9 @@ helm install harbor-browser ./helm \
   --set environment.PUBLIC_REGISTRY_URL=https://registry.example.com
 ```
 
-## Configuration
+## 配置
 
-Store Harbor credentials in a Kubernetes Secret:
+将 Harbor 凭证存储在 Kubernetes Secret 中:
 
 ```shell
 kubectl create secret generic harbor-credentials \
@@ -20,7 +20,7 @@ kubectl create secret generic harbor-credentials \
   --from-literal=HARBOR_PASSWORD='your-robot-token'
 ```
 
-Reference it in `values.yaml`:
+在 `values.yaml` 中引用:
 
 ```yaml
 envFromSecrets:
@@ -33,4 +33,4 @@ environment:
   PAGE_SIZE: "20"
 ```
 
-See [values.yaml](values.yaml) for all available options.
+完整配置选项请参考 [values.yaml](values.yaml)。

@@ -1,13 +1,13 @@
-# Documentation
+# 文档
 
-## Design
+## 设计理念
 
-This application is a read-only web interface for browsing Harbor Proxy Cache projects. It connects to Harbor's native API (`/api/v2.0/`) using global Basic Auth with a robot account, and requires no database or local state.
+本应用是一个只读的 Web 界面,用于浏览 Harbor Proxy Cache 项目。它通过全局 Basic Auth(机器人账户)连接 Harbor 原生 API (`/api/v2.0/`),无需数据库或本地状态。
 
-### Architecture
+### 架构
 
 ```
-Browser ──HTTP──> Rails App ──Faraday──> Harbor API (/api/v2.0/)
+浏览器 ──HTTP──> Rails 应用 ──Faraday──> Harbor API (/api/v2.0/)
                                             │
                                             ├── GET /projects?with_detail=true
                                             ├── GET /projects/{name}/summary
@@ -18,44 +18,44 @@ Browser ──HTTP──> Rails App ──Faraday──> Harbor API (/api/v2.0/)
                                             └── GET /v2/{repo}/manifests/{tag} (OCI API)
 ```
 
-The app uses two Harbor API base paths:
-- `/api/v2.0/` — project listing, repository browsing, artifact details
-- `/v2/` — OCI manifest fetching (layers, environment variables, history)
+应用使用两个 Harbor API 基础路径:
+- `/api/v2.0/` — 项目列表、仓库浏览、制品详情
+- `/v2/` — OCI Manifest 获取(层信息、环境变量、构建历史)
 
-### Authentication
+### 认证机制
 
-Global Basic Auth is used on all Harbor API requests. No challenge-response or token flow — the `HARBOR_USERNAME` and `HARBOR_PASSWORD` environment variables are sent as HTTP Basic Auth headers on every request. This eliminates browser login popups.
+所有 Harbor API 请求均使用全局 Basic Auth。没有 challenge-response 或 token 流程 — `HARBOR_USERNAME` 和 `HARBOR_PASSWORD` 环境变量作为 HTTP Basic Auth 头发送到每个请求上。这消除了浏览器登录弹窗。
 
-A Harbor robot account with read-only access is recommended.
+建议使用具有只读权限的 Harbor 机器人账户。
 
-### Page Hierarchy
+### 页面层级
 
-| Route | Page | Description |
+| 路由 | 页面 | 说明 |
 |---|---|---|
-| `GET /` | Project list | Proxy cache projects with quota, repo count, storage usage |
-| `GET /project/:project_name` | Repository list | Repositories under the project |
-| `GET /project/:project_name/repo/*repo` | Tag list | Tags/artifacts in the repository, with description tab |
-| `GET /project/:project_name/repo/*repo/tag/:tag` | Tag detail | Pull commands, manifest, layers, env, history |
+| `GET /` | 项目列表 | Proxy Cache 项目,展示配额、仓库数量、空间使用量 |
+| `GET /project/:project_name` | 仓库列表 | 项目下的仓库 |
+| `GET /project/:project_name/repo/*repo` | 标签列表 | 仓库中的标签/制品,带描述信息 Tab |
+| `GET /project/:project_name/repo/*repo/tag/:tag` | 标签详情 | 拉取命令、Manifest、层信息、环境变量、构建历史 |
 
-### Pull Command Modes
+### 拉取命令模式
 
-Two modes are available with a toggle switch on the tag detail page:
+标签详情页提供两种模式,通过滑块开关切换:
 
-**Prefix mode** — Prepends the Harbor project name to the image path:
+**前缀模式** — 在镜像路径前添加 Harbor 项目名:
 
 ```
 docker pull registry.example.com/docker/library/nginx:latest
 ```
 
-**Mirror mode** — Replaces the domain with a per-project subdomain:
+**镜像模式** — 用项目对应的子域名替换域名:
 
 ```
 docker pull docker.registry.example.com/library/nginx:latest
 ```
 
-Mirror mode requires `DOMAIN_MIRROR_MAP` to be configured. Unmapped projects fall back to using the project name as the subdomain.
+镜像模式需要配置 `DOMAIN_MIRROR_MAP`。未映射的项目使用项目名作为子域名。
 
-## Installation
+## 安装
 
 ### Docker
 
@@ -97,7 +97,7 @@ helm install harbor-browser ./helm \
   --set environment.PUBLIC_REGISTRY_URL=https://registry.example.com
 ```
 
-Store Harbor credentials in a Kubernetes Secret:
+将 Harbor 凭证存储在 Kubernetes Secret 中:
 
 ```shell
 kubectl create secret generic harbor-credentials \
@@ -105,158 +105,158 @@ kubectl create secret generic harbor-credentials \
   --from-literal=HARBOR_PASSWORD='your-robot-token'
 ```
 
-Reference it in `values.yaml`:
+在 `values.yaml` 中引用:
 
 ```yaml
 envFromSecrets:
   - harbor-credentials
 ```
 
-### Manual Installation
+### 手动安装
 
-1. Install Ruby 3.4.1 (see `.ruby-version`)
-2. Install dependencies: `bundle install`
-3. Set environment variables (see below)
-4. Start the server: `bundle exec rails server`
+1. 安装 Ruby 3.4.1(参见 `.ruby-version`)
+2. 安装依赖: `bundle install`
+3. 设置环境变量(见下文)
+4. 启动服务器: `bundle exec rails server`
 
-## Configuration
+## 配置
 
-All configuration is via environment variables.
+所有配置均通过环境变量设置。
 
-### Harbor Connection
+### Harbor 连接
 
 #### `HARBOR_URL`
 
-The base URL of your Harbor instance. The app appends `/api/v2.0/` and `/v2/` paths to this URL.
+Harbor 实例的基础 URL。应用会在此 URL 后拼接 `/api/v2.0/` 和 `/v2/` 路径。
 
-Default: `http://localhost:8080`
+默认值: `http://localhost:8080`
 
 #### `HARBOR_USERNAME`
 
-Harbor robot account username. Required for API authentication.
+Harbor 机器人账户用户名。API 认证必填。
 
-Example: `robot$viewer`
+示例: `robot$viewer`
 
-Default: not set
+默认值: 未设置
 
 #### `HARBOR_PASSWORD`
 
-Harbor robot account password/token. Required for API authentication.
+Harbor 机器人账户密码/令牌。API 认证必填。
 
-Default: not set
+默认值: 未设置
 
-### Public Registry
+### 公开 Registry
 
 #### `PUBLIC_REGISTRY_URL`
 
-The public-facing URL of your registry, used to generate `docker pull` commands. Should contain only the domain (and port if non-standard).
+Registry 的公开 URL,用于生成 `docker pull` 命令。只应包含域名(如有非标准端口则包含端口)。
 
-Example: `https://registry.example.com`
+示例: `https://registry.example.com`
 
-Default: not set (pull commands section will be hidden)
+默认值: 未设置(拉取命令区域将隐藏)
 
 #### `DOMAIN_MIRROR_MAP`
 
-Comma-separated mapping of Harbor project names to subdomains, used by the "mirror mode" pull command.
+逗号分隔的 Harbor 项目名到子域名的映射,供"镜像模式"拉取命令使用。
 
-Format: `project_name:subdomain,project_name:subdomain`
+格式: `项目名:子域名,项目名:子域名`
 
-Example: `ghcr.io:ghcr,quay.io:quay,registry.k8s.io:k8s,mcr.microsoft.com:mcr,gcr.io:gcr,docker.elastic.co:elastic,nvcr.io:nvcr,registry.gitlab.com:gitlab`
+示例: `ghcr.io:ghcr,quay.io:quay,registry.k8s.io:k8s,mcr.microsoft.com:mcr,gcr.io:gcr,docker.elastic.co:elastic,nvcr.io:nvcr,registry.gitlab.com:gitlab`
 
-With `PUBLIC_REGISTRY_URL=https://registry.example.com`, a tag in project `ghcr.io` generates:
+当 `PUBLIC_REGISTRY_URL=https://registry.example.com` 时,`ghcr.io` 项目中的标签会生成:
 
 ```
 docker pull ghcr.registry.example.com/repository:tag
 ```
 
-Projects not in the map use the project name itself as the subdomain.
+未在映射中的项目使用项目名本身作为子域名。
 
-Default: not set (mirror mode toggle will not appear)
+默认值: 未设置(镜像模式开关不显示)
 
-### Pagination
+### 分页
 
 #### `PAGE_SIZE`
 
-Number of items per page in project and repository lists.
+项目列表和仓库列表每页的条目数。
 
-Default: `20`
+默认值: `20`
 
 ### SSL / TLS
 
 #### `NO_SSL_VERIFICATION`
 
-When set to `true`, `1`, or `yes`, the app skips SSL certificate verification when connecting to the Harbor API. Useful for self-signed certificates.
+设置为 `true`、`1` 或 `yes` 时,应用跳过 Harbor API 的 SSL 证书验证。适用于自签名证书。
 
-Default: `false`
+默认值: `false`
 
 #### `CA_FILE`
 
-Path to a custom CA certificate file for verifying Harbor API TLS connections.
+自定义 CA 证书文件路径,用于验证 Harbor API 的 TLS 连接。
 
-Default: not set
+默认值: 未设置
 
-### HTTP Server
+### HTTP 服务器
 
 #### `ADDRESS`
 
-IP address to bind the HTTP server.
+HTTP 服务器绑定的 IP 地址。
 
-Default: `0.0.0.0`
+默认值: `0.0.0.0`
 
 #### `PORT`
 
-Port for the HTTP server.
+HTTP 服务器端口。
 
-Default: `8080`
+默认值: `8080`
 
 #### `SECRET_KEY_BASE`
 
-Rails secret key used for encryption. Required in production. Generate with:
+Rails 加密密钥。生产环境必填。生成方式:
 
 ```
 openssl rand -hex 64
 ```
 
-Default: `changeme`
+默认值: `changeme`
 
 ### HTTPS / TLS
 
-SSL mode is enabled when both `SSL_CERT_PATH` and `SSL_KEY_PATH` are set. Consider using a reverse proxy (nginx, traefik) instead.
+当 `SSL_CERT_PATH` 和 `SSL_KEY_PATH` 均设置时启用 SSL 模式。建议使用反向代理(nginx、traefik)代替。
 
 #### `SSL_ADDRESS`
 
-IP address for the HTTPS server.
+HTTPS 服务器绑定的 IP 地址。
 
-Default: `0.0.0.0`
+默认值: `0.0.0.0`
 
 #### `SSL_PORT`
 
-Port for the HTTPS server.
+HTTPS 服务器端口。
 
-Default: `8443`
+默认值: `8443`
 
 #### `SSL_CERT_PATH`
 
-Path to the SSL certificate file.
+SSL 证书文件路径。
 
-Default: not set
+默认值: 未设置
 
 #### `SSL_KEY_PATH`
 
-Path to the SSL key file.
+SSL 密钥文件路径。
 
-Default: not set
+默认值: 未设置
 
-### Subfolder Deployment
+### 子目录部署
 
-To run the app in a subdirectory, set both:
+要在子目录中运行应用,同时设置以下两个变量:
 
 ```
 SCRIPT_NAME=/browser
 RAILS_RELATIVE_URL_ROOT=/browser
 ```
 
-Configure your reverse proxy to strip the prefix:
+配置反向代理去除前缀:
 
 ```nginx
 location /browser/ {
@@ -264,51 +264,51 @@ location /browser/ {
 }
 ```
 
-### Logging
+### 日志
 
 #### `REGISTRY_LOG_LEVEL`
 
-Log level for Harbor API request/response logging.
+Harbor API 请求/响应日志的日志级别。
 
-Default: `info`
+默认值: `info`
 
 #### `REGISTRY_LOG_HEADERS`
 
-When enabled, logs HTTP request headers to the Harbor API. Do not enable in production — Authorization headers contain sensitive data.
+启用后,记录发往 Harbor API 的 HTTP 请求头。请勿在生产环境启用 — Authorization 头包含敏感数据。
 
-Default: `false`
+默认值: `false`
 
-## Harbor Robot Account Setup
+## Harbor 机器人账户配置
 
-1. In Harbor UI, go to **Robot Accounts** under the target project or system settings
-2. Create a robot account with read-only permissions
-3. Use the generated username (e.g. `robot$viewer`) and secret token
+1. 在 Harbor 界面中,进入目标项目或系统设置下的 **Robot Accounts**
+2. 创建一个具有只读权限的机器人账户
+3. 使用生成的用户名(如 `robot$viewer`)和密钥令牌
 
-The robot account needs access to:
-- List projects
-- View project details and summaries
-- List repositories
-- View repository details
-- List artifacts
-- Pull manifests (OCI API)
+机器人账户需要以下权限:
+- 列出项目
+- 查看项目详情和摘要
+- 列出仓库
+- 查看仓库详情
+- 列出制品
+- 拉取 Manifest(OCI API)
 
-## Troubleshooting
+## 故障排除
 
-### Browser shows login popup
+### 浏览器弹出登录框
 
-This happens if `HARBOR_USERNAME` or `HARBOR_PASSWORD` is not set. The app uses global Basic Auth — both must be configured.
+如果 `HARBOR_USERNAME` 或 `HARBOR_PASSWORD` 未设置会出现此问题。应用使用全局 Basic Auth — 两者都必须配置。
 
-### 502 Bad Gateway on project pages
+### 项目页面返回 502 Bad Gateway
 
-The Harbor API may be slow or unreachable. Check:
-- `HARBOR_URL` is correct and reachable from the app container
-- `NO_SSL_VERIFICATION=true` if using self-signed certificates
-- Robot account credentials are valid
+Harbor API 可能响应缓慢或不可达。检查:
+- `HARBOR_URL` 正确且应用容器可访问
+- 如使用自签名证书,设置 `NO_SSL_VERIFICATION=true`
+- 机器人账户凭证有效
 
-### Pull commands not showing
+### 拉取命令不显示
 
-`PUBLIC_REGISTRY_URL` must be set. Without it, the pull command section is hidden.
+必须设置 `PUBLIC_REGISTRY_URL`。未设置时拉取命令区域隐藏。
 
-### Mirror mode not available
+### 镜像模式不可用
 
-`DOMAIN_MIRROR_MAP` must be configured. The toggle switch only appears when this variable is set.
+必须配置 `DOMAIN_MIRROR_MAP`。此变量未设置时滑块开关不显示。

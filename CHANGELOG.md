@@ -2,26 +2,26 @@
 
 # v2.0.0
 
-> **Breaking change**: This release completely refactors the application from a Docker Registry HTTP API V2 browser to a **Harbor Proxy Cache Browser**. All configuration, models, controllers, routes, and views have been rewritten.
+> **破坏性变更**: 本版本将应用从 Docker Registry HTTP API V2 浏览器完全重构为 **Harbor Proxy Cache 浏览器**。所有配置、模型、控制器、路由和视图均已重写。
 
-* Switch from Docker Registry API to Harbor native API (`/api/v2.0/`)
-* Global Basic Auth with Harbor robot account (no token flow, no browser login popups)
-* New page hierarchy: Projects → Repositories → Tags → Artifact Detail
-* Project list with quota progress bar, storage usage, repo count, creation date
-* Dual pull command modes with toggle switch (prefix mode + mirror mode via `DOMAIN_MIRROR_MAP`)
-* Repository description tab with Markdown rendering (Commonmarker)
-* Artifact type badges (IMAGE, CHART, WASM, SBOM, CNAI, etc.)
-* SVG icon system (Lucide style) replacing all PNG icons
-* Dark/Light theme toggle with system preference detection
-* Breadcrumb navigation with bordered pill style
-* Sticky footer (flexbox layout)
-* New environment variables: `HARBOR_URL`, `HARBOR_USERNAME`, `HARBOR_PASSWORD`, `PUBLIC_REGISTRY_URL`, `DOMAIN_MIRROR_MAP`, `PAGE_SIZE`
-* Removed: `DOCKER_REGISTRY_URL`, `BASIC_AUTH_USER`, `BASIC_AUTH_PASSWORD`, `TOKEN_AUTH_USER`, `TOKEN_AUTH_PASSWORD`, `SORT_TAGS_BY`, `SORT_TAGS_ORDER`, `ENABLE_COLLAPSE_NAMESPACES`, `ENABLE_DELETE_IMAGES`, `CATALOG_PAGE_SIZE`
-* Deleted models: `Resource`, `Current`, `ObtainAuthenticationToken`
-* Deleted views: sort links, delete tag modal, auth error pages
-* Helm chart: added `envFromSecrets` support for Harbor credentials
-* Update to Ruby 3.4.1 / Rails 8.1.3
-* Add `commonmarker` gem (replaces `version_sorter`)
+* 从 Docker Registry API 切换到 Harbor 原生 API (`/api/v2.0/`)
+* 全局 Basic Auth 认证(Harbor 机器人账户),无 token 流程,无浏览器登录弹窗
+* 新增页面层级:项目列表 → 仓库列表 → 标签列表 → 制品详情
+* 项目卡片展示配额进度条、存储使用量、仓库数量、创建时间
+* 双模式拉取命令带滑块开关(前缀模式 + 域名置换模式,通过 `DOMAIN_MIRROR_MAP` 配置)
+* 仓库描述信息 Tab,支持 Markdown 渲染(Commonmarker)
+* 制品类型徽章(IMAGE、CHART、WASM、SBOM、CNAI 等)
+* Lucide 风格 SVG 图标系统,替换所有 PNG 图标
+* 明暗主题切换,支持系统偏好自动检测
+* 面包屑导航(带边框圆角 + `|` 分隔符 + 标签名等距字体)
+* 底部栏自动贴底(flexbox 布局)
+* 新增环境变量: `HARBOR_URL`、`HARBOR_USERNAME`、`HARBOR_PASSWORD`、`PUBLIC_REGISTRY_URL`、`DOMAIN_MIRROR_MAP`、`PAGE_SIZE`
+* 移除环境变量: `DOCKER_REGISTRY_URL`、`BASIC_AUTH_USER`、`BASIC_AUTH_PASSWORD`、`TOKEN_AUTH_USER`、`TOKEN_AUTH_PASSWORD`、`SORT_TAGS_BY`、`SORT_TAGS_ORDER`、`ENABLE_COLLAPSE_NAMESPACES`、`ENABLE_DELETE_IMAGES`、`CATALOG_PAGE_SIZE`
+* 删除模型: `Resource`、`Current`、`ObtainAuthenticationToken`
+* 删除视图: 排序链接、删除标签弹窗、认证错误页
+* Helm chart: 新增 `envFromSecrets` 支持 Harbor 凭证管理
+* 升级至 Ruby 3.4.1 / Rails 8.1.3
+* 新增 `commonmarker` gem(替换 `version_sorter`)
 
 # v1.7.4
 
