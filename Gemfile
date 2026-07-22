@@ -1,4 +1,4 @@
-source "https://rubygems.org"
+source "https://mirrors.gdut.edu.cn/nexus/repository/rubygems/"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails"
 gem "rails", "~> 8.1.0"

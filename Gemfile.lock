@@ -1,5 +1,5 @@
 GEM
-  remote: https://rubygems.org/
+  remote: https://mirrors.gdut.edu.cn/nexus/repository/rubygems/
   specs:
     action_text-trix (2.1.19)
       railties
