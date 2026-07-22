@@ -82,7 +82,17 @@ tolerations: []
 
 affinity: {}
 
-environment: {}
+environment:
+  HARBOR_URL: "https://registry.gdut.edu.cn"
+  PUBLIC_REGISTRY_URL: "https://registry.gdut.edu.cn"
+  DOMAIN_MIRROR_MAP: "ghcr.io:ghcr,quay.io:quay,registry.k8s.io:k8s,mcr.microsoft.com:mcr,gcr.io:gcr,docker.elastic.co:elastic,nvcr.io:nvcr,registry.gitlab.com:gitlab"
+  PAGE_SIZE: "20"
+  # HARBOR_USERNAME and HARBOR_PASSWORD should be set via envFromSecrets, not here
+
+envFromSecrets: []
+  # Example: store HARBOR_USERNAME and HARBOR_PASSWORD in a Kubernetes Secret
+  # and reference it here:
+  # - harbor-credentials
 
 extraVolumeMounts: []
 ## Additional volumeMounts to the registry container.

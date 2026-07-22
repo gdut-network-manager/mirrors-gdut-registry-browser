@@ -1,0 +1,63 @@
+<div class="justify-content-center">
+  <div>
+    <% if @projects.any? %>
+      <div class="project-grid">
+        <% @projects.each do |project| %>
+          <div class="island mb-0 project-card">
+            <%= link_to project_path(project.name), class: "stretched-link" do %>
+              <%= render "shared/icon", name: "arrow-right", size: 0 %>
+            <% end %>
+            <%= content_tag :div, class: "island-header" do %>
+              <%= render "shared/icon", name: "server", size: 28, class: "island-icon" %>
+              <div class="island-header-group">
+                <span class="text-muted small">代理项目</span>
+                <h5 class="island-title mb-0"><%= project.name %></h5>
+              </div>
+              <% if project.upstream_registry %>
+                <div class="island-header-group" style="margin-left: auto;">
+                  <span class="badge badge-dtag"><%= project.upstream_registry.display_name %></span>
+                </div>
+              <% end %>
+            <% end %>
+            <div class="island-body">
+              <div class="project-stats">
+                <div class="project-stat-item">
+                  <%= render "shared/icon", name: "box", size: 16 %>
+                  <span><%= project.repo_count %> 个仓库</span>
+                </div>
+                <% if project.quota_hard && project.quota_hard > 0 %>
+                  <div class="project-stat-item">
+                    <%= render "shared/icon", name: "server", size: 16 %>
+                    <span><%= bytes_to_human(project.quota_used) %> / <%= bytes_to_human(project.quota_hard) %></span>
+                  </div>
+                <% end %>
+                <% if project.creation_time.present? %>
+                  <div class="project-stat-item">
+                    <%= render "shared/icon", name: "info", size: 16 %>
+                    <span><%= project.creation_time.to_date.strftime("%Y-%m-%d") %></span>
+                  </div>
+                <% end %>
+              </div>
+
+              <% if project.quota_hard && project.quota_hard > 0 %>
+                <div class="quota-bar-wrapper">
+                  <div class="quota-bar">
+                    <div class="quota-bar-fill quota-<%= project.quota_percentage >= 80 ? 'danger' : project.quota_percentage >= 50 ? 'warning' : 'normal' %>" style="width: <%= [project.quota_percentage, 100].min %>%"></div>
+                  </div>
+                  <span class="quota-percentage"><%= project.quota_percentage %>%</span>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="text-center mt-5">
+        <h1 class="cover-heading">暂无代理项目</h1>
+        <p class="lead">未找到任何 Harbor Proxy Cache 项目。</p>
+      </div>
+    <% end %>
+
+    <%= render "shared/pagination", total_pages: @projects.total_pages, current_page: @projects.page, path_helper: :root_path %>
+  </div>
+</div>

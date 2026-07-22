@@ -1,362 +1,314 @@
-
-
 # Documentation
 
-## Goals / Design
+## Design
 
-This application aims to be a easy to install and simple user interface for selfhosted docker registries.
+This application is a read-only web interface for browsing Harbor Proxy Cache projects. It connects to Harbor's native API (`/api/v2.0/`) using global Basic Auth with a robot account, and requires no database or local state.
 
-In contrast to other solutions it doesn't keep any state and therefore does not require an own database or tight integration into the registry backend and can be added on top of already existing registries.
+### Architecture
 
-This also brings some limitations as the API exposed by docker registries simply does not support things like advanced filtering or searching. Also there is no plan to integrate features like user management or audit features.
+```
+Browser ──HTTP──> Rails App ──Faraday──> Harbor API (/api/v2.0/)
+                                            │
+                                            ├── GET /projects?with_detail=true
+                                            ├── GET /projects/{name}/summary
+                                            ├── GET /quotas
+                                            ├── GET /projects/{name}/repositories
+                                            ├── GET /projects/{name}/repositories/{repo}
+                                            ├── GET /projects/{name}/repositories/{repo}/artifacts
+                                            └── GET /v2/{repo}/manifests/{tag} (OCI API)
+```
+
+The app uses two Harbor API base paths:
+- `/api/v2.0/` — project listing, repository browsing, artifact details
+- `/v2/` — OCI manifest fetching (layers, environment variables, history)
+
+### Authentication
+
+Global Basic Auth is used on all Harbor API requests. No challenge-response or token flow — the `HARBOR_USERNAME` and `HARBOR_PASSWORD` environment variables are sent as HTTP Basic Auth headers on every request. This eliminates browser login popups.
+
+A Harbor robot account with read-only access is recommended.
+
+### Page Hierarchy
+
+| Route | Page | Description |
+|---|---|---|
+| `GET /` | Project list | Proxy cache projects with quota, repo count, storage usage |
+| `GET /project/:project_name` | Repository list | Repositories under the project |
+| `GET /project/:project_name/repo/*repo` | Tag list | Tags/artifacts in the repository, with description tab |
+| `GET /project/:project_name/repo/*repo/tag/:tag` | Tag detail | Pull commands, manifest, layers, env, history |
+
+### Pull Command Modes
+
+Two modes are available with a toggle switch on the tag detail page:
+
+**Prefix mode** — Prepends the Harbor project name to the image path:
+
+```
+docker pull registry.example.com/docker/library/nginx:latest
+```
+
+**Mirror mode** — Replaces the domain with a per-project subdomain:
+
+```
+docker pull docker.registry.example.com/library/nginx:latest
+```
+
+Mirror mode requires `DOMAIN_MIRROR_MAP` to be configured. Unmapped projects fall back to using the project name as the subdomain.
 
 ## Installation
 
-The recommended way of installing this application is by using the [official docker-image](https://hub.docker.com/r/klausmeyer/docker-registry-browser/):
+### Docker
 
 ```shell
-$ docker run --name registry-browser -p 8080:8080 klausmeyer/docker-registry-browser
+docker run --name harbor-browser -p 8080:8080 \
+  -e SECRET_KEY_BASE=$(openssl rand -hex 64) \
+  -e HARBOR_URL=https://your-harbor.example.com \
+  -e HARBOR_USERNAME=robot\$viewer \
+  -e HARBOR_PASSWORD=your-robot-token \
+  -e PUBLIC_REGISTRY_URL=https://registry.example.com \
+  registry.example.com/docker-registry-browser:2.0.0
 ```
 
-It is also possible to manually install the application. For this you'll need to manually install the required ruby version (see `.ruby-version` file) and setup the dependencies via [bundler](https://bundler.io).
+### Docker Compose
+
+```yaml
+version: "3"
+
+services:
+  frontend:
+    build: .
+    environment:
+      - "SECRET_KEY_BASE=changeme"
+      - "HARBOR_URL=https://registry.example.com"
+      - "HARBOR_USERNAME=robot$view-registry"
+      - "HARBOR_PASSWORD=your-robot-token"
+      - "PUBLIC_REGISTRY_URL=https://registry.example.com"
+      - "DOMAIN_MIRROR_MAP=ghcr.io:ghcr,quay.io:quay,registry.k8s.io:k8s"
+      - "NO_SSL_VERIFICATION=true"
+    ports:
+      - "8080:8080"
+```
+
+### Kubernetes (Helm)
+
+```shell
+helm install harbor-browser ./helm \
+  --set environment.HARBOR_URL=https://registry.example.com \
+  --set environment.PUBLIC_REGISTRY_URL=https://registry.example.com
+```
+
+Store Harbor credentials in a Kubernetes Secret:
+
+```shell
+kubectl create secret generic harbor-credentials \
+  --from-literal=HARBOR_USERNAME='robot$viewer' \
+  --from-literal=HARBOR_PASSWORD='your-robot-token'
+```
+
+Reference it in `values.yaml`:
+
+```yaml
+envFromSecrets:
+  - harbor-credentials
+```
+
+### Manual Installation
+
+1. Install Ruby 3.4.1 (see `.ruby-version`)
+2. Install dependencies: `bundle install`
+3. Set environment variables (see below)
+4. Start the server: `bundle exec rails server`
 
 ## Configuration
 
-The following configuration options are supported by the application and can be set as environment variables.
+All configuration is via environment variables.
 
-### Basic Application Settings
+### Harbor Connection
 
-### HTTP
+#### `HARBOR_URL`
 
-#### `ADDRESS`
+The base URL of your Harbor instance. The app appends `/api/v2.0/` and `/v2/` paths to this URL.
 
-This option allows to define on which ip-address / interfaces the application should listen on.
+Default: `http://localhost:8080`
 
-Default: `0.0.0.0` (all interfaces)
+#### `HARBOR_USERNAME`
 
-#### `PORT`
+Harbor robot account username. Required for API authentication.
 
-This options allows to define on which port the application should listen on.
+Example: `robot$viewer`
 
-Default: `8080`
+Default: not set
 
-#### `RAILS_RELATIVE_URL_ROOT` / `SCRIPT_NAME`
+#### `HARBOR_PASSWORD`
 
-This options allow to run the application in a subfolder.
+Harbor robot account password/token. Required for API authentication.
 
-Please have a look at the examples about details.
+Default: not set
 
-Default: Not used
+### Public Registry
 
-#### `SECRET_KEY_BASE`
+#### `PUBLIC_REGISTRY_URL`
 
-This option must be set to a unique & random value as it is used for different encryption related functionality by the used framework.
+The public-facing URL of your registry, used to generate `docker pull` commands. Should contain only the domain (and port if non-standard).
 
-A value can be generated with the following command:
+Example: `https://registry.example.com`
+
+Default: not set (pull commands section will be hidden)
+
+#### `DOMAIN_MIRROR_MAP`
+
+Comma-separated mapping of Harbor project names to subdomains, used by the "mirror mode" pull command.
+
+Format: `project_name:subdomain,project_name:subdomain`
+
+Example: `ghcr.io:ghcr,quay.io:quay,registry.k8s.io:k8s,mcr.microsoft.com:mcr,gcr.io:gcr,docker.elastic.co:elastic,nvcr.io:nvcr,registry.gitlab.com:gitlab`
+
+With `PUBLIC_REGISTRY_URL=https://registry.example.com`, a tag in project `ghcr.io` generates:
 
 ```
-openssl rand -hex 64
+docker pull ghcr.registry.example.com/repository:tag
 ```
 
-The application will check the option from version `>= 1.7.0` and refuse to startup when no proper value has been set.
+Projects not in the map use the project name itself as the subdomain.
 
-### HTTPS & TLS/SSL
+Default: not set (mirror mode toggle will not appear)
 
-It is possible to use the built-in application server for the handling of encrypted HTTP requests.
+### Pagination
 
-But please note that this is not the recommended way. Consider using a reverse proxy like [nginx][nginx] or [traefik][traefik].
+#### `PAGE_SIZE`
 
-SSL mode is enabled when both certificate and key path variables are defined.
+Number of items per page in project and repository lists.
 
-#### `SSL_ADDRESS`
+Default: `20`
 
-This options allows to define on which ip-address / interfaces the application should listen on.
-
-Default: `0.0.0.0` (all interfaces)
-
-#### `SSL_PORT`
-
-This option allows to define on which port the application should listen on.
-
-Default: `8443`
-
-#### `SSL_CERT_PATH`
-
-This option defines where the application will load it's SSL certificate from.
-
-Default: Not used
-
-#### `SSL_KEY_PATH`
-
-This option defines where the application will load it's SSL key from.
-
-Default: Not used
-
-### Features / User Interface
-
-#### `ENABLE_COLLAPSE_NAMESPACES`
-
-This option will enable collapsed namespaces on repository list.
-
-Default: `false`
-
-#### `ENABLE_DELETE_IMAGES`
-
-This option will enable the delete button for image-tags.
-
-Please note that this button will only work when the delete feature is also enabled in the actual docker registry.
-
-See https://docs.docker.com/registry/configuration/#delete for details.
-
-Default: `false`
-
-#### `SORT_TAGS_BY`
-
-This option allows to define the default sort criteria for the tags list.
-
-It is used whenever the user has no custom selection (cookie).
-
-Possible values:
-
-* `api`: Keep the sort as provided by the registry API
-* `name`: Sort the tags in alphabetical order
-* `version`: Sort the tags by interpreting them as version numbers
-
-Default: `name`
-
-#### `SORT_TAGS_ORDER`
-
-This option allows to define the default sort order for the tags list.
-
-It is used whenever the user has no custom selection (cookie).
-
-Possible values:
-
-* `asc`: Normal sort order
-* `desc`: Inverse sort order
-
-Default: `desc`
-
-#### `CATALOG_PAGE_SIZE`
-
-This option allows limiting how many images will be listed by page.
-
-Default: `100`
-
-### Connection to the Registry
-
-#### `DOCKER_REGISTRY_URL`
-
-This option defines how the application will connect to the docker-registry API.
-
-Default: `http://localhost:5000`
+### SSL / TLS
 
 #### `NO_SSL_VERIFICATION`
 
-This option defines if the application will skip validation for SSL certificates used by the docker-registry API.
+When set to `true`, `1`, or `yes`, the app skips SSL certificate verification when connecting to the Harbor API. Useful for self-signed certificates.
 
 Default: `false`
 
 #### `CA_FILE`
 
-This option allows to define a custom CA file which the application will use to check certificates used by the docker-registry API.
+Path to a custom CA certificate file for verifying Harbor API TLS connections.
 
-Default: Not used
+Default: not set
 
-#### `PUBLIC_REGISTRY_URL`
+### HTTP Server
 
-This option allows to set a public version of the docker registry URL and will be used to show custom `docker pull` commands.
+#### `ADDRESS`
 
-Please note that this value should only contain the domain and port part of the URL. Example: `registry.example.com:5000`.
+IP address to bind the HTTP server.
 
-Default: Not used
+Default: `0.0.0.0`
 
-#### Logging
+#### `PORT`
 
-See [Registry Request Logging](#registry-request-logging)
+Port for the HTTP server.
 
-### Authentication
+Default: `8080`
 
-The application automatically detects if the docker-registry API requires authentication and forwards that request to the web-browser. As an alternative it's also possible to configure static values to be used in the authentication to allow access with the permissions of an specific user.
+#### `SECRET_KEY_BASE`
 
-The token based authentication has been tested with the official docker [registry](https://docs.docker.com/registry/spec/auth/token/), [cesanta/docker_auth](https://github.com/cesanta/docker_auth) and [Keycloak](https://www.keycloak.org/)
+Rails secret key used for encryption. Required in production. Generate with:
 
-#### `BASIC_AUTH_USER`
-
-This options allows to define the username used for HTTP basic authentication against the docker-registry API.
-
-Default: Not used
-
-#### `BASIC_AUTH_PASSWORD`
-
-This options allows to define the password used for HTTP basic authentication against the docker-registry API.
-
-Default: Not used
-
-#### `TOKEN_AUTH_USER`
-
-This options allows to define the username used for token based authentication against the docker-registry API.
-
-Default: Not used
-
-#### `TOKEN_AUTH_PASSWORD`
-
-This options allows to define the password used for token based authentication against the docker-registry API.
-
-Default: Not used
-
-# Troubleshooting
-
-A few common issues and how to solve them:
-
-### Can't delete image tags
-
-Please make sure that you hvae enabled the image deletion in your docker-registry [configuration](https://docs.docker.com/registry/configuration/#delete) and that your reverse-proxy setup sets the `X-Forwarded-Proto` header in case it's stripping the SSL/TLS connection down to plain HTTP when talking to the application.
-
-# Examples
-
-Following a few examples showing different usecases and their setup.
-
-## Subfolder
-
-In case you want to have both the docker-registry API and the docker-registry-browser exposed on the same host it is possible to tell the application to run in a sub-directory. Just set the `SCRIPT_NAME` and `RAILS_RELATIVE_URL_ROOT` variables like the following:
-
-```yaml
-registry-browser:
-  image: "klausmeyer/docker-registry-browser"
-  ports:
-    - "8080:8080"
-  environment:
-    SCRIPT_NAME: "/browser"
-    RAILS_RELATIVE_URL_ROOT: "/browser"
+```
+openssl rand -hex 64
 ```
 
-In your reverse proxy it's important to make sure the proxied request doesn't contain the name of the subfolder.
+Default: `changeme`
 
-### Example: Nginx (Standalone)
+### HTTPS / TLS
 
-Make sure to add a `/` at the end of the URL used in the `proxy_pass` directive.
+SSL mode is enabled when both `SSL_CERT_PATH` and `SSL_KEY_PATH` are set. Consider using a reverse proxy (nginx, traefik) instead.
+
+#### `SSL_ADDRESS`
+
+IP address for the HTTPS server.
+
+Default: `0.0.0.0`
+
+#### `SSL_PORT`
+
+Port for the HTTPS server.
+
+Default: `8443`
+
+#### `SSL_CERT_PATH`
+
+Path to the SSL certificate file.
+
+Default: not set
+
+#### `SSL_KEY_PATH`
+
+Path to the SSL key file.
+
+Default: not set
+
+### Subfolder Deployment
+
+To run the app in a subdirectory, set both:
+
+```
+SCRIPT_NAME=/browser
+RAILS_RELATIVE_URL_ROOT=/browser
+```
+
+Configure your reverse proxy to strip the prefix:
 
 ```nginx
-server {
-  listen 8000;
-  server_name 127.0.0.1;
-
-  root /usr/local/var/www;
-
-  location /browser/ {
-    proxy_pass http://127.0.0.1:8080/; # Important: Don't remove the `/` at the end.
-  }
-
-  location /v2/ {
-    proxy_pass http://127.0.0.1:5000;
-  }
+location /browser/ {
+    proxy_pass http://127.0.0.1:8080/;
 }
 ```
 
-### Example: Nginx Ingress Controller (k8s):
+### Logging
 
-Add a `rewrite-target` to avoid the path being proxied to the application.
+#### `REGISTRY_LOG_LEVEL`
 
-```yaml
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
-  name: docker-registry-browser
-  namespace: docker-registry
-spec:
-  rules:
-  - host: registry.example.com
-    http:
-      paths:
-      - pathType: Prefix
-        path: /browser/(.*)
-        backend:
-          service:
-            name: docker-registry-browser
-            port:
-              number: 8080
-```
+Log level for Harbor API request/response logging.
 
-### Example: Traefik
+Default: `info`
 
-Use a custom middleware to avoid proxying the path to the application.
+#### `REGISTRY_LOG_HEADERS`
 
-```yaml
-labels:
-  - 'traefik.http.middlewares.browser-stripprefix.stripprefix.prefixes=/browser'
-  - 'traefik.http.routers.browser.rule=PathPrefix(`/browser`)'
-  - 'traefik.http.routers.browser.middlewares=browser-stripprefix@browser'
-```
+When enabled, logs HTTP request headers to the Harbor API. Do not enable in production — Authorization headers contain sensitive data.
 
-## Token Authentication
+Default: `false`
 
-The following example was used to test the token based authentication feature.
+## Harbor Robot Account Setup
 
-Replace `192.168.178.125` with your actual ip-address.
+1. In Harbor UI, go to **Robot Accounts** under the target project or system settings
+2. Create a robot account with read-only permissions
+3. Use the generated username (e.g. `robot$viewer`) and secret token
 
-```yaml
-version: '3'
+The robot account needs access to:
+- List projects
+- View project details and summaries
+- List repositories
+- View repository details
+- List artifacts
+- Pull manifests (OCI API)
 
-services:
+## Troubleshooting
 
-  auth:
-    image: cesanta/docker_auth:1
-    command: --v=2 --alsologtostderr /auth.yaml
-    volumes:
-      - './files/auth.yaml:/auth.yaml:ro'
-      - './files/server.pem:/server.pem:ro'
-      - './files/server.key:/server.key:ro'
-    ports:
-      - '5001:5001'
+### Browser shows login popup
 
-  registry:
-    image: registry:2
-    environment:
-      - 'REGISTRY_AUTH_TOKEN_REALM=https://192.168.178.125:5001/auth'
-      - 'REGISTRY_AUTH_TOKEN_SERVICE=Docker registry'
-      - 'REGISTRY_AUTH_TOKEN_ISSUER=www.example.com'
-      - 'REGISTRY_AUTH_TOKEN_ROOTCERTBUNDLE=/server.pem'
-      - 'REGISTRY_HTTP_TLS_CERTIFICATE=/server.pem'
-      - 'REGISTRY_HTTP_TLS_KEY=/server.key'
-    volumes:
-      - './files/server.pem:/server.pem:ro'
-      - './files/server.key:/server.key:ro'
-    ports:
-      - '5000:5000'
+This happens if `HARBOR_USERNAME` or `HARBOR_PASSWORD` is not set. The app uses global Basic Auth — both must be configured.
 
-  frontend:
-    image: klausmeyer/docker-registry-browser:latest
-    environment:
-      - 'DOCKER_REGISTRY_URL=https://registry:5000'
-      - 'NO_SSL_VERIFICATION=true'
-      - 'TOKEN_AUTH_USER=admin'
-      - 'TOKEN_AUTH_PASSWORD=badmin'
-      - 'SSL_CERT_PATH=/server.pem'
-      - 'SSL_KEY_PATH=/server.key'
-    volumes:
-      - './files/server.pem:/server.pem:ro'
-      - './files/server.key:/server.key:ro'
-    ports:
-      - '8443:8443'
-```
+### 502 Bad Gateway on project pages
 
-[nginx]: https://www.nginx.com
-[traefik]: https://traefik.io/traefik/
+The Harbor API may be slow or unreachable. Check:
+- `HARBOR_URL` is correct and reachable from the app container
+- `NO_SSL_VERIFICATION=true` if using self-signed certificates
+- Robot account credentials are valid
 
-## Logging
+### Pull commands not showing
 
-### Registry Request Logging
+`PUBLIC_REGISTRY_URL` must be set. Without it, the pull command section is hidden.
 
-By default, basic information about requests to the registry, such as HTTP method and url, are
-logged at the `:info` level.
+### Mirror mode not available
 
-For debugging, you can change two aspects via environment variables:
-
-* `REGISTRY_LOG_LEVEL` - set the log level used to write registry request (and response) events
-* `REGISTRY_LOG_HEADERS` - boolean - enables logging request headers
-
-Due to sensitive data being present in Authorization headers, do not enable header logging in production.
+`DOMAIN_MIRROR_MAP` must be configured. The toggle switch only appears when this variable is set.

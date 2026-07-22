@@ -2,12 +2,18 @@
   <div class="footer-content">
     <div class="footer-links">
       <%= link_to root_path do %>
-        <%= image_tag "icons/docker-footer.png", size: "16x16", style: "vertical-align: middle;" %>
+        <%= render "shared/icon", name: "box", size: 16 %>
         容器镜像库
       <% end %>
       <a href="https://github.com/klausmeyer/docker-registry-browser">Docker Registry Browser v<%= Rails.application.config.x.version %></a>
-      <a href="https://mirrors.gdut.edu.cn">镜像站主页</a>
-      <a href="https://registry.gdut.edu.cn">Harbor</a>
+      <%= link_to "https://mirrors.gdut.edu.cn" do %>
+        <%= render "shared/icon", name: "external", size: 16 %>
+        镜像站主页
+      <% end %>
+      <%= link_to "https://registry.gdut.edu.cn" do %>
+        <%= render "shared/icon", name: "external", size: 16 %>
+        Harbor
+      <% end %>
     </div>
     <div class="footer-copyright">
       &copy; 2026 广东工业大学学生网管队 | Powered by Island UI

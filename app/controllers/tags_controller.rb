@@ -1,43 +1,14 @@
-require "ostruct"
-
 class TagsController < ApplicationController
   before_action :find_tag
 
   def show
   end
 
-  def destroy
-    reject_destroy unless Rails.configuration.x.delete_enabled
-
-    if @tag.delete
-      redirect_with_flash :notice, "标签 #{@tag.name} 已删除。"
-    else
-      redirect_with_flash :error, "标签 #{@tag.name} 删除失败。"
-    end
-  rescue Faraday::ClientError => e
-    case e.response[:status]
-    when 401
-      client_error(e)
-      retry
-    when 405
-      render :destroy_blocked
-    else
-      raise
-    end
-  end
-
   private
 
   def find_tag
-    @repository = Repository.find params[:repo]
-    @tag        = Tag.find(repository: @repository, name: params[:tag])
-  end
-
-  def redirect_with_flash(type, message)
-    redirect_to repository_path(@repository.name), flash: { type => message }
-  end
-
-  def reject_destroy
-    raise "标签删除功能未启用。\n请设置 `ENABLE_DELETE_IMAGES=true` 以启用该功能。"
+    @project = Project.find(params[:project_name])
+    @repository = Repository.find(project_name: params[:project_name], name: params[:repo])
+    @tag = Tag.find(project_name: params[:project_name], repository_name: params[:repo], name: params[:tag])
   end
 end

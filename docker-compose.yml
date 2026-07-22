@@ -6,15 +6,11 @@ services:
     build: .
     environment:
       - "SECRET_KEY_BASE=0c11bc7a755901fcbb5ba0ef5e6ede0911452e9c944d4ab0d8eb3ee1cf8ff7dd4f8fee82615415f5dc665763c6b18b3b8aee6655f44388bc27b27624f218bf86"
-      - "DOCKER_REGISTRY_URL=http://backend:5000"
-      - "ENABLE_DELETE_IMAGES=true"
-      - "PUBLIC_REGISTRY_URL=localhost:5000"
+      - "HARBOR_URL=https://registry.gdut.edu.cn"
+      - "HARBOR_USERNAME=robot$view-registry"
+      - "HARBOR_PASSWORD=changeme"
+      - "PUBLIC_REGISTRY_URL=https://registry.gdut.edu.cn"
+      - "DOMAIN_MIRROR_MAP=ghcr.io:ghcr,quay.io:quay,registry.k8s.io:k8s,mcr.microsoft.com:mcr,gcr.io:gcr,docker.elastic.co:elastic,nvcr.io:nvcr,registry.gitlab.com:gitlab"
+      - "NO_SSL_VERIFICATION=true"
     ports:
       - "8080:8080"
-
-  backend:
-    image: registry:2
-    environment:
-      - "REGISTRY_STORAGE_DELETE_ENABLED=true"
-    ports:
-      - "5000:5000"

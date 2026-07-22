@@ -1,46 +1,41 @@
 <div class="justify-content-center">
   <div class="col-md-6">
-    <% if @repositories.any? %>
-      <% @namespaces.each do |namespace, repos| %>
-        <%- namespace_key = namespace.gsub("/", "-slash-") %>
-        <div class="island mb-5">
-          <%= content_tag :div, class: "island-header", id: "namespace-#{namespace_key}" do %>
-            <%= image_tag "icons/namespace.png", size: "50x50", align: "right", class: "island-icon" %>
+    <%= render "breadcrumb" %>
 
-            <span class="text-muted small">命名空间</span>
-            <h5 class="island-title mb-0"><%= namespace.presence || "/" %></h5>
-          <% end %>
-          <div>
-          <%= content_tag :div, class: {collapse: configs.collapse_namespaces}, id: "namespace-#{namespace_key}-repos" do %>
-            <div class="list-group list-group-flush">
-              <% repos.each do |repo| %>
-                <%= link_to repository_path(repo.name), class: "list-group-item list-group-item-action d-flex align-items-center" do %>
-                  <div class="flex-grow-1">
-                    <span class="badge badge-dimage text-uppercase mr-1">IMG</span>
-                    <span class="text-monospace small text-truncate"><%= repo.image %></span>
-                  </div>
-                  <%= image_tag "icons/arrow.png", size: "16x16" %>
-                <% end %>
+    <div class="island mb-5">
+      <%= content_tag :div, class: "island-header" do %>
+        <%= render "shared/icon", name: "server", size: 28, class: "island-icon" %>
+        <div class="island-header-group">
+          <span class="text-muted small">代理项目</span>
+          <h5 class="island-title mb-0"><%= @project.name %></h5>
+        </div>
+        <% if @project.upstream_registry %>
+          <div class="island-header-group" style="margin-left: auto;">
+            <span class="badge badge-dtag"><%= @project.upstream_registry.display_name %></span>
+          </div>
+        <% end %>
+      <% end %>
+
+      <% if @repositories.any? %>
+        <div class="island-body">
+          <div class="list-group list-group-flush">
+            <% @repositories.each do |repo| %>
+              <%= link_to repository_path(@project.name, repo.relative_name), class: "list-group-item list-group-item-action d-flex align-items-center" do %>
+                <div class="flex-grow-1">
+                  <span class="badge badge-dimage text-uppercase mr-1">IMG</span>
+                  <span class="text-monospace small text-truncate"><%= repo.relative_name %></span>
+                </div>
+                <span class="badge badge-dtag mr-2"><%= repo.artifact_count %> 镜像</span>
+                <%= render "shared/icon", name: "arrow-right", size: 16 %>
               <% end %>
-            </div>
-          <% end %>
-          <%= content_tag :button, class: "collapsed btn btn-default w-100", data: { collapse_target: "#namespace-#{namespace_key}-repos" } do %>
-            <span class="if-collapsed">&#8964;</span>
-            <span class="if-not-collapsed">&#8963;</span>
-          <% end if configs.collapse_namespaces %>
+            <% end %>
           </div>
         </div>
+      <% else %>
+        <%= render "blank" %>
       <% end %>
-    <% else %>
-      <%= render "blank" %>
-    <% end %>
+    </div>
 
-    <% if @repositories.more? %>
-      <div class="text-center">
-        <%= link_to root_path(last: @repositories.last.name), class: "btn btn-docker px-4" do %>
-          加载更多…
-        <% end %>
-      </div>
-    <% end %>
+    <%= render "shared/pagination", total_pages: @repositories.total_pages, current_page: @repositories.page, path_helper: :project_path, path_args: { project_name: @project.name } %>
   </div>
 </div>

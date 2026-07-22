@@ -1,41 +1,112 @@
-# Docker Registry Browser
+# Harbor Proxy Cache Browser
 
-Web Interface for the [Docker Registry HTTP API V2](https://docs.docker.com/registry/spec/api/) written in Ruby on Rails.
+Web Interface for [Harbor](https://goharbor.io/) Proxy Cache projects, written in Ruby on Rails.
+
+Forked from [klausmeyer/docker-registry-browser](https://github.com/klausmeyer/docker-registry-browser), adapted for Harbor's native API (`/api/v2.0/`) with global Basic Auth.
+
+## Features
+
+- Browse Harbor Proxy Cache projects with quota & storage usage
+- Navigate repositories and tags under each project
+- View artifact details: manifest, layers, environment variables, history
+- Two pull command modes with toggle switch:
+  - Prefix mode: `docker pull registry.example.com/docker/library/nginx:latest`
+  - Mirror mode: `docker pull docker.registry.example.com/library/nginx:latest`
+- Repository description tab with Markdown rendering
+- Artifact type badges (IMAGE, CHART, WASM, SBOM, CNAI, etc.)
+- Dark/Light theme toggle with system preference detection
+- SVG icons (Lucide style), responsive layout
+- Pagination, breadcrumb navigation, sticky footer
 
 ## Screenshots
 
-Repositories overview
+### Project List (Homepage)
 
-[![Screenshot 1](https://github.com/klausmeyer/docker-registry-browser/raw/master/docs/screenshot1_thumb.png "Screenshot 1")](https://github.com/klausmeyer/docker-registry-browser/raw/master/docs/screenshot1.png)
+Dual-column grid with quota progress bar, repo count, storage usage, and creation date per project.
 
-Tag overview
+### Repository List
 
-[![Screenshot 2](https://github.com/klausmeyer/docker-registry-browser/raw/master/docs/screenshot2_thumb.png "Screenshot 2")](https://github.com/klausmeyer/docker-registry-browser/raw/master/docs/screenshot2.png)
+Tag list with artifact type badges, filter input, and description tab.
 
-Tag details
+### Tag Detail
 
-[![Screenshot 3](https://github.com/klausmeyer/docker-registry-browser/raw/master/docs/screenshot3_thumb.png "Screenshot 3")](https://github.com/klausmeyer/docker-registry-browser/raw/master/docs/screenshot3.png)
+Pull command with dual-mode toggle, multi-arch manifest tabs, layers/env/history sections.
 
-Delete tag
-
-[![Screenshot 4](https://github.com/klausmeyer/docker-registry-browser/raw/master/docs/screenshot4_thumb.png "Screenshot 4")](https://github.com/klausmeyer/docker-registry-browser/raw/master/docs/screenshot4.png)
-
-## Usage
-
-Please have a look at the [Documentation](https://github.com/klausmeyer/docker-registry-browser/blob/master/docs/README.md) for more details and available configuration options.
+## Quick Start
 
 ### Docker
 
 ```shell
-$ docker run --name registry-browser -e SECRET_KEY_BASE=changeme -p 8080:8080 klausmeyer/docker-registry-browser
+docker run --name harbor-browser -p 8080:8080 \
+  -e SECRET_KEY_BASE=$(openssl rand -hex 64) \
+  -e HARBOR_URL=https://your-harbor.example.com \
+  -e HARBOR_USERNAME=robot\$viewer \
+  -e HARBOR_PASSWORD=your-robot-token \
+  -e PUBLIC_REGISTRY_URL=https://registry.example.com \
+  registry.example.com/docker-registry-browser:2.0.0
 ```
 
-Note: The value for `SECRET_KEY_BASE` can be generated via `openssl rand -hex 64`
+### Docker Compose
+
+```yaml
+version: "3"
+
+services:
+  frontend:
+    build: .
+    environment:
+      - "SECRET_KEY_BASE=changeme"
+      - "HARBOR_URL=https://registry.example.com"
+      - "HARBOR_USERNAME=robot$view-registry"
+      - "HARBOR_PASSWORD=your-robot-token"
+      - "PUBLIC_REGISTRY_URL=https://registry.example.com"
+      - "DOMAIN_MIRROR_MAP=ghcr.io:ghcr,quay.io:quay,registry.k8s.io:k8s"
+      - "NO_SSL_VERIFICATION=true"
+    ports:
+      - "8080:8080"
+```
 
 ### Kubernetes (Helm)
 
-A helm-chart is available at [klausmeyer/helm-charts](https://github.com/klausmeyer/helm-charts/tree/master/charts/docker-registry-browser).
+```shell
+helm install harbor-browser ./helm \
+  --set environment.HARBOR_URL=https://registry.example.com \
+  --set environment.PUBLIC_REGISTRY_URL=https://registry.example.com
+```
 
-## Licence
+Harbor credentials should be stored in a Kubernetes Secret and referenced via `envFromSecrets`:
 
-The application is available as open source under the terms of the MIT License.
+```yaml
+envFromSecrets:
+  - harbor-credentials
+```
+
+## Configuration
+
+See [docs/README.md](docs/README.md) for the full configuration reference.
+
+### Key Environment Variables
+
+| Variable | Description | Default |
+|---|---|---|
+| `HARBOR_URL` | Harbor API base URL | `http://localhost:8080` |
+| `HARBOR_USERNAME` | Harbor robot account username (required) | - |
+| `HARBOR_PASSWORD` | Harbor robot account password (required) | - |
+| `PUBLIC_REGISTRY_URL` | Public URL for `docker pull` commands | - |
+| `DOMAIN_MIRROR_MAP` | Project name to subdomain mapping for mirror mode | - |
+| `PAGE_SIZE` | Items per page | `20` |
+| `NO_SSL_VERIFICATION` | Skip SSL certificate verification | `false` |
+| `SECRET_KEY_BASE` | Rails secret key (required in production) | `changeme` |
+
+## Tech Stack
+
+- Ruby 3.4.1 / Rails 8.1.3
+- Faraday (HTTP client for Harbor API)
+- Commonmarker (Markdown rendering)
+- Importmap + jQuery (frontend assets)
+- Puma (application server)
+- Alpine-based Docker image
+
+## License
+
+Available as open source under the terms of the [MIT License](LICENSE).

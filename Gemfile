@@ -1,4 +1,4 @@
-source "https://mirrors.gdut.edu.cn/nexus/repository/rubygems/"
+source "https://mirrors.gdut.edu.cn/rubygems/"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails"
 gem "rails", "~> 8.1.0"
@@ -65,7 +65,7 @@ end
 gem "faraday", "~> 2.9"
 gem "faraday-follow_redirects", "~> 0.3.0"
 
-gem "version_sorter", "~> 2.3.0"
+gem "commonmarker", "~> 2.0"
 
 group :development, :test do
   gem "rspec-rails", "~> 7.1.0"
@@ -75,3 +75,4 @@ group :test do
   gem "webmock"
   gem "vcr", "~> 6.3.1"
 end
+

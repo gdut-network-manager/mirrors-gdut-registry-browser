@@ -5,20 +5,12 @@ import "@hotwired/turbo-rails"
 import $ from "jquery"
 
 $(document).on("turbo:load", function () {
-  // Delete confirmation gating
-  $("#delete_confirm").on("keyup", function (e) {
-    e.preventDefault();
-
-    var field = $(this);
-    var button = $("#delete-button");
-
-    if (field.val() == field.attr("data-expected")) {
-      button.removeClass("disabled");
-    }
-    else {
-      button.addClass("disabled");
-    }
-  });
+  var btn = document.querySelector('.theme-toggle');
+  if (btn) {
+    var isDark = document.documentElement.classList.contains('dark-theme');
+    btn.querySelector('.icon-sun').style.display = isDark ? '' : 'none';
+    btn.querySelector('.icon-moon').style.display = isDark ? 'none' : '';
+  }
 
   // Copy to clipboard (field style - click icon to copy from input)
   $("[data-copy-target]").on("click", function (e) {
@@ -29,7 +21,6 @@ $(document).on("turbo:load", function () {
 
     $target.select();
     navigator.clipboard.writeText($target.val()).then(function() {
-      // Show copied feedback via CSS tooltip
       $icon.attr("data-tooltip", "已复制!");
       setTimeout(function () {
         $icon.attr("data-tooltip", $icon.data("origin-title") || "复制到剪贴板");
@@ -53,7 +44,6 @@ $(document).on("turbo:load", function () {
     var text = $(this).data("copy");
 
     navigator.clipboard.writeText(text).then(function() {
-      // Show copied feedback via CSS tooltip
       $icon.attr("data-tooltip", "已复制!");
       setTimeout(function () {
         $icon.attr("data-tooltip", $icon.data("origin-title") || "复制到剪贴板");
@@ -61,46 +51,5 @@ $(document).on("turbo:load", function () {
     });
 
     return false;
-  });
-
-  // Modal open/close (for delete dialog)
-  $("[data-toggle='modal']").on("click", function (e) {
-    e.preventDefault();
-    var target = $(this).data("target");
-    $(target).addClass("active");
-  });
-
-  $("[data-dismiss='modal']").on("click", function (e) {
-    e.preventDefault();
-    $(this).closest(".modal-overlay").removeClass("active");
-  });
-
-  // Close modal on overlay click
-  $(".modal-overlay").on("click", function (e) {
-    if ($(e.target).is(".modal-overlay")) {
-      $(this).removeClass("active");
-    }
-  });
-
-  // Collapse toggle (replaces Bootstrap collapse)
-  $("[data-collapse-target]").on("click", function (e) {
-    e.preventDefault();
-    var target = $($(this).data("collapse-target"));
-    target.toggleClass("collapse");
-    $(this).toggleClass("collapsed");
-  });
-
-  // Tab switching
-  $(".nav-tab").on("click", function (e) {
-    e.preventDefault();
-    var tabId = $(this).attr("href") || $(this).data("tab");
-
-    // Update active tab
-    $(this).closest(".nav-tabs").find(".nav-tab").removeClass("active");
-    $(this).addClass("active");
-
-    // Show corresponding content
-    $(".tab-content").removeClass("active");
-    $(tabId).addClass("active");
   });
 });

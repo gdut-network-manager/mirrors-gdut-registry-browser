@@ -1,5 +1,28 @@
 # Changelog
 
+# v2.0.0
+
+> **Breaking change**: This release completely refactors the application from a Docker Registry HTTP API V2 browser to a **Harbor Proxy Cache Browser**. All configuration, models, controllers, routes, and views have been rewritten.
+
+* Switch from Docker Registry API to Harbor native API (`/api/v2.0/`)
+* Global Basic Auth with Harbor robot account (no token flow, no browser login popups)
+* New page hierarchy: Projects → Repositories → Tags → Artifact Detail
+* Project list with quota progress bar, storage usage, repo count, creation date
+* Dual pull command modes with toggle switch (prefix mode + mirror mode via `DOMAIN_MIRROR_MAP`)
+* Repository description tab with Markdown rendering (Commonmarker)
+* Artifact type badges (IMAGE, CHART, WASM, SBOM, CNAI, etc.)
+* SVG icon system (Lucide style) replacing all PNG icons
+* Dark/Light theme toggle with system preference detection
+* Breadcrumb navigation with bordered pill style
+* Sticky footer (flexbox layout)
+* New environment variables: `HARBOR_URL`, `HARBOR_USERNAME`, `HARBOR_PASSWORD`, `PUBLIC_REGISTRY_URL`, `DOMAIN_MIRROR_MAP`, `PAGE_SIZE`
+* Removed: `DOCKER_REGISTRY_URL`, `BASIC_AUTH_USER`, `BASIC_AUTH_PASSWORD`, `TOKEN_AUTH_USER`, `TOKEN_AUTH_PASSWORD`, `SORT_TAGS_BY`, `SORT_TAGS_ORDER`, `ENABLE_COLLAPSE_NAMESPACES`, `ENABLE_DELETE_IMAGES`, `CATALOG_PAGE_SIZE`
+* Deleted models: `Resource`, `Current`, `ObtainAuthenticationToken`
+* Deleted views: sort links, delete tag modal, auth error pages
+* Helm chart: added `envFromSecrets` support for Harbor credentials
+* Update to Ruby 3.4.1 / Rails 8.1.3
+* Add `commonmarker` gem (replaces `version_sorter`)
+
 # v1.7.4
 
 * Update to Ruby 3.3.5

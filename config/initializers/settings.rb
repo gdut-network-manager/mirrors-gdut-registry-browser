@@ -1,26 +1,27 @@
 require "config"
 
 Rails.application.config.tap do |config|
-  config.x.registry_url        = Config.get(name: "DOCKER_REGISTRY_URL", default: "http://localhost:5000")
+  # Harbor connection
+  config.x.harbor_url          = Config.get(name: "HARBOR_URL", default: "http://localhost:8080")
+  config.x.harbor_username     = Config.get(name: "HARBOR_USERNAME", secret: true)
+  config.x.harbor_password     = Config.get(name: "HARBOR_PASSWORD", secret: true)
+
+  # Public registry URL for docker pull commands
+  config.x.public_registry_url = Config.get(name: "PUBLIC_REGISTRY_URL")
+
+  # Domain mirror map: project_name -> subdomain (e.g. "ghcr.io:ghcr,quay.io:quay")
+  config.x.domain_mirror_map   = Config.get(name: "DOMAIN_MIRROR_MAP")
+
+  # Pagination
+  config.x.page_size           = Config.get(name: "PAGE_SIZE", default: 20).to_i
+
+  # SSL
   config.x.no_ssl_verification = Config.get(name: "NO_SSL_VERIFICATION").in? %w[1 true yes]
   config.x.ca_file             = Config.get(name: "CA_FILE")
-  config.x.basic_auth_user     = Config.get(name: "BASIC_AUTH_USER", secret: true)
-  config.x.basic_auth_password = Config.get(name: "BASIC_AUTH_PASSWORD", secret: true)
-  config.x.token_auth_user     = Config.get(name: "TOKEN_AUTH_USER", secret: true)
-  config.x.token_auth_password = Config.get(name: "TOKEN_AUTH_PASSWORD", secret: true)
-  config.x.delete_enabled      = Config.get(name: "ENABLE_DELETE_IMAGES").in? %w[1 true yes]
-  config.x.public_registry_url = Config.get(name: "PUBLIC_REGISTRY_URL")
-  config.x.collapse_namespaces = Config.get(name: "ENABLE_COLLAPSE_NAMESPACES").in? %w[1 true yes]
-  config.x.sort_tags_by        = Config.get(name: "SORT_TAGS_BY", default: "name", allow: %w[api name version])
-  config.x.sort_tags_order     = Config.get(name: "SORT_TAGS_ORDER", default: "desc", allow: %w[asc desc])
-  config.x.catalog_page_size   = Config.get(name: "CATALOG_PAGE_SIZE", default: 100)
 
-  # Configure Faraday logger options
+  # Faraday logger options
   config.x.registry_log_options = {
-    # Log level must be included by main application log level. E.g. if application log level
-    # is set to :info, and this is set to :debug, no requests will be logged.
     log_level: Config.get(name: "REGISTRY_LOG_LEVEL", default: "info").to_sym,
-    # Warning - enabling this results in sensitive data such as Authorization headers being logged
     headers: (Config.get(name: "REGISTRY_LOG_HEADERS", default: "false").in? %w[1 true yes])
   }
 end

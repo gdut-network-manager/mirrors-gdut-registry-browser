@@ -1,35 +1,49 @@
-class Repository < Resource
+class Repository
   include ActiveModel::Model
 
-  attr_accessor :name, :tags
+  attr_accessor :name, :project_name, :artifact_count, :pull_count, :description
 
-  def self.list(count: Rails.configuration.x.catalog_page_size, last: nil)
-    response = client.get "/v2/_catalog", { n: count, last: last }.compact
-    repositories = response.body["repositories"] || []
-    entries  = repositories.map { |name| new(name: name) }
+  def self.list(project_name:, page: 1, page_size: Rails.configuration.x.page_size)
+    response = HarborClient.api.get(
+      "projects/#{project_name}/repositories",
+      page: page,
+      page_size: page_size
+    )
 
-    Collection.new entries: entries, more: response.headers.has_key?("Link")
-  end
-
-  def self.find(name)
-    begin
-      response = client.get "/v2/#{name}/tags/list"
-      tags     = response.body["tags"]
-    rescue Faraday::ResourceNotFound => e
-      tags = nil
+    entries = response.body.map do |r|
+      new(
+        name: r["name"],
+        project_name: project_name,
+        artifact_count: r["artifact_count"],
+        pull_count: r["pull_count"],
+        description: r["description"]
+      )
     end
 
+    total = response.headers["x-total-count"].to_i
+    more = page * page_size < total
+
+    Collection.new(entries: entries, more: more, total: total, page: page)
+  end
+
+  def self.find(project_name:, name:)
+    response = HarborClient.api.get("projects/#{project_name}/repositories/#{CGI.escape(name)}")
+
     new(
-      name: name,
-      tags: Array.wrap(tags)
+      name: response.body["name"],
+      project_name: project_name,
+      artifact_count: response.body["artifact_count"],
+      pull_count: response.body["pull_count"],
+      description: response.body["description"]
     )
   end
 
-  def namespace(root = "")
-    name.split("/").size == 1 ? root : name.split("/")[0...-1].join("/")
+  def relative_name
+    return name unless project_name.present? && name.start_with?("#{project_name}/")
+    name.sub("#{project_name}/", "")
   end
 
-  def image
-    name.split("/").last
+  def has_description?
+    description.present? && description.strip != ""
   end
 end

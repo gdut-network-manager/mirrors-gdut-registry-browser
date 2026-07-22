@@ -19,10 +19,15 @@
     <script>
       (function() {
         var saved = localStorage.getItem('theme');
+        var isDark;
         if (saved === 'dark' || saved === 'light') {
-          document.documentElement.classList.add(saved === 'dark' ? 'dark-theme' : 'light-manual');
+          isDark = saved === 'dark';
+          document.documentElement.classList.add(isDark ? 'dark-theme' : 'light-manual');
         } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          isDark = true;
           document.documentElement.classList.add('dark-theme');
+        } else {
+          isDark = false;
         }
       })();
     </script>

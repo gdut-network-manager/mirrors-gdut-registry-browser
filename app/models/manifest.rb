@@ -10,16 +10,10 @@ class Manifest
     :labels,
     :layers,
     :size,
-    :name,
-    :os,
-    :repository,
+    :os
   )
 
   def id
     [ os, architecture ].join("-")
-  end
-
-  def delete
-    client.delete("/v2/#{repository.name}/manifests/#{content_digest}").success?
   end
 end

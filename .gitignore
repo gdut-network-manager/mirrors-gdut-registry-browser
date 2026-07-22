@@ -36,3 +36,6 @@
 
 # Ignore JetBrains IDE files
 .idea
+
+# Ignore OpenCode session files
+.omo/

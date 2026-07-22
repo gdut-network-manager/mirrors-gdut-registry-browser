@@ -1,6 +1,7 @@
 <% if manifest.layers.any? %>
   <%-
     colors = %w(#8bcf69 #e6d450 #f28f68 #cf82bf #719fd1)
+    layer_display = Struct.new(:index, :digest, :size, :percent, :color, keyword_init: true)
 
     layers = manifest.layers.each_with_index.map do |layer, index|
       percent = ((layer.size * 100.0) / manifest.layers.sum(&:size)).round(2)
@@ -11,7 +12,7 @@
         'transparent'
       end
 
-      OpenStruct.new(
+      layer_display.new(
         index:   '#%03d' % index,
         digest:  layer.digest,
         size:    number_to_human_size(layer.size),
