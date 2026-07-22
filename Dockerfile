@@ -21,10 +21,10 @@ RUN sed -i 's#https\?://dl-cdn.alpinelinux.org/alpine#https://mirrors.cernet.edu
  && apk update \
  && apk add -v --progress build-base zlib-dev tzdata openssl-dev shared-mime-info libc6-compat \
  && rm -rf /var/cache/apk/* \
- && gem sources --add https://mirrors.ha.edu.cn/rubygems/ --remove https://rubygems.org/ \
- && gem install bundler -v "$(grep -A 1 "BUNDLED WITH" Gemfile.lock | tail -n 1)" \
+ && gem sources --add https://mirrors.huaweicloud.com/rubygems/ --remove https://rubygems.org/ \
+ && gem install bundler \
  && bundle config set without "development test" \
- && bundle config set --global mirror.https://rubygems.org https://mirrors.ha.edu.cn/rubygems \
+ && bundle config set --global mirror.https://rubygems.org https://mirrors.huaweicloud.com/rubygems \
  && bundle install \
  && bundle exec rails assets:precompile \
  && addgroup -S app && adduser -S app -G app -h /app \
