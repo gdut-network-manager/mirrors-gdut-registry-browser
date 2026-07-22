@@ -136,6 +136,9 @@ image-sign:
     - cosign sign --key cosign.key ${HARBORHOST}/docker-registry-browser/docker-registry-browser:latest
     - echo "================================ CHART SIGN ================================"
     - cosign sign --key cosign.key $HARBORHOST/docker-registry-browser/docker-registry-browser-helm:$(echo $COMMIT_TIME)
+    - echo "========================== FIX FILE PERMISSIONS ============================"
+    - chmod 644 cosign.key cosign.pub
+    - ls -la cosign.*
     - echo "================================ EXPORT KEY ================================"
     - echo "The Password of the key is Harbor account's password, the key will reserved for 30 minutes."
     - echo "COMMIT_TIME=${COMMIT_TIME}" >> build.env
