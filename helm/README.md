@@ -22,16 +22,15 @@ helm install harbor-browser \
 
 CI/CD 仅在版本号变更时触发构建。应用版本号的单一事实来源是 `config/initializers/version.rb`,Docker 镜像和 Helm Chart 各自从以下位置提取版本号:
 
-| 产物 | 版本号来源 | 说明 |
-|---|---|---|
-| Docker 镜像 | `config/initializers/version.rb` | 应用版本号(如 `2.0.0`) |
-| Helm Chart | `helm/Chart.yaml` 的 `version` | Chart 版本号(如 `0.3.0`),独立于应用版本号 |
+| 产物 | 版本号来源 |
+|---|---|
+| Docker 镜像 | `config/initializers/version.rb` |
+| Helm Chart | `helm/Chart.yaml` 的 `version` |
 
-更新版本号时,务必同时修改以下三处:
+更新版本号时,务必同时修改以下两处:
 
 1. `config/initializers/version.rb` — 应用版本号(Docker 镜像 tag)
-2. `helm/Chart.yaml` 的 `appVersion` — 必须与 `version.rb` 一致
-3. `helm/Chart.yaml` 的 `version` — Chart 自身版本号
+2. `helm/Chart.yaml` 的 `version` 和 `appVersion` — 必须与 `version.rb` 保持一致
 
 ## 配置
 
