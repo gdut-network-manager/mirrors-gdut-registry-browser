@@ -41,7 +41,7 @@ docker-build-and-push:
     - echo "================================= LOAD ENV ================================="
     - env
     - echo "=========================== EXTRACT APP VERSION ============================"
-    - export APP_VERSION=$(grep 'appVersion' helm/Chart.yaml | head -1 | awk -F'"' '{print $2}')
+    - export APP_VERSION=$(grep 'config.x.version' config/initializers/version.rb | head -1 | awk -F'"' '{print $2}')
     - echo "APP_VERSION=${APP_VERSION}"
     - echo "============================= LOGIN TO HARBOR =============================="
     - docker login -u ${USERNAME} -p ${PASSWORD} ${HARBORHOST}

@@ -12,9 +12,10 @@ description: Web Interface for Harbor Proxy Cache projects, written in Ruby on R
 # pipeline. Library charts do not define any templates and therefore cannot be deployed.
 type: application
 
-# 更新版本号时务必同时修改以下三项:
-# - version (本字段): Helm Chart 版本号
-# - appVersion (下方): 应用版本号, 与 config/initializers/version.rb 保持一致
+# 更新版本号时务必同时修改以下三处:
+# - config/initializers/version.rb: 应用版本号(单一事实来源, CI/CD 从此文件提取)
+# - appVersion (下方): 必须与 version.rb 保持一致
+# - version (本字段): Helm Chart 版本号, 独立于应用版本号
 # CI/CD 仅在版本号变更时触发构建, 版本号未变则跳过
 version: 0.3.0
 
