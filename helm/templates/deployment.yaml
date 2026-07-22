@@ -33,13 +33,19 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          {{- with .Values.environment }}
           env:
+            {{- with .Values.environment }}
             {{- range $key, $value := . }}
             - name: "{{ $key }}"
               value: "{{ $value }}"
             {{- end }}
-          {{- end }}
+            {{- end }}
+            {{- if .Values.relativeUrlRoot }}
+            - name: SCRIPT_NAME
+              value: "{{ .Values.relativeUrlRoot }}"
+            - name: RAILS_RELATIVE_URL_ROOT
+              value: "{{ .Values.relativeUrlRoot }}"
+            {{- end }}
           {{- with .Values.envFromSecrets }}
           envFrom:
             {{- range . }}

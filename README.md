@@ -68,8 +68,14 @@ services:
 
 ### Kubernetes (Helm)
 
+Helm Chart 以 OCI 形式存储在 Harbor 中,直接从 OCI registry 安装:
+
 ```shell
-helm install harbor-browser ./helm \
+helm registry login registry.example.com --username robot\$deployer --password your-token
+
+helm install harbor-browser \
+  oci://registry.example.com/docker-registry-browser/docker-registry-browser-helm \
+  --version latest \
   --set environment.HARBOR_URL=https://registry.example.com \
   --set environment.PUBLIC_REGISTRY_URL=https://registry.example.com
 ```

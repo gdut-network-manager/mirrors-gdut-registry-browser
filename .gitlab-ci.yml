@@ -81,6 +81,9 @@ helm-build:
     - echo "$KUBECONFIG_DATA" | base64 -d > $KUBECONFIG
     - helm repo add stable https://charts.helm.sh/stable
     - helm repo update
+    # 安装 crane 用于复制 OCI artifact tag
+    - curl -sL https://github.com/google/go-containerregistry/releases/download/v0.19.1/go-containerregistry_Linux_x86_64.tar.gz | tar xz crane
+    - mv crane /usr/local/bin/crane
   script:
     - echo "================================= LOAD ENV ================================="
     - env
@@ -89,10 +92,15 @@ helm-build:
     - echo "The commit timestamp is $COMMIT_TIME"
     - echo "============================= LOGIN TO HARBOR =============================="
     - helm registry login ${HARBORHOST} --username ${USERNAME} --password ${PASSWORD}
+    - crane auth login ${HARBORHOST} -u ${USERNAME} -p ${PASSWORD}
     - echo "============================== PACKAGE CHART ==============================="
     - helm package helm --version $(echo $COMMIT_TIME)
     - echo "=============================== PUSH CHARTS ================================"
     - helm push docker-registry-browser-helm* oci://${HARBORHOST}/docker-registry-browser
+    - echo "========================== TAG CHART WITH LATEST ==========================="
+    - crane copy ${HARBORHOST}/docker-registry-browser/docker-registry-browser-helm:$(echo $COMMIT_TIME) ${HARBORHOST}/docker-registry-browser/docker-registry-browser-helm:latest
+    - echo "============================ EXPORT IMAGE TAGS ============================="
+    - echo "COMMIT_TIME=$COMMIT_TIME" >> build.env
   artifacts:
     reports:
       dotenv: build.env

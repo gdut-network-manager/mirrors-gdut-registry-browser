@@ -91,10 +91,24 @@ services:
 
 ### Kubernetes (Helm)
 
+Helm Chart 以 OCI 形式推送到 Harbor,直接从 OCI registry 安装:
+
 ```shell
-helm install harbor-browser ./helm \
+helm registry login registry.example.com --username robot\$deployer --password your-token
+
+helm install harbor-browser \
+  oci://registry.example.com/docker-registry-browser/docker-registry-browser-helm \
+  --version latest \
   --set environment.HARBOR_URL=https://registry.example.com \
   --set environment.PUBLIC_REGISTRY_URL=https://registry.example.com
+```
+
+也可以指定版本号(时间戳格式,如 `20260723120000`):
+
+```shell
+helm install harbor-browser \
+  oci://registry.example.com/docker-registry-browser/docker-registry-browser-helm \
+  --version 20260723120000
 ```
 
 将 Harbor 凭证存储在 Kubernetes Secret 中:
@@ -211,13 +225,13 @@ HTTP 服务器端口。
 
 #### `SECRET_KEY_BASE`
 
-Rails 加密密钥。生产环境必填。生成方式:
+Rails 加密密钥。如果未设置或为 `changeme`,容器启动时会自动生成一个随机值。生产环境建议显式设置固定值以保证 session 一致性。生成方式:
 
 ```
 openssl rand -hex 64
 ```
 
-默认值: `changeme`
+默认值: `changeme`(自动生成)
 
 ### HTTPS / TLS
 
@@ -249,19 +263,38 @@ SSL 密钥文件路径。
 
 ### 子目录部署
 
-要在子目录中运行应用,同时设置以下两个变量:
+要在子目录中运行应用(例如通过 `https://mirrors.example.com/docker/` 访问),需要设置 `SCRIPT_NAME` 和 `RAILS_RELATIVE_URL_ROOT` 环境变量。
 
-```
-SCRIPT_NAME=/browser
-RAILS_RELATIVE_URL_ROOT=/browser
+#### Docker / Docker Compose
+
+```yaml
+environment:
+  - "SCRIPT_NAME=/docker"
+  - "RAILS_RELATIVE_URL_ROOT=/docker"
 ```
 
-配置反向代理去除前缀:
+同时在反向代理中去除前缀:
 
 ```nginx
-location /browser/ {
+location /docker/ {
     proxy_pass http://127.0.0.1:8080/;
 }
+```
+
+#### Kubernetes (Helm)
+
+在 `values.yaml` 中设置 `relativeUrlRoot`,Ingress 会自动配置 `rewrite-target` 注解:
+
+```yaml
+relativeUrlRoot: "/docker"
+
+ingress:
+  enabled: true
+  hosts:
+    - host: mirrors.example.com
+      paths:
+        - path: /
+          pathType: Prefix
 ```
 
 ### 日志

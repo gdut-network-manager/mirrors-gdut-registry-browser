@@ -89,6 +89,11 @@ environment:
   PAGE_SIZE: "20"
   # HARBOR_USERNAME and HARBOR_PASSWORD should be set via envFromSecrets, not here
 
+# 子路径部署,例如通过 https://mirrors.example.com/docker/ 访问
+# 设置后会在 Ingress 中添加 rewrite-target 注解,并传递 SCRIPT_NAME / RAILS_RELATIVE_URL_ROOT 给应用
+relativeUrlRoot: ""
+# relativeUrlRoot: "/docker"
+
 envFromSecrets: []
   # Example: store HARBOR_USERNAME and HARBOR_PASSWORD in a Kubernetes Secret
   # and reference it here:
