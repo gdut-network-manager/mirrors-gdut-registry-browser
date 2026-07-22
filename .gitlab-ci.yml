@@ -17,20 +17,11 @@ sonarqube-check:
   tags:
     - dev
   variables:
-    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
-    GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+    GIT_DEPTH: "0"
   script: 
-    - echo "========================== GENERATE VERSION TAGS ==========================="
-    - export COMMIT_TIME=$(echo "$CI_COMMIT_TIMESTAMP" | tr -cd '0-9')
-    - echo "The commit timestamp is $COMMIT_TIME"
     - sonar-scanner -Dsonar.host.url="${SONAR_HOST_URL}"
-    - echo "============================ EXPORT IMAGE TAGS ============================="
-    - echo "COMMIT_TIME=$COMMIT_TIME" >> build.env
   allow_failure: true
-  artifacts:
-    reports:
-      dotenv: build.env
-    expire_in: 30 min
   only:
     - merge_requests
     - master
@@ -44,25 +35,34 @@ docker-build-and-push:
     - Docker
   services:
     - name: docker:stable
+  variables:
+    DOCKER_CLI_EXPERIMENTAL: "enabled"
   script:
     - echo "================================= LOAD ENV ================================="
     - env
-    - echo "========================== GENERATE VERSION TAGS ==========================="
-    - export COMMIT_TIME=$(echo "$CI_COMMIT_TIMESTAMP" | tr -cd '0-9')
-    - echo "The commit timestamp is $COMMIT_TIME"
+    - echo "=========================== EXTRACT APP VERSION ============================"
+    - export APP_VERSION=$(grep 'appVersion' helm/Chart.yaml | head -1 | awk -F'"' '{print $2}')
+    - echo "APP_VERSION=${APP_VERSION}"
     - echo "============================= LOGIN TO HARBOR =============================="
     - docker login -u ${USERNAME} -p ${PASSWORD} ${HARBORHOST}
-    - echo "=========================== BUILD DOCKER IMAGES ============================"
-    - docker build -t ${HARBORHOST}/docker-registry-browser/docker-registry-browser:$(echo $COMMIT_TIME) .
-    - echo "========================== TAG IMAGES WITH LATEST =========================="
-    - docker tag ${HARBORHOST}/docker-registry-browser/docker-registry-browser:$(echo $COMMIT_TIME) ${HARBORHOST}/docker-registry-browser/docker-registry-browser:latest
-    - echo "========================== PUSH IMAGES TO HARBOR ==========================="
-    - docker push ${HARBORHOST}/docker-registry-browser/docker-registry-browser:$(echo $COMMIT_TIME)
-    - docker push ${HARBORHOST}/docker-registry-browser/docker-registry-browser:latest
-    - echo "============================= CLEAN UP MIRRORS ============================="
-    - docker rmi ${HARBORHOST}/docker-registry-browser/docker-registry-browser:$(echo $COMMIT_TIME)
-    - echo "============================ EXPORT IMAGE TAGS ============================="
-    - echo "COMMIT_TIME=$COMMIT_TIME" >> build.env
+    - echo "======================== CHECK IF IMAGE ALREADY EXISTS ====================="
+    - |
+      if docker manifest inspect ${HARBORHOST}/docker-registry-browser/docker-registry-browser:${APP_VERSION} >/dev/null 2>&1; then
+        echo "Image ${APP_VERSION} already exists, skipping build"
+        echo "SKIP_DOCKER=true" >> build.env
+      else
+        echo "=========================== BUILD DOCKER IMAGES ============================"
+        docker build -t ${HARBORHOST}/docker-registry-browser/docker-registry-browser:${APP_VERSION} .
+        echo "========================== TAG IMAGES WITH LATEST =========================="
+        docker tag ${HARBORHOST}/docker-registry-browser/docker-registry-browser:${APP_VERSION} ${HARBORHOST}/docker-registry-browser/docker-registry-browser:latest
+        echo "========================== PUSH IMAGES TO HARBOR ==========================="
+        docker push ${HARBORHOST}/docker-registry-browser/docker-registry-browser:${APP_VERSION}
+        docker push ${HARBORHOST}/docker-registry-browser/docker-registry-browser:latest
+        echo "============================= CLEAN UP MIRRORS ============================="
+        docker rmi ${HARBORHOST}/docker-registry-browser/docker-registry-browser:${APP_VERSION}
+        echo "SKIP_DOCKER=false" >> build.env
+      fi
+    - echo "APP_VERSION=${APP_VERSION}" >> build.env
   artifacts:
     reports:
       dotenv: build.env
@@ -76,43 +76,49 @@ helm-build:
   tags:
     - dev
   before_script:
-    # 配置 Helm 和 Kubernetes
     - export KUBECONFIG=$CI_PROJECT_DIR/kubeconfig
     - echo "$KUBECONFIG_DATA" | base64 -d > $KUBECONFIG
     - helm repo add stable https://charts.helm.sh/stable
     - helm repo update
-    # 安装 crane 用于复制 OCI artifact tag
-    - curl -sL https://github.com/google/go-containerregistry/releases/download/v0.19.1/go-containerregistry_Linux_x86_64.tar.gz | tar xz crane
-    - mv crane /usr/local/bin/crane
   script:
     - echo "================================= LOAD ENV ================================="
     - env
-    - echo "========================== GENERATE VERSION TAGS ==========================="
-    - export COMMIT_TIME=$(echo "$CI_COMMIT_TIMESTAMP" | tr -cd '0-9')
-    - echo "The commit timestamp is $COMMIT_TIME"
+    - echo "========================== EXTRACT CHART VERSION ==========================="
+    - export CHART_VERSION=$(grep '^version:' helm/Chart.yaml | awk '{print $2}')
+    - echo "CHART_VERSION=${CHART_VERSION}"
     - echo "============================= LOGIN TO HARBOR =============================="
     - helm registry login ${HARBORHOST} --username ${USERNAME} --password ${PASSWORD}
-    - crane auth login ${HARBORHOST} -u ${USERNAME} -p ${PASSWORD}
-    - echo "============================== PACKAGE CHART ==============================="
-    - helm package helm --version $(echo $COMMIT_TIME)
-    - echo "=============================== PUSH CHARTS ================================"
-    - helm push docker-registry-browser-helm* oci://${HARBORHOST}/docker-registry-browser
-    - echo "========================== TAG CHART WITH LATEST ==========================="
-    - crane copy ${HARBORHOST}/docker-registry-browser/docker-registry-browser-helm:$(echo $COMMIT_TIME) ${HARBORHOST}/docker-registry-browser/docker-registry-browser-helm:latest
-    - echo "============================ EXPORT IMAGE TAGS ============================="
-    - echo "COMMIT_TIME=$COMMIT_TIME" >> build.env
+    - echo "======================== CHECK IF CHART ALREADY EXISTS ====================="
+    - |
+      if helm pull oci://${HARBORHOST}/docker-registry-browser/docker-registry-browser-helm --version ${CHART_VERSION} 2>/dev/null; then
+        rm -f docker-registry-browser-helm-*.tgz
+        echo "Chart ${CHART_VERSION} already exists, skipping build"
+        echo "SKIP_CHART=true" >> build.env
+      else
+        echo "============================== PACKAGE CHART ==============================="
+        helm package helm --version ${CHART_VERSION}
+        echo "=============================== PUSH CHARTS ================================"
+        helm push docker-registry-browser-helm* oci://${HARBORHOST}/docker-registry-browser
+        echo "SKIP_CHART=false" >> build.env
+      fi
+    - echo "CHART_VERSION=${CHART_VERSION}" >> build.env
   artifacts:
     reports:
       dotenv: build.env
+    expire_in: 30 min
   only:
     - master
-
 
 image-sign:
   image: registry.gdut.edu.cn/docker/library/ubuntu:22.04
   stage: signing
   tags:
     - dev
+  needs:
+    - job: docker-build-and-push
+      artifacts: true
+    - job: helm-build
+      artifacts: true
   before_script:
     - echo "============================ CHANGE APT MIRROR ============================="
     - echo 'deb http://mirrors.gdut.edu.cn/ubuntu/ jammy main restricted universe multiverse
@@ -129,9 +135,11 @@ image-sign:
   script:
     - echo "================================= LOAD ENV ================================="
     - env
-    - echo "COMMIT_TIME=${COMMIT_TIME}"
+    - echo "APP_VERSION=${APP_VERSION}"
+    - echo "CHART_VERSION=${CHART_VERSION}"
+    - echo "SKIP_DOCKER=${SKIP_DOCKER}"
+    - echo "SKIP_CHART=${SKIP_CHART}"
     - echo "============================== INSTALL COSIGN =============================="
-    # - wget --no-check-certificate "https://cn-gz-1.minio.gdutnic.com/gdutnic/public/cosign_1.6.0_amd64.deb"
     - curl -fL -o cosign_1.6.0_amd64.deb --insecure "https://cn-gz-1.minio.gdutnic.com/gdutnic/public/cosign_1.6.0_amd64.deb"
     - dpkg -i cosign_1.6.0_amd64.deb
     - mv /usr/local/bin/cosign-linux-amd64 /usr/local/bin/cosign
@@ -141,21 +149,26 @@ image-sign:
     - echo "============================= LOGIN TO HARBOR =============================="
     - cosign login -u ${USERNAME} -p ${PASSWORD} ${HARBORHOST}
     - echo "=============================== IMAGE SIGN ================================="
-    - cosign sign --key cosign.key ${HARBORHOST}/docker-registry-browser/docker-registry-browser:latest
+    - |
+      if [ "${SKIP_DOCKER}" = "true" ]; then
+        echo "Docker image was not built, skipping image signing"
+      else
+        cosign sign --key cosign.key ${HARBORHOST}/docker-registry-browser/docker-registry-browser:latest
+      fi
     - echo "================================ CHART SIGN ================================"
-    - cosign sign --key cosign.key $HARBORHOST/docker-registry-browser/docker-registry-browser-helm:$(echo $COMMIT_TIME)
+    - |
+      if [ "${SKIP_CHART}" = "true" ]; then
+        echo "Helm chart was not built, skipping chart signing"
+      else
+        cosign sign --key cosign.key ${HARBORHOST}/docker-registry-browser/docker-registry-browser-helm:${CHART_VERSION}
+      fi
     - echo "========================== FIX FILE PERMISSIONS ============================"
     - chmod 644 cosign.key cosign.pub
     - ls -la cosign.*
-    - echo "================================ EXPORT KEY ================================"
-    - echo "The Password of the key is Harbor account's password, the key will reserved for 30 minutes."
-    - echo "COMMIT_TIME=${COMMIT_TIME}" >> build.env
   artifacts:
     paths:
       - cosign.key
       - cosign.pub
-    reports:
-      dotenv: build.env
     expire_in: 30 min
   only:
     - master

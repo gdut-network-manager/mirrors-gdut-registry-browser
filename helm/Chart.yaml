@@ -12,13 +12,11 @@ description: Web Interface for Harbor Proxy Cache projects, written in Ruby on R
 # pipeline. Library charts do not define any templates and therefore cannot be deployed.
 type: application
 
-# This is the chart version. This version number should be incremented each time you make changes
-# to the chart and its templates, including the app version.
-# Versions are expected to follow Semantic Versioning (https://semver.org/)
+# 更新版本号时务必同时修改以下三项:
+# - version (本字段): Helm Chart 版本号
+# - appVersion (下方): 应用版本号, 与 config/initializers/version.rb 保持一致
+# CI/CD 仅在版本号变更时触发构建, 版本号未变则跳过
 version: 0.3.0
 
-# This is the version number of the application being deployed. This version number should be
-# incremented each time you make changes to the application. Versions are not expected to
-# follow Semantic Versioning. They should reflect the version the application is using.
-# It is recommended to use it with quotes.
+# 应用版本号, 必须与 config/initializers/version.rb 中的版本保持一致
 appVersion: "2.0.0"

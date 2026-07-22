@@ -68,14 +68,14 @@ services:
 
 ### Kubernetes (Helm)
 
-Helm Chart 以 OCI 形式存储在 Harbor 中,直接从 OCI registry 安装:
+Helm Chart 以 OCI 形式存储在 Harbor 中,直接从 OCI registry 安装。OCI 不支持 `latest` 标签,需要指定版本号:
 
 ```shell
 helm registry login registry.example.com --username robot\$deployer --password your-token
 
 helm install harbor-browser \
   oci://registry.example.com/docker-registry-browser/docker-registry-browser-helm \
-  --version latest \
+  --version 0.3.0 \
   --set environment.HARBOR_URL=https://registry.example.com \
   --set environment.PUBLIC_REGISTRY_URL=https://registry.example.com
 ```

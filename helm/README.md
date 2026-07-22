@@ -4,23 +4,29 @@
 
 ## 使用方法
 
+Helm Chart 以 OCI 形式推送到 Harbor。OCI 不支持 `latest` 标签,需要指定版本号(对应 `helm/Chart.yaml` 中的 `version` 字段):
+
 ```shell
 helm registry login registry.example.com --username robot\$deployer --password your-token
 
 helm install harbor-browser \
   oci://registry.example.com/docker-registry-browser/docker-registry-browser-helm \
-  --version latest \
+  --version 0.3.0 \
   --set environment.HARBOR_URL=https://registry.example.com \
   --set environment.PUBLIC_REGISTRY_URL=https://registry.example.com
 ```
 
-指定版本号(时间戳格式):
+可用版本号可在 Harbor UI 的镜像仓库页面查看。
 
-```shell
-helm install harbor-browser \
-  oci://registry.example.com/docker-registry-browser/docker-registry-browser-helm \
-  --version 20260723120000
-```
+## 版本管理
+
+CI/CD 仅在版本号变更时触发构建。更新版本号时,务必同时修改以下三处:
+
+1. `helm/Chart.yaml` 中的 `version`(Chart 版本号)
+2. `helm/Chart.yaml` 中的 `appVersion`(应用版本号)
+3. `config/initializers/version.rb` 中的版本号
+
+三者必须保持 `appVersion` 与 `version.rb` 一容,`version` 为 Chart 独立版本号。
 
 ## 配置
 

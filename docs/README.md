@@ -91,24 +91,23 @@ services:
 
 ### Kubernetes (Helm)
 
-Helm Chart 以 OCI 形式推送到 Harbor,直接从 OCI registry 安装:
+Helm Chart 以 OCI 形式推送到 Harbor,直接从 OCI registry 安装。OCI 不支持 `latest` 标签,需要指定具体版本号(即 `helm/Chart.yaml` 中的 `version` 字段):
 
 ```shell
 helm registry login registry.example.com --username robot\$deployer --password your-token
 
 helm install harbor-browser \
   oci://registry.example.com/docker-registry-browser/docker-registry-browser-helm \
-  --version latest \
+  --version 0.3.0 \
   --set environment.HARBOR_URL=https://registry.example.com \
   --set environment.PUBLIC_REGISTRY_URL=https://registry.example.com
 ```
 
-也可以指定版本号(时间戳格式,如 `20260723120000`):
+可用版本号可在 Harbor UI 的镜像仓库页面查看,或通过以下命令列出:
 
 ```shell
-helm install harbor-browser \
-  oci://registry.example.com/docker-registry-browser/docker-registry-browser-helm \
-  --version 20260723120000
+helm registry login registry.example.com --username robot\$deployer --password your-token
+helm show all oci://registry.example.com/docker-registry-browser/docker-registry-browser-helm --version 0.3.0
 ```
 
 将 Harbor 凭证存储在 Kubernetes Secret 中:
