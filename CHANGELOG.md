@@ -1,5 +1,10 @@
 # Changelog
 
+# v2.1.0
+
+* 升级至 Ruby 4.0.6
+* 升级 `faraday-follow_redirects` 至 0.5.0(支持 Ruby 4.0)
+
 # v2.0.0
 
 > **破坏性变更**: 本版本将应用从 Docker Registry HTTP API V2 浏览器完全重构为 **Harbor Proxy Cache 浏览器**。所有配置、模型、控制器、路由和视图均已重写。

@@ -127,7 +127,7 @@ envFromSecrets:
 
 ### 手动安装
 
-1. 安装 Ruby 3.4.1(参见 `.ruby-version`)
+1. 安装 Ruby 4.0.6(参见 `.ruby-version`)
 2. 安装依赖: `bundle install`
 3. 设置环境变量(见下文)
 4. 启动服务器: `bundle exec rails server`

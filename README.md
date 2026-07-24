@@ -109,7 +109,7 @@ envFromSecrets:
 
 ## 技术栈
 
-- Ruby 3.4.1 / Rails 8.1.3
+- Ruby 4.0.6 / Rails 8.1.3
 - Faraday(Harbor API HTTP 客户端)
 - Commonmarker(Markdown 渲染)
 - Importmap + jQuery(前端资源)

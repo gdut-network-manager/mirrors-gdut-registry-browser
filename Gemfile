@@ -63,7 +63,7 @@ end
 # custom
 
 gem "faraday", "~> 2.9"
-gem "faraday-follow_redirects", "~> 0.3.0"
+gem "faraday-follow_redirects", "~> 0.5.0"
 
 gem "commonmarker", "~> 2.0"
 
