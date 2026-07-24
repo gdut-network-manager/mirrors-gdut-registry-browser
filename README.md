@@ -20,17 +20,20 @@ Fork 自 [klausmeyer/docker-registry-browser](https://github.com/klausmeyer/dock
 
 ## 截图
 
-### 项目列表(首页)
+| 项目列表(首页) | 仓库列表 |
+|:---:|:---:|
+| ![项目列表](screenshots/index.png) | ![仓库列表](screenshots/project.png) |
+| 双列网格,展示配额进度条、仓库数量、空间使用量和创建时间 | 仓库下的标签列表,带制品类型徽章和过滤输入框 |
 
-双列网格布局,每个项目卡片展示配额进度条、仓库数量、空间使用量和创建时间。
+| 标签列表 | 仓库描述信息 |
+|:---:|:---:|
+| ![标签列表](screenshots/repo-tags.png) | ![仓库描述信息](screenshots/repo-description.png) |
+| 标签详情拉取命令双模式切换 | 仓库描述信息 Tab,支持 Markdown 渲染 |
 
-### 仓库列表
-
-标签列表带制品类型徽章、过滤输入框和描述信息 Tab。
-
-### 标签详情
-
-拉取命令双模式切换、多架构 Manifest 标签页、层信息/环境变量/构建历史分区。
+| 镜像详情 |
+|:---:|
+| ![镜像详情](screenshots/image-info.png) |
+| 多架构 Manifest 标签页、层信息、环境变量、构建历史 |
 
 ## 快速开始
 
