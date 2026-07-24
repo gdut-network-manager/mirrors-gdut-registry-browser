@@ -1331,7 +1331,7 @@ strong, .font-weight-bold {
 
 @media (max-width: 480px) {
     .navbar-brand span {
-        display: none;
+        font-size: 0.875rem;
     }
 
     .sort-links {
