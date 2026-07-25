@@ -9,6 +9,15 @@ Fork 自 [klausmeyer/docker-registry-browser](https://github.com/klausmeyer/dock
 - 浏览 Harbor Proxy Cache 项目,展示配额与存储使用量
 - 在每个项目下导航仓库和标签
 - 查看制品详情:Manifest、层信息、环境变量、构建历史
+- 漏洞扫描结果展示:
+  - 详情区漏洞分布堆叠条形图(危急/严重/中等/较低/无评分)
+  - 按严重性分组的可折叠列表,CVSS v3 评分降序排序
+  - 跨分组实时搜索(CVE ID、包名、描述)
+  - 双行展开详情(CVE 链接、CVSS 评分、修复版本、CWE、状态)
+- SBOM 软件物料清单展示:
+  - 按需 Turbo Frame 异步加载 SPDX 包列表
+  - 四列表格(包名/版本/许可证/类型)+ 实时搜索过滤
+  - 扫描状态感知(未扫描/进行中/失败/已完成)
 - 双模式拉取命令,带滑块开关:
   - 前缀模式: `docker pull registry.example.com/docker/library/nginx:latest`
   - 镜像模式: `docker pull docker.registry.example.com/library/nginx:latest`
@@ -30,10 +39,10 @@ Fork 自 [klausmeyer/docker-registry-browser](https://github.com/klausmeyer/dock
 | ![标签列表](screenshots/repo-tags.png) | ![仓库描述信息](screenshots/repo-description.png) |
 | 标签详情拉取命令双模式切换 | 仓库描述信息 Tab,支持 Markdown 渲染 |
 
-| 镜像详情 |
-|:---:|
-| ![镜像详情](screenshots/image-info.png) |
-| 多架构 Manifest 标签页、层信息、环境变量、构建历史 |
+| 漏洞扫描 | SBOM 软件物料清单 |
+|:---:|:---:|
+| ![漏洞扫描](screenshots/vuln-scan.png) | ![SBOM](screenshots/sbom.png) |
+| 漏洞分布堆叠条形图、按严重性分组的可折叠列表、CVSS 评分排序、实时搜索 | SPDX 包列表四列表格、按需加载、实时搜索过滤 |
 
 ## 快速开始
 

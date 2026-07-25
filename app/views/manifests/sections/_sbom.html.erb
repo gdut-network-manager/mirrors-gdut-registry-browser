@@ -1,0 +1,46 @@
+<% if manifest.sbom_overview.nil? %>
+  <div class="empty-state">
+    <%= render "shared/icon", name: "list", size: 48, class: "empty-state-icon" %>
+    <p>无 SBOM 数据</p>
+  </div>
+<% elsif manifest.sbom_scan_status && manifest.sbom_scan_status != "Success" %>
+  <div class="empty-state">
+    <% if manifest.sbom_scan_status == "Running" || manifest.sbom_scan_status == "Pending" %>
+      <%= render "shared/icon", name: "loader", size: 48, class: "empty-state-icon" %>
+      <p>SBOM 生成中</p>
+    <% elsif manifest.sbom_scan_status == "Error" %>
+      <%= render "shared/icon", name: "alert", size: 48, class: "empty-state-icon" %>
+      <p>SBOM 生成失败</p>
+    <% else %>
+      <%= render "shared/icon", name: "info", size: 48, class: "empty-state-icon" %>
+      <p><%= format_scan_status(manifest.sbom_scan_status) %></p>
+    <% end %>
+  </div>
+<% else %>
+  <div class="sbom-section">
+    <div class="sbom-summary">
+      <div class="sbom-summary-stats">
+        <span class="sbom-summary-scanner">
+          扫描器: <%= manifest.sbom_overview["scanner"]["name"] %> <%= manifest.sbom_overview["scanner"]["version"] %>
+        </span>
+        <% if manifest.sbom_overview["duration"] %>
+          <span class="sbom-summary-duration">
+            耗时 <%= manifest.sbom_overview["duration"] %>s
+          </span>
+        <% end %>
+        <% if manifest.sbom_digest %>
+          <span class="sbom-summary-digest">
+            SBOM: <code><%= manifest.sbom_digest[0, 19] %>...</code>
+          </span>
+        <% end %>
+      </div>
+    </div>
+
+    <%= turbo_frame_tag "sbom-frame-#{manifest.id}", src: tag_sbom_path(project_name: @project.name, repo: @repository.relative_name, tag: @tag.name, sbom_digest: manifest.sbom_digest, manifest_id: manifest.id) do %>
+      <div class="sbom-loading">
+        <%= render "shared/icon", name: "loader", size: 24 %>
+        <span>加载 SBOM 中...</span>
+      </div>
+    <% end %>
+  </div>
+<% end %>

@@ -1,14 +1,20 @@
 <h5 class="mt-4">详情</h5>
 
 <div class="row">
-  <div class="col-md-6">
+  <div class="col-md-4">
     <span class="text-muted small">创建时间</span>
     <p class="mb-1"><%= manifest.created %></p>
   </div>
-  <div class="col-md-6">
+  <div class="col-md-4">
     <span class="text-muted small">大小</span>
     <p class="mb-1"><%= number_to_human_size(manifest.size) %></p>
   </div>
+  <% if manifest.scan_overview.present? %>
+    <div class="col-md-4">
+      <span class="text-muted small">漏洞分布</span>
+      <%= render partial: "manifests/sections/vuln_chart", locals: { manifest: manifest } %>
+    </div>
+  <% end %>
 </div>
 
 <span class="text-muted small">内容摘要</span>

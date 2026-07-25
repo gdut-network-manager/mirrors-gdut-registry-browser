@@ -1,0 +1,3 @@
+<%= turbo_frame_tag "sbom-frame-#{manifest_id}" do %>
+  <%= render partial: "manifests/sections/sbom_content", locals: { packages: packages, manifest_id: manifest_id } %>
+<% end %>

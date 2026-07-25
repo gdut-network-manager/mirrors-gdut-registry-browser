@@ -1,0 +1,35 @@
+<% total = manifest.vuln_total %>
+<% counts = manifest.vuln_severity_counts %>
+
+<div class="vuln-chart">
+  <div class="vuln-chart-bar">
+    <% Manifest::VULN_SEVERITY_ORDER.each do |sev| %>
+      <% count = counts[sev].to_i %>
+      <% if count > 0 %>
+        <div class="vuln-chart-segment sev-<%= sev.downcase %>"
+             style="width: <%= vuln_severity_percent(count, total) %>%"
+             title="<%= vuln_severity_label(sev) %>: <%= count %>">
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="vuln-chart-legend">
+    <span class="vuln-chart-total">
+      共 <%= total %> 个漏洞
+      <% if manifest.vuln_fixable > 0 %>
+        (<%= manifest.vuln_fixable %> 个可修复)
+      <% end %>
+    </span>
+    <div class="vuln-chart-items">
+      <% Manifest::VULN_SEVERITY_ORDER.each do |sev| %>
+        <% count = counts[sev].to_i %>
+        <% next if count == 0 %>
+        <span class="vuln-chart-legend-item">
+          <span class="vuln-chart-dot sev-<%= sev.downcase %>"></span>
+          <%= vuln_severity_label(sev) %> <%= count %>
+        </span>
+      <% end %>
+    </div>
+  </div>
+</div>

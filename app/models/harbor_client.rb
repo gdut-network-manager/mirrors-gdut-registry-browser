@@ -16,9 +16,11 @@ class HarborClient
           f.request :authorization, :basic, username, password
         end
         f.response :follow_redirects, limit: 5
-        f.response :json, content_type: /json|prettyjws/
+        f.response :json, content_type: /json|prettyjws|sbom\.v\d/
         f.response :logger, Rails.configuration.logger, Rails.configuration.x.registry_log_options
         f.response :raise_error
+        f.options.timeout = 120
+        f.options.open_timeout = 30
         f.adapter Faraday.default_adapter
       end
     end

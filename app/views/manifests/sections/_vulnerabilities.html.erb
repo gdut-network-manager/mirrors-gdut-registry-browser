@@ -1,0 +1,112 @@
+<% if manifest.scan_overview.nil? %>
+  <div class="empty-state">
+    <%= render "shared/icon", name: "shield", size: 48, class: "empty-state-icon" %>
+    <p>无扫描结果</p>
+  </div>
+<% elsif manifest.scan_status && manifest.scan_status != "Success" %>
+  <div class="empty-state">
+    <% if manifest.scan_status == "Running" || manifest.scan_status == "Pending" %>
+      <%= render "shared/icon", name: "loader", size: 48, class: "empty-state-icon" %>
+      <p>扫描进行中<% if manifest.scan_complete_percent && manifest.scan_complete_percent < 100 %> (<%= manifest.scan_complete_percent %>%)<% end %></p>
+    <% elsif manifest.scan_status == "Error" %>
+      <%= render "shared/icon", name: "alert", size: 48, class: "empty-state-icon" %>
+      <p>扫描失败</p>
+    <% else %>
+      <%= render "shared/icon", name: "info", size: 48, class: "empty-state-icon" %>
+      <p><%= format_scan_status(manifest.scan_status) %></p>
+    <% end %>
+  </div>
+<% elsif manifest.vulnerabilities.blank? %>
+  <div class="empty-state">
+    <%= render "shared/icon", name: "shield", size: 48, class: "empty-state-icon" %>
+    <p>该制品不支持漏洞扫描</p>
+  </div>
+<% else %>
+  <div class="vuln-section">
+    <div class="vuln-summary">
+      <div class="vuln-summary-stats">
+        <span class="vuln-summary-total">共 <%= manifest.vuln_total %> 个漏洞</span>
+        <% if manifest.vuln_fixable > 0 %>
+          <span class="vuln-summary-fixable">
+            <%= render "shared/icon", name: "wrench", size: 14 %>
+            <%= manifest.vuln_fixable %> 个可修复
+          </span>
+        <% end %>
+        <% if manifest.scan_scanner %>
+          <span class="vuln-summary-scanner">
+            扫描器: <%= manifest.scan_scanner["name"] %> <%= manifest.scan_scanner["version"] %>
+          </span>
+        <% end %>
+      </div>
+
+      <div class="vuln-search-box">
+        <span class="vuln-search-icon">
+          <%= render "shared/icon", name: "search", size: 16 %>
+        </span>
+        <input type="text"
+               class="vuln-search-input"
+               placeholder="搜索 CVE、包名、描述..."
+               data-vuln-search="<%= manifest.id %>">
+      </div>
+    </div>
+
+    <div class="vuln-groups" data-vuln-groups="<%= manifest.id %>">
+      <% manifest.vuln_grouped.each do |severity, items| %>
+        <div class="vuln-group" data-vuln-group="<%= severity.downcase %>" data-vuln-count="<%= items.size %>">
+          <button class="vuln-group-header" data-default-open="<%= %w[Critical High].include?(severity) %>">
+            <span class="vuln-group-chevron">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+            <span class="vuln-group-badge sev-<%= severity.downcase %>">
+              <%= vuln_severity_label(severity) %>
+            </span>
+            <span class="vuln-group-count"><%= items.size %></span>
+          </button>
+
+          <div class="vuln-group-body">
+            <% items.each do |vuln| %>
+              <div class="vuln-item" data-vuln-id="<%= vuln["id"] %>" data-vuln-package="<%= vuln["package"] %>" data-vuln-desc="<%= vuln["description"] %>">
+                <div class="vuln-item-main">
+                  <a href="<%= vuln["links"]&.first %>" target="_blank" rel="noopener" class="vuln-item-cve" title="<%= vuln["description"] %>">
+                    <%= vuln["id"] %>
+                  </a>
+                  <span class="vuln-item-sev sev-<%= severity.downcase %>">
+                    <%= vuln_severity_label(severity) %>
+                  </span>
+                  <% score = vuln.dig("preferred_cvss", "score_v3") %>
+                  <span class="vuln-item-cvss">
+                    CVSS <%= format_cvss_score(score) %>
+                  </span>
+                  <span class="vuln-item-pkg">
+                    <%= vuln["package"] %> <%= vuln["version"] %>
+                  </span>
+                  <% if vuln["fix_version"].present? %>
+                    <span class="vuln-item-fix">
+                      → <%= vuln["fix_version"] %>
+                    </span>
+                  <% else %>
+                    <span class="vuln-item-fix vuln-item-fix-none">无修复</span>
+                  <% end %>
+                </div>
+
+                <div class="vuln-item-detail">
+                  <p class="vuln-item-desc"><%= vuln["description"] %></p>
+                  <div class="vuln-item-meta">
+                    <span>状态: <%= vuln["status"] %></span>
+                    <% if vuln["cwe_ids"]&.any? %>
+                      <span>CWE: <%= vuln["cwe_ids"].join(", ") %></span>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="vuln-no-results" data-vuln-no-results="<%= manifest.id %>" style="display: none;">
+      <p>未找到匹配的漏洞</p>
+    </div>
+  </div>
+<% end %>

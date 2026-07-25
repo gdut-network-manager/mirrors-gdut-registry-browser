@@ -53,4 +53,56 @@ module ApplicationHelper
     end
     unit.zero? ? "#{size.to_i} #{units[unit]}" : "#{size.round(2)} #{units[unit]}"
   end
+
+  VULN_SEVERITY_COLORS = {
+    "Critical" => "#dc2626",
+    "High"     => "#f97316",
+    "Medium"   => "#f59e0b",
+    "Low"      => "#3b82f6",
+    "Unknown"  => "#94a3b8"
+  }.freeze
+
+  def vuln_severity_color(severity)
+    VULN_SEVERITY_COLORS[severity] || "#94a3b8"
+  end
+
+  def vuln_severity_label(severity)
+    {
+      "Critical" => "危急",
+      "High"     => "严重",
+      "Medium"   => "中等",
+      "Low"      => "较低",
+      "Unknown"  => "无评分"
+    }.fetch(severity, severity)
+  end
+
+  def vuln_severity_percent(count, total)
+    return 0 if total.zero?
+    (count.to_f / total * 100).round(2)
+  end
+
+  def format_cvss_score(score)
+    return "—" if score.nil?
+    score.to_s
+  end
+
+  def sbom_license_display(license)
+    return "—" if license.blank? || license == "NOASSERTION"
+    license
+  end
+
+  def sbom_version_display(version)
+    return "—" if version.blank?
+    version
+  end
+
+  def format_scan_status(status)
+    {
+      "Success"  => "已完成",
+      "Running"  => "进行中",
+      "Pending"  => "等待中",
+      "Error"    => "失败",
+      "NotScanned" => "未扫描"
+    }.fetch(status, status)
+  end
 end

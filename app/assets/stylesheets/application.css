@@ -1844,3 +1844,516 @@ img {
 .nav-tab.active svg {
     opacity: 1;
 }
+
+/* ==========================================
+   Severity Colors (Vulnerability)
+   ========================================== */
+
+.sev-critical { background: #dc2626; color: white; }
+.sev-high     { background: #f97316; color: white; }
+.sev-medium   { background: #f59e0b; color: white; }
+.sev-low      { background: #3b82f6; color: white; }
+.sev-unknown  { background: #94a3b8; color: white; }
+
+/* ==========================================
+   Vulnerability Chart (Stacked Bar)
+   ========================================== */
+
+.vuln-chart {
+    margin-top: var(--spacing-xs);
+}
+
+.vuln-chart-bar {
+    display: flex;
+    height: 12px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--color-border);
+    margin-bottom: var(--spacing-xs);
+}
+
+.vuln-chart-segment {
+    height: 100%;
+    transition: width 0.4s ease;
+    min-width: 2px;
+}
+
+.vuln-chart-segment.sev-critical { background: #dc2626; }
+.vuln-chart-segment.sev-high     { background: #f97316; }
+.vuln-chart-segment.sev-medium   { background: #f59e0b; }
+.vuln-chart-segment.sev-low      { background: #3b82f6; }
+.vuln-chart-segment.sev-unknown  { background: #94a3b8; }
+
+.vuln-chart-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.75rem;
+}
+
+.vuln-chart-total {
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.vuln-chart-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+}
+
+.vuln-chart-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--color-text-secondary);
+}
+
+.vuln-chart-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.vuln-chart-dot.sev-critical { background: #dc2626; }
+.vuln-chart-dot.sev-high     { background: #f97316; }
+.vuln-chart-dot.sev-medium   { background: #f59e0b; }
+.vuln-chart-dot.sev-low      { background: #3b82f6; }
+.vuln-chart-dot.sev-unknown  { background: #94a3b8; }
+
+/* ==========================================
+   Sub Tabs (History / Vulnerability / SBOM)
+   ========================================== */
+
+.sub-tabs-wrapper {
+    margin-top: var(--spacing-lg);
+}
+
+.sub-tabs {
+    margin-bottom: var(--spacing-md);
+}
+
+.sub-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.sub-tab-content {
+    display: none;
+}
+
+.sub-tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+/* ==========================================
+   Vulnerability List
+   ========================================== */
+
+.vuln-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.vuln-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.vuln-summary-stats {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+    font-size: 0.875rem;
+}
+
+.vuln-summary-total {
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.vuln-summary-fixable {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--color-success);
+}
+
+.vuln-summary-scanner {
+    color: var(--color-text-muted);
+    font-size: 0.8125rem;
+}
+
+.vuln-search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.vuln-search-icon {
+    position: absolute;
+    left: var(--spacing-sm);
+    color: var(--color-text-muted);
+    display: flex;
+    align-items: center;
+}
+
+.vuln-search-input {
+    padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-xs) 36px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: 0.875rem;
+    width: 260px;
+    outline: none;
+    transition: border-color var(--transition-fast);
+}
+
+.vuln-search-input:focus {
+    border-color: var(--color-primary);
+}
+
+.vuln-groups {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.vuln-group {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.vuln-group-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--color-hover);
+    border: none;
+    cursor: pointer;
+    transition: background var(--transition-fast);
+    text-align: left;
+}
+
+.vuln-group-header:hover {
+    background: var(--color-surface);
+}
+
+.vuln-group-chevron {
+    display: flex;
+    align-items: center;
+    transition: transform var(--transition-fast);
+    color: var(--color-text-muted);
+}
+
+.vuln-group.open .vuln-group-chevron {
+    transform: rotate(180deg);
+}
+
+.vuln-group-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.vuln-group-count {
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    margin-left: auto;
+}
+
+.vuln-group-body {
+    display: none;
+    border-top: 1px solid var(--color-border);
+}
+
+.vuln-group.open .vuln-group-body {
+    display: block;
+}
+
+.vuln-item {
+    border-bottom: 1px solid var(--color-border);
+}
+
+.vuln-item:last-child {
+    border-bottom: none;
+}
+
+.vuln-item-main {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+    flex-wrap: wrap;
+}
+
+.vuln-item-main:hover {
+    background: var(--color-hover);
+}
+
+.vuln-item-cve {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.vuln-item-cve:hover {
+    text-decoration: underline;
+}
+
+.vuln-item-sev {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.vuln-item-cvss {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+    min-width: 64px;
+}
+
+.vuln-item-pkg {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary);
+}
+
+.vuln-item-fix {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.75rem;
+    color: var(--color-success);
+    font-weight: 600;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.vuln-item-fix-none {
+    color: var(--color-text-muted);
+    font-weight: 400;
+}
+
+.vuln-item-detail {
+    display: none;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--color-hover);
+}
+
+.vuln-item-detail.show {
+    display: block;
+}
+
+.vuln-item-desc {
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-xs);
+    line-height: 1.5;
+}
+
+.vuln-item-meta {
+    display: flex;
+    gap: var(--spacing-md);
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    flex-wrap: wrap;
+}
+
+.vuln-no-results {
+    text-align: center;
+    padding: var(--spacing-lg);
+    color: var(--color-text-muted);
+}
+
+.vuln-item.hidden {
+    display: none;
+}
+
+.vuln-group.filtered-out {
+    display: none;
+}
+
+/* ==========================================
+   SBOM Section
+   ========================================== */
+
+.sbom-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.sbom-summary {
+    padding: var(--spacing-sm) 0;
+}
+
+.sbom-summary-stats {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+}
+
+.sbom-summary-scanner,
+.sbom-summary-duration,
+.sbom-summary-digest {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.sbom-summary-digest code {
+    font-size: 0.75rem;
+}
+
+.sbom-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-xl);
+    color: var(--color-text-muted);
+}
+
+.sbom-loading svg {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.sbom-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.sbom-search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.sbom-search-icon {
+    position: absolute;
+    left: var(--spacing-sm);
+    color: var(--color-text-muted);
+    display: flex;
+    align-items: center;
+}
+
+.sbom-search-input {
+    padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-xs) 36px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: 0.875rem;
+    width: 260px;
+    outline: none;
+    transition: border-color var(--transition-fast);
+}
+
+.sbom-search-input:focus {
+    border-color: var(--color-primary);
+}
+
+.sbom-count {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    margin-left: auto;
+}
+
+.sbom-table-wrapper {
+    overflow-x: auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.sbom-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+}
+
+.sbom-table thead {
+    position: sticky;
+    top: 0;
+    background: var(--color-hover);
+    z-index: 1;
+}
+
+.sbom-table th {
+    padding: var(--spacing-sm) var(--spacing-md);
+    text-align: left;
+    font-weight: 600;
+    color: var(--color-text);
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+}
+
+.sbom-table td {
+    padding: var(--spacing-sm) var(--spacing-md);
+    color: var(--color-text-secondary);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.sbom-table tbody tr:hover {
+    background: var(--color-hover);
+}
+
+.sbom-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.sbom-pkg-name {
+    font-weight: 500;
+    color: var(--color-text);
+}
+
+.sbom-pkg-version,
+.sbom-pkg-license {
+    font-family: 'Fira Code', monospace;
+}
+
+.sbom-row.hidden {
+    display: none;
+}
+
+.sbom-no-results {
+    text-align: center;
+    padding: var(--spacing-lg);
+    color: var(--color-text-muted);
+}

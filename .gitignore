@@ -39,3 +39,4 @@
 
 # Ignore OpenCode session files
 .omo/
+.playwright-mcp/

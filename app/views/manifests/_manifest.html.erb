@@ -2,4 +2,32 @@
 <%= render "manifests/sections/labels", manifest: manifest %>
 <%= render "manifests/sections/environment", manifest: manifest %>
 <%= render "manifests/sections/layers", manifest: manifest %>
-<%= render "manifests/sections/history", manifest: manifest %>
+
+<div class="sub-tabs-wrapper" data-sub-tabs="<%= manifest.id %>">
+  <div class="nav-tabs sub-tabs">
+    <button class="nav-tab sub-tab active" data-sub-tab-target="vuln-<%= manifest.id %>">
+      <%= render "shared/icon", name: "shield", size: 16 %>
+      漏洞扫描
+    </button>
+    <button class="nav-tab sub-tab" data-sub-tab-target="sbom-<%= manifest.id %>">
+      <%= render "shared/icon", name: "list", size: 16 %>
+      软件物料清单
+    </button>
+    <button class="nav-tab sub-tab" data-sub-tab-target="history-<%= manifest.id %>">
+      <%= render "shared/icon", name: "history", size: 16 %>
+      构建历史
+    </button>
+  </div>
+
+  <div class="sub-tab-content active" id="vuln-<%= manifest.id %>">
+    <%= render "manifests/sections/vulnerabilities", manifest: manifest %>
+  </div>
+
+  <div class="sub-tab-content" id="sbom-<%= manifest.id %>">
+    <%= render "manifests/sections/sbom", manifest: manifest %>
+  </div>
+
+  <div class="sub-tab-content" id="history-<%= manifest.id %>">
+    <%= render "manifests/sections/history", manifest: manifest %>
+  </div>
+</div>
