@@ -22,6 +22,7 @@ Single-context layout: `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/ag
 - 生产环境配置了 `RAILS_RELATIVE_URL_ROOT=/docker`(`SCRIPT_NAME=/docker`),所有 URL 必须包含 `/docker` 前缀
 - 生产环境是 nginx ingress + Rails production 模式,与本地 Puma dev 模式行为不同
 - 不要在 JS 中硬编码 URL 路径,应使用 Rails route helper 生成(会自动包含 `SCRIPT_NAME` 前缀)
+- 生产环境需要手动部署,代码推送后不会自动更新。出 Bug 排查时应去生产环境确认实际表现
 
 历史教训:
 1. 前端过滤只能搜当前页 → 改用 Harbor API 服务端搜索
