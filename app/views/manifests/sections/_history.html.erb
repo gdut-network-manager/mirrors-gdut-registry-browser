@@ -1,7 +1,20 @@
-<h5 class="mt-4">构建历史</h5>
-<div class="overflow-auto">
-  <% manifest.history.each do |entry| %>
-    <span class="text-muted small"><%= entry.created %> <% if entry.comment.present? %>(<%= entry.comment %>)<% end %></span>
-    <p class="mb-3 small text-monospace"><%= entry.created_by %></p>
-  <% end %>
+<div class="history-table-wrapper">
+  <table class="history-table">
+    <thead>
+      <tr>
+        <th class="history-th-time">时间</th>
+        <th class="history-th-cmd">构建命令</th>
+        <th class="history-th-comment">注释</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% manifest.history.each do |entry| %>
+        <tr class="history-row">
+          <td class="history-td-time"><%= entry.created %></td>
+          <td class="history-td-cmd"><%= entry.created_by %></td>
+          <td class="history-td-comment"><%= entry.comment.present? ? entry.comment : "—" %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 </div>
