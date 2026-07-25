@@ -98,16 +98,6 @@ $(document).on("turbo:load", function () {
     }
   }
 
-  function applyDefaultSortIndicators(table) {
-    var defaultSort = table.data("default-sort");
-    if (!defaultSort) return;
-    var parts = defaultSort.split(":");
-    var key = parts[0];
-    var dir = parts[1] || "asc";
-    table.find(".sortable-th").removeClass("sorted-asc sorted-desc");
-    table.find('.sortable-th[data-sort-key="' + key + '"]').addClass(dir === "asc" ? "sorted-asc" : "sorted-desc");
-  }
-
   function initTableState(scope) {
     scope = scope || document;
 
@@ -326,7 +316,7 @@ $(document).on("turbo:load", function () {
         th.addClass("sorted-asc");
       } else if (isAsc) {
         restoreOriginalOrder(table);
-        applyDefaultSortIndicators(table);
+        th.closest("thead").find(".sortable-th").removeClass("sorted-asc sorted-desc");
         var isVuln = table.closest("[data-vuln-table]").length;
         var isSbom = table.closest("[data-sbom-table]").length;
         if (isVuln) {
