@@ -1,5 +1,12 @@
 # Changelog
 
+# v2.2.8
+
+* 修复生产环境仓库搜索返回 404 的问题
+* 根因: Turbo Frame 的 `frame.src` 会发送 `Accept: text/vnd.turbo-frame.html` 请求头,生产环境不识别此 MIME 类型返回 404
+* 改用普通 `fetch()` + `Accept: text/html`,从响应 HTML 中提取 `#repo-list` 并替换 DOM
+* 去掉 `_repo_list` partial 中的 `turbo_frame_tag` 包装,改为普通 div
+
 # v2.2.7
 
 * 仓库搜索改为服务端搜索(Harbor API `q=name=~keyword` 模糊匹配),支持搜索项目下所有仓库而非仅当前页

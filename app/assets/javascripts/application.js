@@ -75,11 +75,17 @@ $(document).on("turbo:load", function () {
     repoSearchTimer = setTimeout(function () {
       var query = input.value.trim();
       var projectName = input.dataset.projectName;
-      var frame = document.getElementById("repo-list-frame");
-      if (frame) {
-        var url = "/project/" + encodeURIComponent(projectName) + "?q=" + encodeURIComponent(query);
-        frame.src = url;
-      }
+      var url = "/project/" + encodeURIComponent(projectName) + "?q=" + encodeURIComponent(query);
+
+      fetch(url, { headers: { "Accept": "text/html" } })
+        .then(function (r) { return r.text(); })
+        .then(function (html) {
+          var doc = new DOMParser().parseFromString(html, "text/html");
+          var newList = doc.getElementById("repo-list");
+          if (newList) {
+            document.getElementById("repo-list").replaceWith(newList);
+          }
+        });
     }, 350);
   });
 
