@@ -74,8 +74,8 @@ $(document).on("turbo:load", function () {
     clearTimeout(repoSearchTimer);
     repoSearchTimer = setTimeout(function () {
       var query = input.value.trim();
-      var projectName = input.dataset.projectName;
-      var url = "/project/" + encodeURIComponent(projectName) + "?q=" + encodeURIComponent(query);
+      var baseUrl = input.dataset.searchUrl;
+      var url = baseUrl + (baseUrl.indexOf("?") >= 0 ? "&" : "?") + "q=" + encodeURIComponent(query);
 
       fetch(url, { headers: { "Accept": "text/html" } })
         .then(function (r) { return r.text(); })

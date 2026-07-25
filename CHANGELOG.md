@@ -1,5 +1,11 @@
 # Changelog
 
+# v2.2.9
+
+* 修复子路径部署(`RAILS_RELATIVE_URL_ROOT=/docker`)下仓库搜索 404 的问题
+* 根因: JS 中硬编码 URL `/project/xxx` 缺少 `SCRIPT_NAME` 前缀,生产环境请求到了 `/project/docker?q=core` 而非 `/docker/project/docker?q=core`
+* 改为从 `data-search-url` 属性读取 URL(由 Rails route helper `project_path` 生成,自动包含 `SCRIPT_NAME` 前缀)
+
 # v2.2.8
 
 * 修复生产环境仓库搜索返回 404 的问题

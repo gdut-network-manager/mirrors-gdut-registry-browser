@@ -27,7 +27,7 @@
                  placeholder="搜索仓库…"
                  value="<%= @query %>"
                  data-repo-search
-                 data-project-name="<%= @project.name %>">
+                 data-search-url="<%= project_path(project_name: @project.name) %>">
         </div>
 
         <%= render "repo_list", repositories: @repositories, project: @project, query: @query %>
