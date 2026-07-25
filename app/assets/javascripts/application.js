@@ -65,6 +65,24 @@ $(document).on("turbo:load", function () {
     wrapper.find("#" + target).addClass("active");
   });
 
+  // Repo search (server-side, debounced)
+  var repoSearchTimer;
+  document.addEventListener("input", function (e) {
+    if (!e.target.matches || !e.target.matches("[data-repo-search]")) return;
+
+    var input = e.target;
+    clearTimeout(repoSearchTimer);
+    repoSearchTimer = setTimeout(function () {
+      var query = input.value.trim();
+      var projectName = input.dataset.projectName;
+      var frame = document.getElementById("repo-list-frame");
+      if (frame) {
+        var url = "/project/" + encodeURIComponent(projectName) + "?q=" + encodeURIComponent(query);
+        frame.src = url;
+      }
+    }, 350);
+  });
+
   // ==========================================
   // Pagination + Filter + Search + Sort
   // ==========================================

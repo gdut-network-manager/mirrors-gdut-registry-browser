@@ -1,0 +1,21 @@
+<%= turbo_frame_tag "repo-list-frame" do %>
+  <% if repositories.any? %>
+    <div class="list-group list-group-flush" id="repo-list">
+      <% repositories.each do |repo| %>
+        <%= link_to repository_path(project.name, repo.relative_name), class: "list-group-item list-group-item-action d-flex align-items-center repo-entry" do %>
+          <div class="flex-grow-1">
+            <span class="badge badge-dimage text-uppercase mr-1">IMG</span>
+            <span class="text-monospace small text-truncate"><%= repo.relative_name %></span>
+          </div>
+          <span class="badge badge-dtag mr-2"><%= repo.artifact_count %> 镜像</span>
+          <%= render "shared/icon", name: "arrow-right", size: 16 %>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center py-4">
+      <%= render "shared/icon", name: "inbox", size: 48, class: "island-icon" %>
+      <p class="text-muted mt-2">未找到匹配的仓库</p>
+    </div>
+  <% end %>
+<% end %>

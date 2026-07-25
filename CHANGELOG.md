@@ -1,5 +1,12 @@
 # Changelog
 
+# v2.2.7
+
+* 仓库搜索改为服务端搜索(Harbor API `q=name=~keyword` 模糊匹配),支持搜索项目下所有仓库而非仅当前页
+* 提取 `_repo_list` partial,用 Turbo Frame `src` 更新实现无刷新搜索
+* 搜索框 350ms debounce,清空时恢复完整列表
+* 搜索框添加搜索图标和聚焦样式
+
 # v2.2.6
 
 * 修复 SBOM 搜索框与摘要统计不在同一行的问题(从 Turbo Frame 内移到外层摘要栏)

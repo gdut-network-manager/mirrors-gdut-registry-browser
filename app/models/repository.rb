@@ -3,11 +3,13 @@ class Repository
 
   attr_accessor :name, :project_name, :artifact_count, :pull_count, :description
 
-  def self.list(project_name:, page: 1, page_size: Rails.configuration.x.page_size)
+  def self.list(project_name:, page: 1, page_size: Rails.configuration.x.page_size, query: nil)
+    params = { page: page, page_size: page_size }
+    params[:q] = "name=~#{query}" if query.present?
+
     response = HarborClient.api.get(
       "projects/#{project_name}/repositories",
-      page: page,
-      page_size: page_size
+      params
     )
 
     entries = response.body.map do |r|

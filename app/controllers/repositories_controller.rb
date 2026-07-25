@@ -3,7 +3,12 @@ class RepositoriesController < ApplicationController
 
   def index
     @project = Project.find(params[:project_name])
-    @repositories = Repository.list(project_name: params[:project_name], page: params[:page]&.to_i || 1)
+    @query = params[:q].to_s.strip
+    @repositories = Repository.list(
+      project_name: params[:project_name],
+      page: params[:page]&.to_i || 1,
+      query: @query.presence
+    )
   end
 
   def show
