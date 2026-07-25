@@ -2351,6 +2351,10 @@ img {
 }
 
 .sbom-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md);
     padding: var(--spacing-sm) 0;
 }
 
@@ -2429,7 +2433,7 @@ img {
     background: var(--color-surface);
     color: var(--color-text);
     font-size: 0.875rem;
-    width: 260px;
+    width: 200px;
     outline: none;
     transition: border-color var(--transition-fast);
 }

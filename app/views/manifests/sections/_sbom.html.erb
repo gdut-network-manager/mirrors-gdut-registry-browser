@@ -34,6 +34,16 @@
           </span>
         <% end %>
       </div>
+
+      <div class="sbom-search-box">
+        <span class="sbom-search-icon">
+          <%= render "shared/icon", name: "search", size: 16 %>
+        </span>
+        <input type="text"
+               class="sbom-search-input"
+               placeholder="搜索包名..."
+               data-sbom-search="<%= manifest.id %>">
+      </div>
     </div>
 
     <%= turbo_frame_tag "sbom-frame-#{manifest.id}", src: tag_sbom_path(project_name: @project.name, repo: @repository.relative_name, tag: @tag.name, sbom_digest: manifest.sbom_digest, manifest_id: manifest.id) do %>

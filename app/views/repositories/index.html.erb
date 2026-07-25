@@ -18,9 +18,10 @@
 
       <% if @repositories.any? %>
         <div class="island-body">
-          <div class="list-group list-group-flush">
+          <input type="text" id="repo-filter" class="form-control mb-3" placeholder="过滤仓库…" onkeyup="filterRepos()">
+          <div class="list-group list-group-flush" id="repo-list">
             <% @repositories.each do |repo| %>
-              <%= link_to repository_path(@project.name, repo.relative_name), class: "list-group-item list-group-item-action d-flex align-items-center" do %>
+              <%= link_to repository_path(@project.name, repo.relative_name), class: "list-group-item list-group-item-action d-flex align-items-center repo-entry" do %>
                 <div class="flex-grow-1">
                   <span class="badge badge-dimage text-uppercase mr-1">IMG</span>
                   <span class="text-monospace small text-truncate"><%= repo.relative_name %></span>
@@ -39,3 +40,19 @@
     <%= render "shared/pagination", total_pages: @repositories.total_pages, current_page: @repositories.page, path_helper: :project_path, path_args: { project_name: @project.name } %>
   </div>
 </div>
+
+<script>
+function filterRepos() {
+  var input = document.getElementById("repo-filter");
+  var filter = input.value.toLowerCase();
+  var entries = document.getElementById("repo-list").getElementsByClassName("repo-entry");
+  for (var i = 0; i < entries.length; i++) {
+    var text = entries[i].textContent || entries[i].innerText;
+    if (text.toLowerCase().indexOf(filter) > -1) {
+      entries[i].style.display = "";
+    } else {
+      entries[i].style.display = "none";
+    }
+  }
+}
+</script>
