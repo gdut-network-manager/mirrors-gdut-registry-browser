@@ -292,9 +292,73 @@ $(document).on("turbo:load", function () {
     renderPageNumbers(pagination, page, totalPages);
   }
 
+  // ==========================================
+  // Column Sorting
+  // ==========================================
+
+  function initSortableTable(scope) {
+    scope = scope || document;
+
+    $(scope).off("click.sort").on("click.sort", ".sortable-th", function () {
+      var th = $(this);
+      var table = th.closest("[data-sortable-table]");
+      var tableId = table.data("sortable-table");
+      var sortKey = th.data("sort-key");
+      var sortType = th.data("sort-type");
+
+      var isDesc = th.hasClass("sorted-desc");
+      var newDir = isDesc ? "asc" : "desc";
+
+      th.closest("thead").find(".sortable-th").removeClass("sorted-asc sorted-desc");
+      th.addClass(newDir === "asc" ? "sorted-asc" : "sorted-desc");
+
+      var tbody = table.find("tbody");
+      var rows = tbody.find("tr").get();
+
+      var colIndex = th.index();
+
+      rows.sort(function (a, b) {
+        var aVal = $(a).find("td").eq(colIndex).data("sort-value");
+        var bVal = $(b).find("td").eq(colIndex).data("sort-value");
+
+        if (aVal == null) aVal = "";
+        if (bVal == null) bVal = "";
+
+        var cmp;
+
+        if (sortType === "number") {
+          cmp = (parseFloat(aVal) || 0) - (parseFloat(bVal) || 0);
+        } else {
+          cmp = String(aVal).localeCompare(String(bVal), "zh-CN");
+        }
+
+        return newDir === "asc" ? cmp : -cmp;
+      });
+
+      $.each(rows, function (i, row) {
+        tbody.append(row);
+      });
+
+      if (tableId !== undefined) {
+        if (table.closest("[data-vuln-table]").length) {
+          var manifestId = table.closest("[data-vuln-table]").data("vuln-table");
+          var state = getVulnState(manifestId);
+          state.page = 1;
+          updateVulnView(manifestId, state);
+        } else if (table.closest("[data-sbom-table]").length) {
+          var sbomManifestId = table.closest("[data-sbom-table]").data("sbom-table");
+          var query = ($('[data-sbom-search="' + sbomManifestId + '"]').val() || "").toLowerCase().trim();
+          updateSbomView(sbomManifestId, 1, query);
+        }
+      }
+    });
+  }
+
   initPaginatedTable(document);
+  initSortableTable(document);
 
   $(document).on("turbo:frame-load", function (e) {
     initPaginatedTable(e.target);
+    initSortableTable(e.target);
   });
 });

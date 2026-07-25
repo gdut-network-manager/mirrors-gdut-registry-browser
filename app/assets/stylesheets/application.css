@@ -2056,6 +2056,12 @@ img {
     animation: spin 1s linear infinite;
 }
 
+.vuln-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
 .vuln-toolbar {
     display: flex;
     align-items: center;
@@ -2130,6 +2136,43 @@ img {
     color: var(--color-text);
     border-bottom: 1px solid var(--color-border);
     white-space: nowrap;
+}
+
+.sortable-th {
+    cursor: pointer;
+    user-select: none;
+    transition: color var(--transition-fast);
+}
+
+.sortable-th:hover {
+    color: var(--color-primary);
+}
+
+.sort-icon {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: 4px;
+    vertical-align: middle;
+    opacity: 0.3;
+    transition: opacity var(--transition-fast);
+}
+
+.sortable-th.sorted-asc .sort-icon,
+.sortable-th.sorted-desc .sort-icon {
+    opacity: 1;
+}
+
+.sortable-th.sorted-asc .sort-icon {
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-bottom: 5px solid currentColor;
+}
+
+.sortable-th.sorted-desc .sort-icon {
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid currentColor;
 }
 
 .vuln-table td {

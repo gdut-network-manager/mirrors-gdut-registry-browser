@@ -5,85 +5,94 @@
       <p>该制品不支持漏洞扫描</p>
     </div>
   <% else %>
-    <div class="vuln-toolbar">
-      <div class="vuln-filter-chips" data-vuln-filter-chips="<%= manifest_id %>">
-        <button class="filter-chip active" data-vuln-filter="all">全部 <%= vulnerabilities.size %></button>
-        <% Manifest::VULN_SEVERITY_ORDER.each do |sev| %>
-          <% count = vulnerabilities.count { |v| v["severity"] == sev } %>
-          <% next if count == 0 %>
-          <button class="filter-chip sev-<%= sev.downcase %>" data-vuln-filter="<%= sev %>">
-            <%= vuln_severity_label(sev) %> <%= count %>
-          </button>
-        <% end %>
-      </div>
-
-      <div class="vuln-search-box">
-        <span class="vuln-search-icon">
-          <%= render "shared/icon", name: "search", size: 16 %>
-        </span>
-        <input type="text"
-               class="vuln-search-input"
-               placeholder="搜索 CVE、包名、描述..."
-               data-vuln-search="<%= manifest_id %>">
-      </div>
-    </div>
-
-    <div class="vuln-table-wrapper" data-vuln-table="<%= manifest_id %>">
-      <table class="vuln-table">
-        <thead>
-          <tr>
-            <th class="vuln-th-cve">CVE</th>
-            <th class="vuln-th-sev">严重性</th>
-            <th class="vuln-th-cvss">CVSS</th>
-            <th class="vuln-th-pkg">包</th>
-            <th class="vuln-th-fix">修复版本</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% vulnerabilities.each do |vuln| %>
-            <% sev = vuln["severity"] || "Unknown" %>
-            <% score = vuln.dig("preferred_cvss", "score_v3") %>
-            <tr class="vuln-row sev-<%= sev.downcase %>"
-                data-vuln-id="<%= vuln["id"] %>"
-                data-vuln-package="<%= vuln["package"] %>"
-                data-vuln-desc="<%= vuln["description"] %>"
-                data-vuln-severity="<%= sev %>">
-              <td class="vuln-td-cve">
-                <a href="<%= vuln["links"]&.first %>" target="_blank" rel="noopener" title="<%= vuln["description"] %>">
-                  <%= vuln["id"] %>
-                </a>
-              </td>
-              <td class="vuln-td-sev">
-                <span class="vuln-badge sev-<%= sev.downcase %>"><%= vuln_severity_label(sev) %></span>
-              </td>
-              <td class="vuln-td-cvss"><%= format_cvss_score(score) %></td>
-              <td class="vuln-td-pkg"><%= vuln["package"] %> <%= vuln["version"] %></td>
-              <td class="vuln-td-fix">
-                <% if vuln["fix_version"].present? %>
-                  <span class="vuln-fix-version">→ <%= vuln["fix_version"] %></span>
-                <% else %>
-                  <span class="vuln-fix-none">无修复</span>
-                <% end %>
-              </td>
-            </tr>
+    <%
+      sorted_vulns = vulnerabilities.sort_by do |v|
+        score = v.dig("preferred_cvss", "score_v3")
+        score.present? ? -score : Float::INFINITY
+      end
+    %>
+    <div class="vuln-content">
+      <div class="vuln-toolbar">
+        <div class="vuln-filter-chips" data-vuln-filter-chips="<%= manifest_id %>">
+          <button class="filter-chip active" data-vuln-filter="all">全部 <%= vulnerabilities.size %></button>
+          <% Manifest::VULN_SEVERITY_ORDER.each do |sev| %>
+            <% count = vulnerabilities.count { |v| v["severity"] == sev } %>
+            <% next if count == 0 %>
+            <button class="filter-chip sev-<%= sev.downcase %>" data-vuln-filter="<%= sev %>">
+              <%= vuln_severity_label(sev) %> <%= count %>
+            </button>
           <% end %>
-        </tbody>
-      </table>
-    </div>
+        </div>
 
-    <div class="pagination-bar" data-vuln-pagination="<%= manifest_id %>">
-      <span class="pagination-info">
-        <span class="pagination-range">0-0</span> / <span class="pagination-total"><%= vulnerabilities.size %></span>
-      </span>
-      <div class="pagination-controls">
-        <button class="pagination-btn pagination-prev" disabled>上一页</button>
-        <span class="pagination-pages"></span>
-        <button class="pagination-btn pagination-next" disabled>下一页</button>
+        <div class="vuln-search-box">
+          <span class="vuln-search-icon">
+            <%= render "shared/icon", name: "search", size: 16 %>
+          </span>
+          <input type="text"
+                 class="vuln-search-input"
+                 placeholder="搜索缺陷码、包名、描述..."
+                 data-vuln-search="<%= manifest_id %>">
+        </div>
       </div>
-    </div>
 
-    <div class="vuln-no-results" data-vuln-no-results="<%= manifest_id %>" style="display: none;">
-      <p>未找到匹配的漏洞</p>
+      <div class="vuln-table-wrapper" data-vuln-table="<%= manifest_id %>">
+        <table class="vuln-table" data-sortable-table="<%= manifest_id %>">
+          <thead>
+            <tr>
+              <th class="sortable-th" data-sort-key="id" data-sort-type="string">缺陷码 <span class="sort-icon"></span></th>
+              <th class="sortable-th" data-sort-key="severity" data-sort-type="number">严重性 <span class="sort-icon"></span></th>
+              <th class="sortable-th sorted-desc" data-sort-key="cvss" data-sort-type="number">CVSS <span class="sort-icon"></span></th>
+              <th class="sortable-th" data-sort-key="package" data-sort-type="string">包 <span class="sort-icon"></span></th>
+              <th class="sortable-th" data-sort-key="fix" data-sort-type="string">修复版本 <span class="sort-icon"></span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% sorted_vulns.each do |vuln| %>
+              <% sev = vuln["severity"] || "Unknown" %>
+              <% score = vuln.dig("preferred_cvss", "score_v3") %>
+              <% sev_rank = Manifest::VULN_SEVERITY_ORDER.index(sev) || 99 %>
+              <tr class="vuln-row"
+                  data-vuln-id="<%= vuln["id"] %>"
+                  data-vuln-package="<%= vuln["package"] %>"
+                  data-vuln-desc="<%= vuln["description"] %>"
+                  data-vuln-severity="<%= sev %>">
+                <td class="vuln-td-cve" data-sort-value="<%= vuln["id"] %>">
+                  <a href="<%= vuln["links"]&.first %>" target="_blank" rel="noopener" title="<%= vuln["description"] %>">
+                    <%= vuln["id"] %>
+                  </a>
+                </td>
+                <td class="vuln-td-sev" data-sort-value="<%= sev_rank %>">
+                  <span class="vuln-badge sev-<%= sev.downcase %>"><%= vuln_severity_label(sev) %></span>
+                </td>
+                <td class="vuln-td-cvss" data-sort-value="<%= score || -1 %>"><%= format_cvss_score(score) %></td>
+                <td class="vuln-td-pkg" data-sort-value="<%= vuln["package"].to_s %>"><%= vuln["package"] %> <%= vuln["version"] %></td>
+                <td class="vuln-td-fix" data-sort-value="<%= vuln["fix_version"].to_s %>">
+                  <% if vuln["fix_version"].present? %>
+                    <span class="vuln-fix-version">→ <%= vuln["fix_version"] %></span>
+                  <% else %>
+                    <span class="vuln-fix-none">无修复</span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination-bar" data-vuln-pagination="<%= manifest_id %>">
+        <span class="pagination-info">
+          <span class="pagination-range">0-0</span> / <span class="pagination-total"><%= vulnerabilities.size %></span>
+        </span>
+        <div class="pagination-controls">
+          <button class="pagination-btn pagination-prev" disabled>上一页</button>
+          <span class="pagination-pages"></span>
+          <button class="pagination-btn pagination-next" disabled>下一页</button>
+        </div>
+      </div>
+
+      <div class="vuln-no-results" data-vuln-no-results="<%= manifest_id %>" style="display: none;">
+        <p>未找到匹配的漏洞</p>
+      </div>
     </div>
   <% end %>
 <% end %>
