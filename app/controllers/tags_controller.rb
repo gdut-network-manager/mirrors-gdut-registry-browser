@@ -4,6 +4,27 @@ class TagsController < ApplicationController
   def show
   end
 
+  def vulnerabilities
+    manifest_id = params[:manifest_id]
+    artifact_digest = params[:artifact_digest]
+
+    if artifact_digest.blank?
+      render partial: "manifests/sections/vuln_frame", locals: { manifest_id: manifest_id, vulnerabilities: [] }
+      return
+    end
+
+    vulnerabilities = Tag.fetch_vulnerabilities(
+      project_name: params[:project_name],
+      repository_name: params[:repo],
+      digest: artifact_digest
+    ) || []
+
+    render partial: "manifests/sections/vuln_frame", locals: { manifest_id: manifest_id, vulnerabilities: vulnerabilities }
+  rescue Faraday::ClientError => e
+    message = e.response&.dig(:body, "errors", 0, "message") || "漏洞列表加载失败"
+    render html: "<turbo-frame id=\"vuln-frame-#{ERB::Util.html_escape(manifest_id)}\"><div class=\"empty-state\"><p>#{ERB::Util.html_escape(message)}</p></div></turbo-frame>".html_safe
+  end
+
   def sbom
     sbom_digest = params[:sbom_digest]
     manifest_id = params[:manifest_id]

@@ -13,14 +13,13 @@ class Manifest
     :os,
     :scan_overview,
     :sbom_overview,
-    :vulnerabilities
+    :artifact_digest
   )
 
   def id
     [ os, architecture ].join("-")
   end
 
-  # scan_overview 是 MIME 类型为键的 Map, 取第一个值
   def scan_report
     return nil unless scan_overview.is_a?(Hash) && scan_overview.any?
     scan_overview.values.first
@@ -71,20 +70,6 @@ class Manifest
 
   def vuln_fixable
     scan_summary&.dig("fixable") || 0
-  end
-
-  # 按严重性分组的漏洞列表, 组内按 CVSS v3 降序
-  def vuln_grouped
-    return {} unless vulnerabilities.is_a?(Array) && vulnerabilities.any?
-    vulnerabilities.group_by { |v| v["severity"] }
-                   .sort_by { |sev, _| VULN_SEVERITY_ORDER.index(sev) || 99 }
-                   .map do |sev, items|
-                     sorted = items.sort_by do |v|
-                       score = v.dig("preferred_cvss", "score_v3")
-                       [ score.present? ? -score : Float::INFINITY ]
-                     end
-                     [ sev, sorted ]
-                   end.to_h
   end
 
   def sbom_digest

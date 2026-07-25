@@ -69,6 +69,20 @@ class Tag
     @manifests ||= fetch_manifests.sort_by(&:architecture)
   end
 
+  # 按需拉取漏洞列表 (由 controller 调用)
+  def self.fetch_vulnerabilities(project_name:, repository_name:, digest:)
+    response = HarborClient.api.get(
+      "projects/#{project_name}/repositories/#{CGI.escape(repository_name)}/artifacts/#{digest}/additions/vulnerabilities"
+    ) do |req|
+      req.headers["X-Accept-Vulnerabilities"] = "application/vnd.security.vulnerability.report; version=1.1"
+    end
+    report_key = "application/vnd.security.vulnerability.report; version=1.1"
+    report = response.body[report_key]
+    report&.dig("vulnerabilities")
+  rescue Faraday::ResourceNotFound, Faraday::ClientError
+    nil
+  end
+
   private
 
   def fetch_manifests
@@ -111,25 +125,26 @@ class Tag
       )
     end
 
-    scan_overview, sbom_overview, vulnerabilities = fetch_scan_data(digest)
+    scan_overview, sbom_overview = fetch_scan_overview(digest)
 
     Manifest.new(
-      architecture:   [ blob.dig("architecture"), blob.dig("variant") ].compact.join("-"),
-      content_digest: config_digest,
-      created:        (Time.parse(blob.dig("created")) rescue nil),
-      env:            blob.dig("config", "Env") || [],
-      history:        blob.fetch("history", []).map { |e| HistoryEntry.new(e) },
-      labels:         blob.dig("config", "Labels") || {},
-      layers:         layers,
-      size:           layers.sum(&:size),
-      os:             blob.dig("os"),
-      scan_overview:  scan_overview,
-      sbom_overview:  sbom_overview,
-      vulnerabilities: vulnerabilities
+      architecture:    [ blob.dig("architecture"), blob.dig("variant") ].compact.join("-"),
+      content_digest:  config_digest,
+      created:         (Time.parse(blob.dig("created")) rescue nil),
+      env:             blob.dig("config", "Env") || [],
+      history:         blob.fetch("history", []).map { |e| HistoryEntry.new(e) },
+      labels:          blob.dig("config", "Labels") || {},
+      layers:          layers,
+      size:            layers.sum(&:size),
+      os:              blob.dig("os"),
+      scan_overview:   scan_overview,
+      sbom_overview:   sbom_overview,
+      artifact_digest: digest
     )
   end
 
-  def fetch_scan_data(digest)
+  # 只拉取扫描摘要, 不拉取完整漏洞报告
+  def fetch_scan_overview(digest)
     artifact_resp = HarborClient.api.get(
       "projects/#{project_name}/repositories/#{CGI.escape(repository_name)}/artifacts/#{digest}",
       with_tag: false,
@@ -139,29 +154,8 @@ class Tag
       with_immutable_status: false,
       with_accessory: false
     )
-    scan_overview = artifact_resp.body["scan_overview"]
-    sbom_overview = artifact_resp.body["sbom_overview"]
-
-    vulnerabilities = nil
-    if scan_overview.present?
-      vulnerabilities = fetch_vulnerabilities(digest)
-    end
-
-    [ scan_overview, sbom_overview, vulnerabilities ]
+    [ artifact_resp.body["scan_overview"], artifact_resp.body["sbom_overview"] ]
   rescue Faraday::ResourceNotFound, Faraday::ClientError
-    [ nil, nil, nil ]
-  end
-
-  def fetch_vulnerabilities(digest)
-    response = HarborClient.api.get(
-      "projects/#{project_name}/repositories/#{CGI.escape(repository_name)}/artifacts/#{digest}/additions/vulnerabilities"
-    ) do |req|
-      req.headers["X-Accept-Vulnerabilities"] = "application/vnd.security.vulnerability.report; version=1.1"
-    end
-    report_key = "application/vnd.security.vulnerability.report; version=1.1"
-    report = response.body[report_key]
-    report&.dig("vulnerabilities")
-  rescue Faraday::ResourceNotFound, Faraday::ClientError
-    nil
+    [ nil, nil ]
   end
 end

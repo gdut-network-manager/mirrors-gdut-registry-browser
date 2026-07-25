@@ -1423,6 +1423,11 @@ img {
     min-width: 300px;
 }
 
+.col-md-4 {
+    flex: 1 1 calc(33.33% - var(--spacing-lg));
+    min-width: 200px;
+}
+
 .col-md-10 {
     flex: 1 1 calc(83.33% - var(--spacing-lg));
     min-width: 400px;
@@ -1435,7 +1440,7 @@ img {
 }
 
 @media (max-width: 768px) {
-    .col-md-6, .col-md-10 {
+    .col-md-4, .col-md-6, .col-md-10 {
         flex: 1 1 100%;
         min-width: auto;
     }
@@ -1859,8 +1864,19 @@ img {
    Vulnerability Chart (Stacked Bar)
    ========================================== */
 
+.details-col-chart {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.details-col-chart .text-muted {
+    align-self: flex-end;
+}
+
 .vuln-chart {
     margin-top: var(--spacing-xs);
+    width: 100%;
 }
 
 .vuln-chart-bar {
@@ -1870,6 +1886,8 @@ img {
     overflow: hidden;
     background: var(--color-border);
     margin-bottom: var(--spacing-xs);
+    margin-left: auto;
+    max-width: 100%;
 }
 
 .vuln-chart-segment {
@@ -1889,6 +1907,8 @@ img {
     flex-direction: column;
     gap: 4px;
     font-size: 0.75rem;
+    align-items: flex-end;
+    text-align: right;
 }
 
 .vuln-chart-total {
@@ -1900,6 +1920,7 @@ img {
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-xs);
+    justify-content: flex-end;
 }
 
 .vuln-chart-legend-item {
@@ -2022,166 +2043,165 @@ img {
     border-color: var(--color-primary);
 }
 
-.vuln-groups {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
-}
-
-.vuln-group {
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    overflow: hidden;
-}
-
-.vuln-group-header {
+.vuln-loading {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: var(--spacing-sm);
-    width: 100%;
-    padding: var(--spacing-sm) var(--spacing-md);
-    background: var(--color-hover);
-    border: none;
-    cursor: pointer;
-    transition: background var(--transition-fast);
-    text-align: left;
-}
-
-.vuln-group-header:hover {
-    background: var(--color-surface);
-}
-
-.vuln-group-chevron {
-    display: flex;
-    align-items: center;
-    transition: transform var(--transition-fast);
+    padding: var(--spacing-xl);
     color: var(--color-text-muted);
 }
 
-.vuln-group.open .vuln-group-chevron {
-    transform: rotate(180deg);
+.vuln-loading svg {
+    animation: spin 1s linear infinite;
 }
 
-.vuln-group-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 2px 10px;
-    border-radius: var(--radius-sm);
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-.vuln-group-count {
-    font-weight: 600;
-    color: var(--color-text-secondary);
-    margin-left: auto;
-}
-
-.vuln-group-body {
-    display: none;
-    border-top: 1px solid var(--color-border);
-}
-
-.vuln-group.open .vuln-group-body {
-    display: block;
-}
-
-.vuln-item {
-    border-bottom: 1px solid var(--color-border);
-}
-
-.vuln-item:last-child {
-    border-bottom: none;
-}
-
-.vuln-item-main {
+.vuln-toolbar {
     display: flex;
     align-items: center;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-sm) var(--spacing-md);
-    cursor: pointer;
-    transition: background var(--transition-fast);
+    justify-content: space-between;
+    gap: var(--spacing-md);
     flex-wrap: wrap;
 }
 
-.vuln-item-main:hover {
+.vuln-filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+}
+
+.filter-chip:hover {
     background: var(--color-hover);
 }
 
-.vuln-item-cve {
+.filter-chip.active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+}
+
+.filter-chip.sev-critical.active { background: #dc2626; border-color: #dc2626; }
+.filter-chip.sev-high.active     { background: #f97316; border-color: #f97316; }
+.filter-chip.sev-medium.active   { background: #f59e0b; border-color: #f59e0b; }
+.filter-chip.sev-low.active      { background: #3b82f6; border-color: #3b82f6; }
+.filter-chip.sev-unknown.active  { background: #94a3b8; border-color: #94a3b8; }
+
+.vuln-table-wrapper {
+    overflow-x: auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.vuln-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+}
+
+.vuln-table thead {
+    position: sticky;
+    top: 0;
+    background: var(--color-hover);
+    z-index: 1;
+}
+
+.vuln-table th {
+    padding: var(--spacing-sm) var(--spacing-md);
+    text-align: left;
+    font-weight: 600;
+    color: var(--color-text);
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+}
+
+.vuln-table td {
+    padding: var(--spacing-sm) var(--spacing-md);
+    color: var(--color-text-secondary);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.vuln-table tbody tr:hover {
+    background: var(--color-hover);
+}
+
+.vuln-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.vuln-table tbody tr.hidden {
+    display: none;
+}
+
+.vuln-td-cve a {
     font-family: 'Fira Code', monospace;
     font-size: 0.8125rem;
     font-weight: 600;
     color: var(--color-primary);
     text-decoration: none;
-    flex-shrink: 0;
 }
 
-.vuln-item-cve:hover {
+.vuln-td-cve a:hover {
     text-decoration: underline;
 }
 
-.vuln-item-sev {
+.vuln-badge {
     display: inline-flex;
     align-items: center;
     padding: 1px 8px;
     border-radius: var(--radius-sm);
     font-size: 0.6875rem;
     font-weight: 600;
-    flex-shrink: 0;
+    color: white;
+    white-space: nowrap;
 }
 
-.vuln-item-cvss {
+.vuln-badge.sev-critical { background: #dc2626; }
+.vuln-badge.sev-high     { background: #f97316; }
+.vuln-badge.sev-medium   { background: #f59e0b; }
+.vuln-badge.sev-low      { background: #3b82f6; }
+.vuln-badge.sev-unknown  { background: #94a3b8; }
+
+.vuln-td-cvss {
     font-family: 'Fira Code', monospace;
     font-size: 0.75rem;
     color: var(--color-text-muted);
-    flex-shrink: 0;
-    min-width: 64px;
+    white-space: nowrap;
 }
 
-.vuln-item-pkg {
+.vuln-td-pkg {
     font-family: 'Fira Code', monospace;
     font-size: 0.8125rem;
     color: var(--color-text-secondary);
 }
 
-.vuln-item-fix {
+.vuln-fix-version {
     font-family: 'Fira Code', monospace;
     font-size: 0.75rem;
     color: var(--color-success);
     font-weight: 600;
-    margin-left: auto;
-    flex-shrink: 0;
 }
 
-.vuln-item-fix-none {
-    color: var(--color-text-muted);
-    font-weight: 400;
-}
-
-.vuln-item-detail {
-    display: none;
-    padding: var(--spacing-sm) var(--spacing-md);
-    background: var(--color-hover);
-}
-
-.vuln-item-detail.show {
-    display: block;
-}
-
-.vuln-item-desc {
-    font-size: 0.8125rem;
-    color: var(--color-text-secondary);
-    margin-bottom: var(--spacing-xs);
-    line-height: 1.5;
-}
-
-.vuln-item-meta {
-    display: flex;
-    gap: var(--spacing-md);
+.vuln-fix-none {
     font-size: 0.75rem;
     color: var(--color-text-muted);
-    flex-wrap: wrap;
 }
 
 .vuln-no-results {
@@ -2190,12 +2210,91 @@ img {
     color: var(--color-text-muted);
 }
 
-.vuln-item.hidden {
-    display: none;
+/* ==========================================
+   Pagination
+   ========================================== */
+
+.pagination-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+    padding: var(--spacing-sm) 0;
 }
 
-.vuln-group.filtered-out {
-    display: none;
+.pagination-info {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+.pagination-range {
+    font-weight: 600;
+    color: var(--color-text-secondary);
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pagination-btn {
+    padding: 4px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: var(--color-hover);
+    border-color: var(--color-primary);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.pagination-pages {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.pagination-page {
+    min-width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.pagination-page:hover {
+    background: var(--color-hover);
+}
+
+.pagination-page.active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+}
+
+.pagination-ellipsis {
+    color: var(--color-text-muted);
+    padding: 0 4px;
 }
 
 /* ==========================================
@@ -2255,6 +2354,14 @@ img {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-sm);
+}
+
+.sbom-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
 }
 
 .sbom-search-box {
