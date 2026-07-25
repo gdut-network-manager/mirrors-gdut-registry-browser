@@ -66,72 +66,64 @@ $(document).on("turbo:load", function () {
   });
 
   // ==========================================
-  // Pagination + Filter + Search
+  // Pagination + Filter + Search + Sort
   // ==========================================
 
   var PAGE_SIZE = 20;
-
-  function initPaginatedTable(scope) {
-    scope = scope || document;
-
-    // Vulnerability filter chips + search + pagination
-    initVulnTable(scope);
-
-    // SBOM search + pagination
-    initSbomTable(scope);
-  }
-
-  function initVulnTable(scope) {
-    $(scope).find("[data-vuln-filter-chips]").each(function () {
-      var manifestId = $(this).data("vuln-filter-chips");
-      var state = { page: 1, filter: "all", query: "" };
-      updateVulnView(manifestId, state);
-    });
-
-    $(scope).off("click.vuln-filter").on("click.vuln-filter", "[data-vuln-filter]", function () {
-      var manifestId = $(this).closest("[data-vuln-filter-chips]").data("vuln-filter-chips");
-      var filter = $(this).data("vuln-filter");
-      $(this).siblings().removeClass("active");
-      $(this).addClass("active");
-      var state = getVulnState(manifestId);
-      state.filter = filter;
-      state.page = 1;
-      updateVulnView(manifestId, state);
-    });
-
-    $(scope).off("input.vuln-search").on("input.vuln-search", "[data-vuln-search]", function () {
-      var manifestId = $(this).data("vuln-search");
-      var state = getVulnState(manifestId);
-      state.query = $(this).val().toLowerCase().trim();
-      state.page = 1;
-      updateVulnView(manifestId, state);
-    });
-
-    $(scope).off("click.vuln-page").on("click.vuln-page", "[data-vuln-pagination] .pagination-btn, [data-vuln-pagination] .pagination-page", function () {
-      var manifestId = $(this).closest("[data-vuln-pagination]").data("vuln-pagination");
-      var state = getVulnState(manifestId);
-      var totalPages = $(this).closest("[data-vuln-pagination]").data("total-pages") || 1;
-
-      if ($(this).hasClass("pagination-prev") && state.page > 1) {
-        state.page--;
-      } else if ($(this).hasClass("pagination-next") && state.page < totalPages) {
-        state.page++;
-      } else if ($(this).hasClass("pagination-page")) {
-        state.page = parseInt($(this).data("page"));
-      } else {
-        return;
-      }
-      updateVulnView(manifestId, state);
-    });
-  }
-
   var vulnStates = {};
+  var sbomStates = {};
+  var originalRowOrders = {};
 
   function getVulnState(manifestId) {
     if (!vulnStates[manifestId]) {
       vulnStates[manifestId] = { page: 1, filter: "all", query: "" };
     }
     return vulnStates[manifestId];
+  }
+
+  function saveOriginalOrder(table) {
+    var tableId = table.data("sortable-table");
+    if (tableId !== undefined && !originalRowOrders[tableId]) {
+      originalRowOrders[tableId] = table.find("tbody tr").get();
+    }
+  }
+
+  function restoreOriginalOrder(table) {
+    var tableId = table.data("sortable-table");
+    if (originalRowOrders[tableId]) {
+      var tbody = table.find("tbody");
+      $.each(originalRowOrders[tableId], function (i, row) {
+        tbody.append(row);
+      });
+    }
+  }
+
+  function applyDefaultSortIndicators(table) {
+    var defaultSort = table.data("default-sort");
+    if (!defaultSort) return;
+    var parts = defaultSort.split(":");
+    var key = parts[0];
+    var dir = parts[1] || "asc";
+    table.find(".sortable-th").removeClass("sorted-asc sorted-desc");
+    table.find('.sortable-th[data-sort-key="' + key + '"]').addClass(dir === "asc" ? "sorted-asc" : "sorted-desc");
+  }
+
+  function initTableState(scope) {
+    scope = scope || document;
+
+    $(scope).find("[data-vuln-filter-chips]").each(function () {
+      var manifestId = $(this).data("vuln-filter-chips");
+      saveOriginalOrder($(scope).find('[data-sortable-table="' + manifestId + '"]'));
+      vulnStates[manifestId] = { page: 1, filter: "all", query: "" };
+      updateVulnView(manifestId, vulnStates[manifestId]);
+    });
+
+    $(scope).find("[data-sbom-search]").each(function () {
+      var manifestId = $(this).data("sbom-search");
+      saveOriginalOrder($(scope).find('[data-sortable-table="' + manifestId + '"]'));
+      sbomStates[manifestId] = { page: 1, query: "" };
+      updateSbomView(manifestId, 1, "");
+    });
   }
 
   function updateVulnView(manifestId, state) {
@@ -186,66 +178,6 @@ $(document).on("turbo:load", function () {
     renderPageNumbers(pagination, state.page, totalPages);
   }
 
-  function renderPageNumbers(container, currentPage, totalPages) {
-    var pagesEl = container.find(".pagination-pages");
-    pagesEl.empty();
-
-    if (totalPages <= 7) {
-      for (var i = 1; i <= totalPages; i++) {
-        pagesEl.append(createPageBtn(i, currentPage));
-      }
-    } else {
-      pagesEl.append(createPageBtn(1, currentPage));
-      if (currentPage > 3) pagesEl.append('<span class="pagination-ellipsis">…</span>');
-      var s = Math.max(2, currentPage - 1);
-      var e = Math.min(totalPages - 1, currentPage + 1);
-      for (var j = s; j <= e; j++) {
-        pagesEl.append(createPageBtn(j, currentPage));
-      }
-      if (currentPage < totalPages - 2) pagesEl.append('<span class="pagination-ellipsis">…</span>');
-      pagesEl.append(createPageBtn(totalPages, currentPage));
-    }
-  }
-
-  function createPageBtn(pageNum, currentPage) {
-    var cls = "pagination-page";
-    if (pageNum === currentPage) cls += " active";
-    return '<button class="' + cls + '" data-page="' + pageNum + '">' + pageNum + '</button>';
-  }
-
-  function initSbomTable(scope) {
-    $(scope).find("[data-sbom-search]").each(function () {
-      var manifestId = $(this).data("sbom-search");
-      updateSbomView(manifestId, 1, "");
-    });
-
-    $(scope).off("input.sbom-search").on("input.sbom-search", "[data-sbom-search]", function () {
-      var manifestId = $(this).data("sbom-search");
-      var query = $(this).val().toLowerCase().trim();
-      updateSbomView(manifestId, 1, query);
-    });
-
-    $(scope).off("click.sbom-page").on("click.sbom-page", "[data-sbom-pagination] .pagination-btn, [data-sbom-pagination] .pagination-page", function () {
-      var manifestId = $(this).closest("[data-sbom-pagination]").data("sbom-pagination");
-      var query = ($(this).closest(".sbom-content").find("[data-sbom-search]").val() || "").toLowerCase().trim();
-      var totalPages = $(this).closest("[data-sbom-pagination]").data("total-pages") || 1;
-      var page = $(this).closest("[data-sbom-pagination]").data("current-page") || 1;
-
-      if ($(this).hasClass("pagination-prev") && page > 1) {
-        page--;
-      } else if ($(this).hasClass("pagination-next") && page < totalPages) {
-        page++;
-      } else if ($(this).hasClass("pagination-page")) {
-        page = parseInt($(this).data("page"));
-      } else {
-        return;
-      }
-      updateSbomView(manifestId, page, query);
-    });
-  }
-
-  var sbomStates = {};
-
   function updateSbomView(manifestId, page, query) {
     var tableWrapper = $('[data-sbom-table="' + manifestId + '"]');
     var pagination = $('[data-sbom-pagination="' + manifestId + '"]');
@@ -292,30 +224,129 @@ $(document).on("turbo:load", function () {
     renderPageNumbers(pagination, page, totalPages);
   }
 
-  // ==========================================
-  // Column Sorting
-  // ==========================================
+  function renderPageNumbers(container, currentPage, totalPages) {
+    var pagesEl = container.find(".pagination-pages");
+    pagesEl.empty();
 
-  function initSortableTable(scope) {
-    scope = scope || document;
+    if (totalPages <= 7) {
+      for (var i = 1; i <= totalPages; i++) {
+        pagesEl.append(createPageBtn(i, currentPage));
+      }
+    } else {
+      pagesEl.append(createPageBtn(1, currentPage));
+      if (currentPage > 3) pagesEl.append('<span class="pagination-ellipsis">…</span>');
+      var s = Math.max(2, currentPage - 1);
+      var e = Math.min(totalPages - 1, currentPage + 1);
+      for (var j = s; j <= e; j++) {
+        pagesEl.append(createPageBtn(j, currentPage));
+      }
+      if (currentPage < totalPages - 2) pagesEl.append('<span class="pagination-ellipsis">…</span>');
+      pagesEl.append(createPageBtn(totalPages, currentPage));
+    }
+  }
 
-    $(scope).off("click.sort").on("click.sort", ".sortable-th", function () {
+  function createPageBtn(pageNum, currentPage) {
+    var cls = "pagination-page";
+    if (pageNum === currentPage) cls += " active";
+    return '<button class="' + cls + '" data-page="' + pageNum + '">' + pageNum + '</button>';
+  }
+
+  // All event handlers bound once on document (delegation works for dynamic content)
+  $(document)
+    .off("click.vuln-filter").on("click.vuln-filter", "[data-vuln-filter]", function () {
+      var manifestId = $(this).closest("[data-vuln-filter-chips]").data("vuln-filter-chips");
+      var filter = $(this).data("vuln-filter");
+      $(this).siblings().removeClass("active");
+      $(this).addClass("active");
+      var state = getVulnState(manifestId);
+      state.filter = filter;
+      state.page = 1;
+      updateVulnView(manifestId, state);
+    })
+    .off("input.vuln-search").on("input.vuln-search", "[data-vuln-search]", function () {
+      var manifestId = $(this).data("vuln-search");
+      var state = getVulnState(manifestId);
+      state.query = $(this).val().toLowerCase().trim();
+      state.page = 1;
+      updateVulnView(manifestId, state);
+    })
+    .off("click.vuln-page").on("click.vuln-page", "[data-vuln-pagination] .pagination-btn, [data-vuln-pagination] .pagination-page", function () {
+      var manifestId = $(this).closest("[data-vuln-pagination]").data("vuln-pagination");
+      var state = getVulnState(manifestId);
+      var totalPages = $(this).closest("[data-vuln-pagination]").data("total-pages") || 1;
+
+      if ($(this).hasClass("pagination-prev") && state.page > 1) {
+        state.page--;
+      } else if ($(this).hasClass("pagination-next") && state.page < totalPages) {
+        state.page++;
+      } else if ($(this).hasClass("pagination-page")) {
+        state.page = parseInt($(this).data("page"));
+      } else {
+        return;
+      }
+      updateVulnView(manifestId, state);
+    })
+    .off("input.sbom-search").on("input.sbom-search", "[data-sbom-search]", function () {
+      var manifestId = $(this).data("sbom-search");
+      var query = $(this).val().toLowerCase().trim();
+      updateSbomView(manifestId, 1, query);
+    })
+    .off("click.sbom-page").on("click.sbom-page", "[data-sbom-pagination] .pagination-btn, [data-sbom-pagination] .pagination-page", function () {
+      var manifestId = $(this).closest("[data-sbom-pagination]").data("sbom-pagination");
+      var query = ($(this).closest(".sbom-content").find("[data-sbom-search]").val() || "").toLowerCase().trim();
+      var totalPages = $(this).closest("[data-sbom-pagination]").data("total-pages") || 1;
+      var page = $(this).closest("[data-sbom-pagination]").data("current-page") || 1;
+
+      if ($(this).hasClass("pagination-prev") && page > 1) {
+        page--;
+      } else if ($(this).hasClass("pagination-next") && page < totalPages) {
+        page++;
+      } else if ($(this).hasClass("pagination-page")) {
+        page = parseInt($(this).data("page"));
+      } else {
+        return;
+      }
+      updateSbomView(manifestId, page, query);
+    })
+    .off("click.sort").on("click.sort", ".sortable-th", function () {
       var th = $(this);
       var table = th.closest("[data-sortable-table]");
-      var tableId = table.data("sortable-table");
-      var sortKey = th.data("sort-key");
       var sortType = th.data("sort-type");
+      var colIndex = th.index();
+      var tbody = table.find("tbody");
+
+      saveOriginalOrder(table);
 
       var isDesc = th.hasClass("sorted-desc");
-      var newDir = isDesc ? "asc" : "desc";
+      var isAsc = th.hasClass("sorted-asc");
 
-      th.closest("thead").find(".sortable-th").removeClass("sorted-asc sorted-desc");
-      th.addClass(newDir === "asc" ? "sorted-asc" : "sorted-desc");
+      if (isDesc) {
+        var newDir = "asc";
+        th.closest("thead").find(".sortable-th").removeClass("sorted-asc sorted-desc");
+        th.addClass("sorted-asc");
+      } else if (isAsc) {
+        restoreOriginalOrder(table);
+        applyDefaultSortIndicators(table);
+        var isVuln = table.closest("[data-vuln-table]").length;
+        var isSbom = table.closest("[data-sbom-table]").length;
+        if (isVuln) {
+          var manifestId = table.closest("[data-vuln-table]").data("vuln-table");
+          var state = getVulnState(manifestId);
+          state.page = 1;
+          updateVulnView(manifestId, state);
+        } else if (isSbom) {
+          var sbomManifestId = table.closest("[data-sbom-table]").data("sbom-table");
+          var query = ($('[data-sbom-search="' + sbomManifestId + '"]').val() || "").toLowerCase().trim();
+          updateSbomView(sbomManifestId, 1, query);
+        }
+        return;
+      } else {
+        var newDir = "desc";
+        th.closest("thead").find(".sortable-th").removeClass("sorted-asc sorted-desc");
+        th.addClass("sorted-desc");
+      }
 
-      var tbody = table.find("tbody");
       var rows = tbody.find("tr").get();
-
-      var colIndex = th.index();
 
       rows.sort(function (a, b) {
         var aVal = $(a).find("td").eq(colIndex).data("sort-value");
@@ -339,26 +370,21 @@ $(document).on("turbo:load", function () {
         tbody.append(row);
       });
 
-      if (tableId !== undefined) {
-        if (table.closest("[data-vuln-table]").length) {
-          var manifestId = table.closest("[data-vuln-table]").data("vuln-table");
-          var state = getVulnState(manifestId);
-          state.page = 1;
-          updateVulnView(manifestId, state);
-        } else if (table.closest("[data-sbom-table]").length) {
-          var sbomManifestId = table.closest("[data-sbom-table]").data("sbom-table");
-          var query = ($('[data-sbom-search="' + sbomManifestId + '"]').val() || "").toLowerCase().trim();
-          updateSbomView(sbomManifestId, 1, query);
-        }
+      if (table.closest("[data-vuln-table]").length) {
+        var manifestId = table.closest("[data-vuln-table]").data("vuln-table");
+        var state = getVulnState(manifestId);
+        state.page = 1;
+        updateVulnView(manifestId, state);
+      } else if (table.closest("[data-sbom-table]").length) {
+        var sbomManifestId = table.closest("[data-sbom-table]").data("sbom-table");
+        var query = ($('[data-sbom-search="' + sbomManifestId + '"]').val() || "").toLowerCase().trim();
+        updateSbomView(sbomManifestId, 1, query);
       }
     });
-  }
 
-  initPaginatedTable(document);
-  initSortableTable(document);
+  initTableState(document);
 
-  $(document).on("turbo:frame-load", function (e) {
-    initPaginatedTable(e.target);
-    initSortableTable(e.target);
+  $(document).off("turbo:frame-load.table").on("turbo:frame-load.table", function (e) {
+    initTableState(e.target);
   });
 });

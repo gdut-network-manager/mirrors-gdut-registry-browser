@@ -6,9 +6,11 @@
     </div>
   <% else %>
     <%
+      sev_weight = Manifest::VULN_SEVERITY_ORDER.each_with_index.to_h { |s, i| [s, Manifest::VULN_SEVERITY_ORDER.length - i] }
       sorted_vulns = vulnerabilities.sort_by do |v|
+        sev = v["severity"] || "Unknown"
         score = v.dig("preferred_cvss", "score_v3")
-        score.present? ? -score : Float::INFINITY
+        [ -(sev_weight[sev] || 0), score.present? ? -score : Float::INFINITY ]
       end
     %>
     <div class="vuln-content">
@@ -36,12 +38,12 @@
       </div>
 
       <div class="vuln-table-wrapper" data-vuln-table="<%= manifest_id %>">
-        <table class="vuln-table" data-sortable-table="<%= manifest_id %>">
+        <table class="vuln-table" data-sortable-table="<%= manifest_id %>" data-default-sort="severity:desc">
           <thead>
             <tr>
               <th class="sortable-th" data-sort-key="id" data-sort-type="string">缺陷码 <span class="sort-icon"></span></th>
-              <th class="sortable-th" data-sort-key="severity" data-sort-type="number">严重性 <span class="sort-icon"></span></th>
-              <th class="sortable-th sorted-desc" data-sort-key="cvss" data-sort-type="number">CVSS <span class="sort-icon"></span></th>
+              <th class="sortable-th sorted-desc" data-sort-key="severity" data-sort-type="number">严重性 <span class="sort-icon"></span></th>
+              <th class="sortable-th" data-sort-key="cvss" data-sort-type="number">CVSS <span class="sort-icon"></span></th>
               <th class="sortable-th" data-sort-key="package" data-sort-type="string">包 <span class="sort-icon"></span></th>
               <th class="sortable-th" data-sort-key="fix" data-sort-type="string">修复版本 <span class="sort-icon"></span></th>
             </tr>
@@ -50,7 +52,6 @@
             <% sorted_vulns.each do |vuln| %>
               <% sev = vuln["severity"] || "Unknown" %>
               <% score = vuln.dig("preferred_cvss", "score_v3") %>
-              <% sev_rank = Manifest::VULN_SEVERITY_ORDER.index(sev) || 99 %>
               <tr class="vuln-row"
                   data-vuln-id="<%= vuln["id"] %>"
                   data-vuln-package="<%= vuln["package"] %>"
@@ -61,7 +62,7 @@
                     <%= vuln["id"] %>
                   </a>
                 </td>
-                <td class="vuln-td-sev" data-sort-value="<%= sev_rank %>">
+                <td class="vuln-td-sev" data-sort-value="<%= sev_weight[sev] || 0 %>">
                   <span class="vuln-badge sev-<%= sev.downcase %>"><%= vuln_severity_label(sev) %></span>
                 </td>
                 <td class="vuln-td-cvss" data-sort-value="<%= score || -1 %>"><%= format_cvss_score(score) %></td>
