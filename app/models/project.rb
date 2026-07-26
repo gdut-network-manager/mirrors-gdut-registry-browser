@@ -8,10 +8,9 @@ class Project
     quota_map = fetch_quota_map
 
     all_projects = fetch_all_projects
-    proxy_cache_projects = all_projects.select { |p| !p["registry_id"].nil? && p["registry_id"] > 0 }
 
     start_idx = (page - 1) * page_size
-    page_projects = proxy_cache_projects[start_idx, page_size] || []
+    page_projects = all_projects[start_idx, page_size] || []
 
     entries = page_projects.map do |p|
       quota = quota_map[p["name"]] || {}
@@ -26,10 +25,10 @@ class Project
       )
     end
 
-    more = start_idx + page_size < proxy_cache_projects.size
-    total_pages = (proxy_cache_projects.size.to_f / page_size).ceil
+    more = start_idx + page_size < all_projects.size
+    total_pages = (all_projects.size.to_f / page_size).ceil
 
-    Collection.new(entries: entries, more: more, total: proxy_cache_projects.size, page: page)
+    Collection.new(entries: entries, more: more, total: all_projects.size, page: page)
   end
 
   def self.find(name)
@@ -53,6 +52,14 @@ class Project
   def quota_percentage
     return 0 if quota_hard.nil? || quota_hard.zero?
     (quota_used.to_f / quota_hard * 100).round(1)
+  end
+
+  def proxy_cache?
+    registry_id.present? && registry_id.to_i > 0
+  end
+
+  def local?
+    !proxy_cache?
   end
 
   def self.fetch_registry_map

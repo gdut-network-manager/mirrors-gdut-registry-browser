@@ -649,6 +649,11 @@ strong, .font-weight-bold {
     color: var(--color-tag);
 }
 
+.badge-local {
+    background: rgba(var(--color-docker-rgb), 0.1);
+    color: var(--color-docker);
+}
+
 .artifact-type-badge {
     display: inline-flex;
     align-items: center;
@@ -1644,6 +1649,18 @@ img {
 
 .pull-cmd-switch.on .toggle-knob {
     transform: translateX(20px);
+}
+
+.pull-cmd-toggle.disabled .toggle-label {
+    color: var(--color-text-muted);
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.pull-cmd-toggle.disabled .pull-cmd-switch {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
 }
 
 /* ==========================================

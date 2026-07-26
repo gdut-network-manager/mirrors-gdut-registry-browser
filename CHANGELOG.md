@@ -1,5 +1,14 @@
 # Changelog
 
+# v2.3.0
+
+* 添加对 Harbor 一般项目(非 Proxy Cache)的支持
+* 首页混合展示所有项目,代理项目显示绿色上游 registry badge,一般项目显示橙色"本地"badge
+* Project 模型添加 `proxy_cache?` 和 `local?` 方法
+* 各页面标题动态显示"代理项目"/"本地项目"
+* 一般项目标签详情页拉取命令开关灰掉(不支持镜像子域名模式)
+* `pull_command_mirror` 对一般项目返回 `nil`
+
 # v2.2.10
 
 * 修复 SBOM 表格点击排序时漏洞列表内容串入的问题

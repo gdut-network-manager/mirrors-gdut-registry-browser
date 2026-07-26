@@ -14,12 +14,14 @@ module ApplicationHelper
     "docker pull #{domain}/#{project_name}/#{repository_name}:#{tag_name}"
   end
 
-  def pull_command_mirror(project_name, repository_name, tag_name)
+  def pull_command_mirror(project, repository_name, tag_name)
+    return nil unless project.proxy_cache?
+
     base = Rails.configuration.x.public_registry_url
     return nil unless base
 
     domain = base.sub(/^https?:\/\//, "")
-    subdomain = domain_mirror_subdomain(project_name)
+    subdomain = domain_mirror_subdomain(project.name)
     return nil unless subdomain
 
     "docker pull #{subdomain}.#{domain}/#{repository_name}:#{tag_name}"

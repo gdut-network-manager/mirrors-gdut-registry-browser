@@ -6,7 +6,7 @@
       <%= render "shared/icon", name: "tag", size: 32, class: "island-icon" %>
 
       <div class="island-header-group">
-        <span class="text-muted small">代理项目</span>
+        <span class="text-muted small"><%= @project.proxy_cache? ? "代理项目" : "本地项目" %></span>
         <h5 class="island-title"><%= @project.name %></h5>
       </div>
 
@@ -27,19 +27,19 @@
 
     <% if Rails.configuration.x.public_registry_url %>
       <div class="pull-cmd-section">
-        <div class="pull-cmd-header">
-          <span class="pull-cmd-label">拉取命令</span>
-          <div class="pull-cmd-toggle">
-            <span class="toggle-label active" id="toggle-label-prefix" onclick="switchPullCmd(false)">前缀添加模式</span>
-            <div class="pull-cmd-switch" id="pull-cmd-switch" onclick="togglePullCmd()">
-              <div class="toggle-knob"></div>
-            </div>
-            <span class="toggle-label" id="toggle-label-mirror" onclick="switchPullCmd(true)">域名置换模式</span>
+      <div class="pull-cmd-header">
+        <span class="pull-cmd-label">拉取命令</span>
+        <div class="pull-cmd-toggle<%= ' disabled' unless @project.proxy_cache? %>">
+          <span class="toggle-label active" id="toggle-label-prefix" onclick="switchPullCmd(false)">前缀添加模式</span>
+          <div class="pull-cmd-switch" id="pull-cmd-switch"<%= ' disabled' unless @project.proxy_cache? %> onclick="togglePullCmd()">
+            <div class="toggle-knob"></div>
           </div>
+          <span class="toggle-label" id="toggle-label-mirror"<%= ' onclick="switchPullCmd(true)"'.html_safe if @project.proxy_cache? %>>域名置换模式</span>
         </div>
-        <div class="pull-cmd-display">
-          <code class="pull-cmd-text" id="pull-cmd-prefix"><%= pull_command_prefix(@project.name, @repository.relative_name, @tag.name) %></code>
-          <code class="pull-cmd-text hidden" id="pull-cmd-mirror"><%= pull_command_mirror(@project.name, @repository.relative_name, @tag.name) %></code>
+      </div>
+      <div class="pull-cmd-display">
+        <code class="pull-cmd-text" id="pull-cmd-prefix"><%= pull_command_prefix(@project.name, @repository.relative_name, @tag.name) %></code>
+        <code class="pull-cmd-text hidden" id="pull-cmd-mirror"><%= pull_command_mirror(@project, @repository.relative_name, @tag.name) %></code>
           <%= link_to "#copy", title: "复制到剪贴板", data: { copy: pull_command_prefix(@project.name, @repository.relative_name, @tag.name), tooltip: "复制到剪贴板" } do %>
             <%= render "shared/icon", name: "copy", size: 16 %>
           <% end %>
@@ -99,6 +99,7 @@ function switchPullCmd(toMirror) {
 
 function togglePullCmd() {
   var switchEl = document.getElementById('pull-cmd-switch');
+  if (switchEl.hasAttribute('disabled')) return;
   switchPullCmd(!switchEl.classList.contains('on'));
 }
 </script>

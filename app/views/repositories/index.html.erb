@@ -6,7 +6,7 @@
       <%= content_tag :div, class: "island-header" do %>
         <%= render "shared/icon", name: "server", size: 28, class: "island-icon" %>
         <div class="island-header-group">
-          <span class="text-muted small">代理项目</span>
+          <span class="text-muted small"><%= @project.proxy_cache? ? "代理项目" : "本地项目" %></span>
           <h5 class="island-title mb-0"><%= @project.name %></h5>
         </div>
         <% if @project.upstream_registry %>
