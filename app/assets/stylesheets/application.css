@@ -1721,7 +1721,7 @@ img {
 }
 
 .quota-bar-fill.quota-normal {
-    background: var(--gradient-primary);
+    background: linear-gradient(90deg, #22c55e, #16a34a);
 }
 
 .quota-bar-fill.quota-warning {
