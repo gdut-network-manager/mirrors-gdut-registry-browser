@@ -4,6 +4,35 @@
 
 Fork 自 [klausmeyer/docker-registry-browser](https://github.com/klausmeyer/docker-registry-browser),适配 Harbor 原生 API (`/api/v2.0/`) 和全局 Basic Auth 认证。
 
+## 截图
+
+<table>
+  <tr>
+    <td align="center"><img src="screenshots/index.png" alt="项目列表"></td>
+    <td align="center"><img src="screenshots/project.png" alt="仓库列表"></td>
+  </tr>
+  <tr>
+    <td align="center">项目列表(首页)<br><sub>双列网格,展示配额进度条、仓库数量、空间使用量和创建时间</sub></td>
+    <td align="center">仓库列表<br><sub>仓库下的标签列表,带制品类型徽章和过滤输入框</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="screenshots/repo-tags.png" alt="标签列表"></td>
+    <td align="center"><img src="screenshots/repo-description.png" alt="仓库描述信息"></td>
+  </tr>
+  <tr>
+    <td align="center">标签列表<br><sub>标签详情拉取命令双模式切换</sub></td>
+    <td align="center">仓库描述信息<br><sub>仓库描述信息 Tab,支持 Markdown 渲染</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="screenshots/vuln-scan.png" alt="漏洞扫描"></td>
+    <td align="center"><img src="screenshots/sbom.png" alt="SBOM 软件物料清单"></td>
+  </tr>
+  <tr>
+    <td align="center">漏洞扫描<br><sub>漏洞分布堆叠条形图、分页表格、严重性筛选、实时搜索</sub></td>
+    <td align="center">SBOM 软件物料清单<br><sub>SPDX 包列表四列表格、分页、按需加载、实时搜索</sub></td>
+  </tr>
+</table>
+
 ## 功能特性
 
 - 浏览 Harbor Proxy Cache 项目,展示配额与存储使用量
@@ -28,23 +57,6 @@ Fork 自 [klausmeyer/docker-registry-browser](https://github.com/klausmeyer/dock
 - 明暗主题切换,支持系统偏好自动检测
 - SVG 图标(Lucide 风格),响应式布局
 - 分页、面包屑导航、底部栏自动贴底
-
-## 截图
-
-| 项目列表(首页) | 仓库列表 |
-|:---:|:---:|
-| ![项目列表](screenshots/index.png) | ![仓库列表](screenshots/project.png) |
-| 双列网格,展示配额进度条、仓库数量、空间使用量和创建时间 | 仓库下的标签列表,带制品类型徽章和过滤输入框 |
-
-| 标签列表 | 仓库描述信息 |
-|:---:|:---:|
-| ![标签列表](screenshots/repo-tags.png) | ![仓库描述信息](screenshots/repo-description.png) |
-| 标签详情拉取命令双模式切换 | 仓库描述信息 Tab,支持 Markdown 渲染 |
-
-| 漏洞扫描 | SBOM 软件物料清单 |
-|:---:|:---:|
-| ![漏洞扫描](screenshots/vuln-scan.png) | ![SBOM](screenshots/sbom.png) |
-| 漏洞分布堆叠条形图、分页表格、严重性筛选、实时搜索 | SPDX 包列表四列表格、分页、按需加载、实时搜索 |
 
 ## 快速开始
 
