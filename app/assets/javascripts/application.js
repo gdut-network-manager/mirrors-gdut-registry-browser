@@ -127,14 +127,14 @@ $(document).on("turbo:load", function () {
 
     $(scope).find("[data-vuln-filter-chips]").each(function () {
       var manifestId = $(this).data("vuln-filter-chips");
-      saveOriginalOrder($(scope).find('[data-sortable-table="' + manifestId + '"]'));
+      saveOriginalOrder($(scope).find('[data-sortable-table="vuln-' + manifestId + '"]'));
       vulnStates[manifestId] = { page: 1, filter: "all", query: "" };
       updateVulnView(manifestId, vulnStates[manifestId]);
     });
 
     $(scope).find("[data-sbom-search]").each(function () {
       var manifestId = $(this).data("sbom-search");
-      saveOriginalOrder($(scope).find('[data-sortable-table="' + manifestId + '"]'));
+      saveOriginalOrder($(scope).find('[data-sortable-table="sbom-' + manifestId + '"]'));
       sbomStates[manifestId] = { page: 1, query: "" };
       updateSbomView(manifestId, 1, "");
     });

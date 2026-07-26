@@ -1,5 +1,11 @@
 # Changelog
 
+# v2.2.10
+
+* 修复 SBOM 表格点击排序时漏洞列表内容串入的问题
+* 根因: 漏洞表格和 SBOM 表格的 `data-sortable-table` 使用了相同的 manifestId,导致 `originalRowOrders` 混合了两个表格的行,`restoreOriginalOrder` 时把漏洞行 append 到 SBOM 表格
+* 修复: `data-sortable-table` 加 `vuln-` / `sbom-` 前缀区分,`initTableState` 选择器同步更新
+
 # v2.2.9
 
 * 修复子路径部署(`RAILS_RELATIVE_URL_ROOT=/docker`)下仓库搜索 404 的问题
