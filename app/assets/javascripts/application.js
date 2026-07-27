@@ -5,6 +5,16 @@ import "@hotwired/turbo-rails"
 import $ from "jquery"
 
 $(document).on("turbo:load", function () {
+  document.addEventListener("mousemove", function (e) {
+    var el = e.target.closest(".navbar, .island, .footer");
+    if (!el) return;
+    var rect = el.getBoundingClientRect();
+    var x = (e.clientX - rect.left) / rect.width * 100;
+    var y = (e.clientY - rect.top) / rect.height * 100;
+    el.style.setProperty("--mouse-x", x + "%");
+    el.style.setProperty("--mouse-y", y + "%");
+  });
+
   var btn = document.querySelector('.theme-toggle');
   if (btn) {
     var isDark = document.documentElement.classList.contains('dark-theme');

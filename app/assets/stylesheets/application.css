@@ -256,6 +256,7 @@ strong, .font-weight-bold {
     border-bottom: 1px solid var(--glass-border);
     box-shadow: var(--shadow-sm);
     transition: all var(--transition-base);
+    overflow: hidden;
 }
 
 .navbar-container {
@@ -365,6 +366,32 @@ strong, .font-weight-bold {
 
 .island:hover::before {
     opacity: 1;
+}
+
+.navbar::after,
+.island::after,
+.footer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(circle 200px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.12), transparent 70%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    z-index: 0;
+}
+
+.navbar:hover::after,
+.island:hover::after,
+.footer:hover::after {
+    opacity: 1;
+}
+
+.dark-theme .navbar::after,
+.dark-theme .island::after,
+.dark-theme .footer::after {
+    background: radial-gradient(circle 200px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.08), transparent 70%);
 }
 
 .island-header {
@@ -1118,6 +1145,8 @@ strong, .font-weight-bold {
     text-align: center;
     border-top: 1px solid var(--color-border);
     background: var(--color-surface);
+    position: relative;
+    overflow: hidden;
 }
 
 .footer-content {
