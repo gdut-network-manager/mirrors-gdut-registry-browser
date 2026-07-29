@@ -1166,7 +1166,15 @@ strong, .font-weight-bold {
 .footer a {
     color: var(--color-text-muted);
     font-size: 0.9375rem;
+    line-height: 1;
     transition: all var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.footer a svg {
+    flex-shrink: 0;
 }
 
 .footer a:hover {
