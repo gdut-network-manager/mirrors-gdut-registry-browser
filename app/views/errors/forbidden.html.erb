@@ -1,5 +1,10 @@
-<div class="text-center mt-5">
-  <h1 class="cover-heading">无权访问</h1>
-  <p class="lead">机器人账号没有访问该资源的权限。</p>
-  <p>请联系管理员为机器人账号添加相应项目的权限。</p>
+<div class="island error-page">
+  <%= render "shared/icon", name: "shield", size: 64, class: "error-icon" %>
+  <h1 class="error-code">403</h1>
+  <p class="error-title">无权访问</p>
+  <p class="error-desc">机器人账号没有访问该资源的权限，请联系管理员为机器人账号添加相应项目的权限。</p>
+  <%= link_to root_path, class: "error-back" do %>
+    <%= render "shared/icon", name: "home", size: 18 %>
+    返回首页
+  <% end %>
 </div>

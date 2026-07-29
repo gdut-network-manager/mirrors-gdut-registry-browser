@@ -1,5 +1,20 @@
 # Changelog
 
+# v2.4.0
+
+* 重做所有错误页面,采用 Island UI 设计风格
+* 静态错误页(public/404, 422, 500): 完整自包含,内联 CSS+JS
+  - navbar + 居中 island + footer 布局
+  - 警告图标 + 大号错误码 + 描述 + 返回首页按钮
+  - 深色/浅色主题切换(localStorage + 系统偏好)
+  - 子路径部署根路径推断(/docker/)
+* 动态错误页(app/views/errors/): island 风格内容
+  - 502 服务不可用: alert 图标
+  - 403 无权访问: shield 图标
+  - 401 认证失败: shield 图标
+* 新增 .error-page CSS 样式到 application.css
+* 设计参考: mirrors.gdut.edu.cn 镜像站错误页面
+
 # v2.3.3
 
 * 修复底栏 SVG 图标与文字垂直对齐问题

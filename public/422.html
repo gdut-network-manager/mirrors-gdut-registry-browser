@@ -1,67 +1,274 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-  <title>请求被拒绝 (422)</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>请求被拒绝 (422) - 广东工业大学开源镜像站</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <style>
-  .rails-default-error-page {
-    background-color: #EFEFEF;
-    color: #2E2F30;
-    text-align: center;
-    font-family: arial, sans-serif;
-    margin: 0;
-  }
+    :root {
+      --color-primary: #971943;
+      --color-primary-light: #b8345e;
+      --color-bg: #f5f7fa;
+      --color-surface: #ffffff;
+      --color-text: #1a202c;
+      --color-text-muted: #718096;
+      --color-border: #e2e8f0;
+      --gradient-primary: linear-gradient(135deg, #971943 0%, #b8345e 100%);
+      --gradient-island: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.98) 100%);
+      --radius-sm: 8px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-xl: 32px;
+      --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.08);
+      --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.12);
+      --spacing-xs: 8px;
+      --spacing-sm: 12px;
+      --spacing-md: 16px;
+      --spacing-lg: 24px;
+      --spacing-xl: 32px;
+      --spacing-2xl: 48px;
+      --spacing-3xl: 64px;
+      --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .dark-theme {
+      --color-bg: #0f172a;
+      --color-surface: #1e293b;
+      --color-text: #f1f5f9;
+      --color-text-muted: #94a3b8;
+      --color-border: #334155;
+      --gradient-island: linear-gradient(135deg, rgba(30,41,59,0.95) 0%, rgba(30,41,59,0.98) 100%);
+      --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+      --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.6);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--color-text);
+      background-color: var(--color-bg);
+      background-image:
+        radial-gradient(at 0% 0%, rgba(151, 25, 67, 0.05) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(151, 25, 67, 0.05) 0px, transparent 50%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .dark-theme body {
+      background-image:
+        radial-gradient(at 0% 0%, rgba(151, 25, 67, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(151, 25, 67, 0.15) 0px, transparent 50%);
+    }
+    .fade-in { animation: fadeIn 0.3s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-  .rails-default-error-page div.dialog {
-    width: 95%;
-    max-width: 33em;
-    margin: 4em auto 0;
-  }
+    /* Navbar */
+    .navbar {
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .navbar-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: var(--spacing-md) var(--spacing-lg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      font-weight: 700;
+      font-size: 1.125rem;
+      color: var(--color-text);
+      text-decoration: none;
+    }
+    .navbar-brand:hover { color: var(--color-primary); }
 
-  .rails-default-error-page div.dialog > div {
-    border: 1px solid #CCC;
-    border-right-color: #999;
-    border-left-color: #999;
-    border-bottom-color: #BBB;
-    border-top: #B00100 solid 4px;
-    border-top-left-radius: 9px;
-    border-top-right-radius: 9px;
-    background-color: white;
-    padding: 7px 12% 0;
-    box-shadow: 0 3px 8px rgba(50, 50, 50, 0.17);
-  }
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: var(--spacing-2xl) var(--spacing-lg);
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-  .rails-default-error-page h1 {
-    font-size: 100%;
-    color: #730E15;
-    line-height: 1.5em;
-  }
+    /* Island */
+    .island {
+      background: var(--gradient-island);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: var(--spacing-3xl) var(--spacing-2xl);
+      max-width: 560px;
+      width: 100%;
+      text-align: center;
+    }
+    .error-icon {
+      color: var(--color-text-muted);
+      margin: 0 auto var(--spacing-lg);
+      display: block;
+    }
+    .error-code {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--color-primary);
+      line-height: 1;
+      margin-bottom: var(--spacing-sm);
+    }
+    .error-title {
+      font-size: 1.25rem;
+      color: var(--color-text);
+      margin-bottom: var(--spacing-md);
+    }
+    .error-desc {
+      color: var(--color-text-muted);
+      margin-bottom: var(--spacing-2xl);
+    }
+    .error-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: var(--spacing-md) var(--spacing-xl);
+      background: var(--gradient-primary);
+      color: white;
+      border-radius: var(--radius-xl);
+      font-weight: 600;
+      text-decoration: none;
+      transition: all var(--transition-base);
+      border: none;
+      cursor: pointer;
+    }
+    .error-back:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(151, 25, 67, 0.3);
+    }
 
-  .rails-default-error-page div.dialog > p {
-    margin: 0 0 1em;
-    padding: 1em;
-    background-color: #F7F7F7;
-    border: 1px solid #CCC;
-    border-right-color: #999;
-    border-left-color: #999;
-    border-bottom-color: #999;
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 4px;
-    border-top-color: #DADADA;
-    color: #666;
-    box-shadow: 0 3px 8px rgba(50, 50, 50, 0.17);
-  }
+    /* Footer */
+    .footer {
+      background: var(--color-surface);
+      border-top: 1px solid var(--color-border);
+      padding: var(--spacing-lg);
+      text-align: center;
+    }
+    .footer-copyright {
+      font-size: 0.875rem;
+      color: var(--color-text-muted);
+    }
+
+    /* Theme toggle */
+    .theme-toggle {
+      background: none;
+      border: none;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      padding: var(--spacing-xs);
+      border-radius: var(--radius-sm);
+      transition: all var(--transition-fast);
+    }
+    .theme-toggle:hover { color: var(--color-primary); }
+
+    @media (max-width: 640px) {
+      .navbar-brand { font-size: 1rem; }
+      .island { padding: var(--spacing-2xl) var(--spacing-lg); }
+      .error-code { font-size: 2.5rem; }
+    }
   </style>
 </head>
+<body class="fade-in">
+  <script>
+    (function() {
+      var saved = localStorage.getItem('theme');
+      var isDark;
+      if (saved === 'dark' || saved === 'light') {
+        isDark = saved === 'dark';
+      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        isDark = true;
+      } else {
+        isDark = false;
+      }
+      if (isDark) document.documentElement.classList.add('dark-theme');
+    })();
+  </script>
 
-<body class="rails-default-error-page">
-  <!-- This file lives in public/422.html -->
-  <div class="dialog">
-    <div>
-      <h1>您的修改请求被拒绝。</h1>
-      <p>可能是因为您尝试修改了没有权限访问的内容。</p>
+  <nav class="navbar">
+    <div class="navbar-container">
+      <a href="/" class="navbar-brand" id="home-link">
+        <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          <polyline points="3.29 7 12 12 20.71 7"/>
+          <line x1="12" x2="12" y1="22" y2="12"/>
+        </svg>
+        <span>广东工业大学开源镜像站</span>
+      </a>
+      <button class="theme-toggle" aria-label="切换主题" title="切换深色/浅色主题" onclick="
+        var html = document.documentElement;
+        var isDark = html.classList.contains('dark-theme');
+        html.classList.remove('dark-theme', 'light-manual');
+        if (isDark) {
+          localStorage.setItem('theme', 'light');
+        } else {
+          html.classList.add('dark-theme');
+          localStorage.setItem('theme', 'dark');
+        }
+      ">
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
+        </svg>
+      </button>
     </div>
-    <p>如果您是应用管理员，请查看日志获取更多信息。</p>
-  </div>
+  </nav>
+
+  <main class="container">
+    <div class="island">
+      <svg class="error-icon" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      <h1 class="error-code">422</h1>
+      <p class="error-title">请求被拒绝</p>
+      <p class="error-desc">您的请求无法被处理，可能是因为缺少必要的信息或权限不足。</p>
+      <a href="/" class="error-back" id="back-link">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        返回首页
+      </a>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-copyright">
+      &copy; <span id="year"></span> 广东工业大学学生网管队 | Powered by Island UI
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    // 推断应用根路径（处理子路径部署如 /docker/）
+    (function() {
+      var path = window.location.pathname;
+      var segments = path.split('/').filter(Boolean);
+      var root = '';
+      if (segments.length > 0 && !/^\d{3}\.html$/.test(segments[0])) {
+        root = '/' + segments[0];
+      }
+      document.getElementById('home-link').href = root + '/';
+      document.getElementById('back-link').href = root + '/';
+    })();
+  </script>
 </body>
 </html>
