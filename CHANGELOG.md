@@ -1,5 +1,14 @@
 # Changelog
 
+# v2.4.1
+
+* 修复 Favicon 子路径部署不显示的问题
+  - favicon 文件移入 app/assets/images/, 通过 asset pipeline 提供
+  - application.html.erb 改用 favicon_link_tag (自动加 SCRIPT_NAME 前缀)
+* 修复错误页面顶栏 Logo 缺失的问题
+  - 静态错误页 SVG 图标替换为 GDUT logo 图片
+  - JS 动态设置 logo 和 favicon 路径(支持子路径部署)
+
 # v2.4.0
 
 * 重做所有错误页面,采用 Island UI 设计风格

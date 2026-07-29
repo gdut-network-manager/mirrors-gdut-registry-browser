@@ -4,8 +4,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>请求被拒绝 (422) - 广东工业大学开源镜像站</title>
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <style>
     :root {
       --color-primary: #971943;
@@ -205,11 +203,7 @@
   <nav class="navbar">
     <div class="navbar-container">
       <a href="/" class="navbar-brand" id="home-link">
-        <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-          <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-          <polyline points="3.29 7 12 12 20.71 7"/>
-          <line x1="12" x2="12" y1="22" y2="12"/>
-        </svg>
+        <img id="navbar-logo" src="/gdut-logo.png" alt="GDUT" width="36" height="36" style="border-radius: var(--radius-sm);">
         <span>广东工业大学开源镜像站</span>
       </a>
       <button class="theme-toggle" aria-label="切换主题" title="切换深色/浅色主题" onclick="
@@ -268,6 +262,22 @@
       }
       document.getElementById('home-link').href = root + '/';
       document.getElementById('back-link').href = root + '/';
+      document.getElementById('navbar-logo').src = root + '/gdut-logo.png';
+
+      // favicon
+      var head = document.head;
+      var link32 = document.createElement('link');
+      link32.rel = 'icon';
+      link32.type = 'image/png';
+      link32.sizes = '32x32';
+      link32.href = root + '/favicon-32x32.png';
+      head.appendChild(link32);
+      var link16 = document.createElement('link');
+      link16.rel = 'icon';
+      link16.type = 'image/png';
+      link16.sizes = '16x16';
+      link16.href = root + '/favicon-16x16.png';
+      head.appendChild(link16);
     })();
   </script>
 </body>
