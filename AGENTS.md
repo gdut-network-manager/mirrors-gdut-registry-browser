@@ -12,6 +12,24 @@ Default five-role vocabulary: needs-triage, needs-info, ready-for-agent, ready-f
 
 Single-context layout: `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
 
+## Versioning
+
+### 版本号提升(强制)
+
+**每次涉及代码改动的提交,必须同时提升版本号。** 不得跳过。
+
+涉及三个文件,版本号必须保持一致:
+
+1. `config/initializers/version.rb` — `Rails.application.config.x.version = "x.y.z"`
+2. `helm/Chart.yaml` — `version:` 和 `appVersion:` 两个字段
+3. `CHANGELOG.md` — 在文件顶部添加新版本条目,简述改动内容
+
+版本号规则:
+- bug 修复、小改动 → patch 版本号 +1(如 `2.3.2` → `2.3.3`)
+- 新功能、不兼容改动 → minor 版本号 +1(如 `2.3.2` → `2.4.0`)
+
+在 `git commit` 之前完成版本号提升,与代码改动一起提交。
+
 ## Verification
 
 ### 生产环境验证(必读)
