@@ -2723,3 +2723,279 @@ img {
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(var(--color-primary-rgb), 0.3);
 }
+
+/* ==========================================
+   Homepage Layout (Main + Sidebar)
+   ========================================== */
+
+.homepage-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: var(--spacing-md);
+    align-items: start;
+}
+
+.homepage-main {
+    min-width: 0;
+}
+
+.homepage-sidebar {
+    position: sticky;
+    top: var(--spacing-md);
+}
+
+/* ==========================================
+   Image Converter
+   ========================================== */
+
+.converter-collapsible.island {
+    margin-bottom: 0;
+}
+
+.converter-collapsible.island:hover {
+    transform: none;
+    box-shadow: var(--shadow-md);
+}
+
+.converter-collapsible.island:hover::before {
+    opacity: 0;
+}
+
+.converter-summary {
+    list-style: none;
+    cursor: pointer;
+    user-select: none;
+}
+
+.converter-summary::-webkit-details-marker {
+    display: none;
+}
+
+.converter-body {
+    padding-top: var(--spacing-sm);
+}
+
+.converter-input {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: 0.875rem;
+    font-family: 'Fira Code', monospace;
+    transition: border-color var(--transition-fast);
+    box-sizing: border-box;
+}
+
+.converter-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+.converter-hint {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    margin-top: var(--spacing-xs);
+    margin-bottom: 0;
+    line-height: 1.4;
+}
+
+.converter-unsupported {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: var(--radius-sm);
+}
+
+.converter-unsupported-text {
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.converter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-sm);
+}
+
+.converter-chip {
+    display: inline-block;
+    padding: 4px 10px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+}
+
+.converter-warn {
+    margin-top: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    border-radius: var(--radius-sm);
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary);
+}
+
+.converter-warn ol {
+    margin: var(--spacing-xs) 0 0;
+    padding-left: var(--spacing-lg);
+}
+
+.converter-tools {
+    display: flex;
+    gap: var(--spacing-xs);
+    margin: var(--spacing-sm) 0;
+}
+
+.converter-tool-tab {
+    padding: 4px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    font-size: 0.8125rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.converter-tool-tab:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.converter-tool-tab.active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+}
+
+.converter-cmd-block {
+    margin-bottom: var(--spacing-sm);
+}
+
+.converter-cmd-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.converter-cmd-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+}
+
+.converter-copy-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border: none;
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all var(--transition-fast);
+}
+
+.converter-copy-btn:hover {
+    color: var(--color-primary);
+    background: var(--color-hover);
+}
+
+.converter-copy-btn.copied {
+    color: var(--color-success);
+}
+
+.converter-cmd-text {
+    display: block;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.75rem;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    overflow-x: auto;
+    white-space: nowrap;
+    line-height: 1.5;
+}
+
+.converter-ctr-hint {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    margin: var(--spacing-xs) 0;
+}
+
+.converter-ctr-hint code {
+    font-family: 'Fira Code', monospace;
+    color: var(--color-text-secondary);
+}
+
+.converter-copy-all-btn {
+    width: 100%;
+    padding: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-primary);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.converter-copy-all-btn:hover {
+    background: var(--color-primary);
+    color: white;
+}
+
+.converter-copy-all-btn.copied {
+    background: var(--color-success);
+    border-color: var(--color-success);
+    color: white;
+}
+
+.converter-help-link {
+    display: block;
+    text-align: center;
+    margin-top: var(--spacing-md);
+    font-size: 0.8125rem;
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: opacity var(--transition-fast);
+}
+
+.converter-help-link:hover {
+    opacity: 0.8;
+}
+
+/* ==========================================
+   Responsive: Homepage Layout
+   ========================================== */
+
+@media (max-width: 1024px) {
+    .homepage-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .homepage-sidebar {
+        position: static;
+        order: -1;
+    }
+}
+
+@media (max-width: 768px) {
+    .converter-collapsible.island {
+        margin-bottom: var(--spacing-md);
+    }
+}

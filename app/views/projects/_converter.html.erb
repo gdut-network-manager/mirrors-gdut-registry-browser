@@ -1,0 +1,328 @@
+<% help_url = @converter_config[:helpUrl] %>
+
+<details class="island converter-collapsible" open>
+  <summary class="island-header converter-summary">
+    <%= render "shared/icon", name: "terminal", size: 28, class: "island-icon" %>
+    <div class="island-header-group">
+      <span class="text-muted small">工具</span>
+      <h5 class="island-title mb-0">镜像名称转换</h5>
+    </div>
+  </summary>
+
+  <div class="island-body converter-body">
+    <input type="text" id="converter-input" class="converter-input" placeholder="nginx:latest" autocomplete="off" spellcheck="false">
+    <p class="converter-hint">支持: nginx:latest | harbor/harbor-core | docker.io/library/nginx | ghcr.io/xxx/yyy | quay.io/xxx</p>
+
+    <div id="converter-unsupported" class="converter-unsupported" style="display:none">
+      <p class="converter-unsupported-text">该仓库暂不支持加速，请查看支持的仓库列表：</p>
+      <div id="converter-unsupported-list" class="converter-chips"></div>
+      <a href="<%= help_url %>" target="_blank" rel="noopener" class="converter-help-link">查看帮助文档 →</a>
+    </div>
+
+    <div id="converter-result" style="display:none">
+      <div class="pull-cmd-header">
+        <span class="pull-cmd-label">拉取模式</span>
+        <div class="pull-cmd-toggle">
+          <span class="toggle-label active" id="converter-label-prefix">前缀添加模式</span>
+          <div class="pull-cmd-switch" id="converter-switch">
+            <div class="toggle-knob"></div>
+          </div>
+          <span class="toggle-label" id="converter-label-mirror">域名置换模式</span>
+        </div>
+      </div>
+
+      <div id="converter-mirror-warn" class="converter-warn" style="display:none">
+        <strong>⚠ 使用域名置换模式前，需要先完成以下配置：</strong>
+        <ol>
+          <li>编辑主机 Host 文件，添加域名解析记录</li>
+          <li>信任镜像站的 CA 证书</li>
+        </ol>
+      </div>
+
+      <div class="converter-tools">
+        <button type="button" class="converter-tool-tab active" data-tool="docker">docker</button>
+        <button type="button" class="converter-tool-tab" data-tool="podman">podman</button>
+        <button type="button" class="converter-tool-tab" data-tool="ctr">ctr</button>
+      </div>
+
+      <div class="converter-cmd-block">
+        <div class="converter-cmd-header">
+          <span class="converter-cmd-label">1. 拉取镜像</span>
+          <button type="button" class="converter-copy-btn" data-copy="pull" title="复制">
+            <%= render "shared/icon", name: "copy", size: 16 %>
+          </button>
+        </div>
+        <code id="converter-pull-cmd" class="converter-cmd-text"></code>
+      </div>
+
+      <div class="converter-cmd-block">
+        <div class="converter-cmd-header">
+          <span class="converter-cmd-label">2. 恢复原始标签</span>
+          <button type="button" class="converter-copy-btn" data-copy="tag" title="复制">
+            <%= render "shared/icon", name: "copy", size: 16 %>
+          </button>
+        </div>
+        <code id="converter-tag-cmd" class="converter-cmd-text"></code>
+      </div>
+
+      <p id="converter-ctr-hint" class="converter-ctr-hint" style="display:none">
+        ctr 用户可能需要指定 namespace，如 <code>ctr -n k8s.io image pull ...</code>
+      </p>
+
+      <button type="button" class="converter-copy-all-btn" data-copy="all">复制全部命令</button>
+
+      <a href="<%= help_url %>" target="_blank" rel="noopener" class="converter-help-link">查看帮助文档 →</a>
+    </div>
+  </div>
+</details>
+
+<script>
+(function() {
+  var configEl = document.getElementById('converter-config');
+  if (!configEl) return;
+  var config = JSON.parse(configEl.textContent);
+  var domainMap = config.domainMap;
+  var mirrorMap = config.mirrorMap;
+  var registryUrl = config.registryUrl;
+  var helpUrl = config.helpUrl;
+
+  var input = document.getElementById('converter-input');
+  var result = document.getElementById('converter-result');
+  var unsupported = document.getElementById('converter-unsupported');
+  var unsupportedList = document.getElementById('converter-unsupported-list');
+  var pullCmdEl = document.getElementById('converter-pull-cmd');
+  var tagCmdEl = document.getElementById('converter-tag-cmd');
+  var mirrorWarn = document.getElementById('converter-mirror-warn');
+  var ctrHint = document.getElementById('converter-ctr-hint');
+
+  var currentMode = 'prefix';
+  var currentTool = 'docker';
+
+  // 移动端默认折叠
+  if (window.matchMedia('(max-width: 768px)').matches) {
+    document.querySelector('.converter-collapsible').open = false;
+  }
+
+  // 桌面端禁止折叠
+  if (window.matchMedia('(min-width: 769px)').matches) {
+    document.querySelector('.converter-summary').addEventListener('click', function(e) {
+      e.preventDefault();
+    });
+  }
+
+  function findRegistry(domain) {
+    domain = domain.toLowerCase();
+    if (domainMap[domain]) return domainMap[domain];
+    if (/^registry-[\w-]+\.docker\.io$/.test(domain)) {
+      return domainMap['docker.io'];
+    }
+    return null;
+  }
+
+  function parseImage(inputStr) {
+    inputStr = inputStr.trim();
+    if (!inputStr) return null;
+
+    var digest = '';
+    var mainPart = inputStr;
+    var atIndex = inputStr.indexOf('@');
+    if (atIndex !== -1) {
+      digest = inputStr.substring(atIndex);
+      mainPart = inputStr.substring(0, atIndex);
+    }
+
+    var tag = '';
+    var pathPart = mainPart;
+    var lastColon = mainPart.lastIndexOf(':');
+    var lastSlash = mainPart.lastIndexOf('/');
+    if (lastColon !== -1 && lastColon > lastSlash) {
+      tag = mainPart.substring(lastColon + 1);
+      pathPart = mainPart.substring(0, lastColon);
+    }
+
+    if (!tag && !digest) {
+      tag = 'latest';
+    }
+
+    var registryDomain = '';
+    var imagePath = pathPart;
+
+    var firstSlash = pathPart.indexOf('/');
+    if (firstSlash !== -1) {
+      var firstPart = pathPart.substring(0, firstSlash);
+      if (firstPart.indexOf('.') !== -1 || firstPart.indexOf(':') !== -1 || firstPart === 'localhost') {
+        registryDomain = firstPart;
+        imagePath = pathPart.substring(firstSlash + 1);
+      }
+    }
+
+    if (!registryDomain) {
+      registryDomain = 'docker.io';
+      if (imagePath.indexOf('/') === -1) {
+        imagePath = 'library/' + imagePath;
+      }
+    }
+
+    return {
+      registry: registryDomain,
+      path: imagePath,
+      tag: tag,
+      digest: digest
+    };
+  }
+
+  function generateCommands(parsed) {
+    var registryInfo = findRegistry(parsed.registry);
+    if (!registryInfo) return null;
+
+    var project = registryInfo.project;
+
+    var suffix = '';
+    if (parsed.tag) {
+      suffix = ':' + parsed.tag;
+    }
+    if (parsed.digest) {
+      suffix += parsed.digest;
+    }
+    if (!suffix) {
+      suffix = ':latest';
+    }
+
+    var prefixImage = registryUrl + '/' + project + '/' + parsed.path + suffix;
+
+    var subdomain = mirrorMap[project] || project;
+    var mirrorImage = subdomain + '.' + registryUrl + '/' + parsed.path + suffix;
+
+    var originalImage;
+    if (parsed.registry === 'docker.io') {
+      if (parsed.path.indexOf('library/') === 0) {
+        originalImage = parsed.path.substring(8) + suffix;
+      } else {
+        originalImage = parsed.path + suffix;
+      }
+    } else {
+      originalImage = parsed.registry + '/' + parsed.path + suffix;
+    }
+
+    return {
+      prefix: prefixImage,
+      mirror: mirrorImage,
+      original: originalImage
+    };
+  }
+
+  function getToolPrefix(tool) {
+    switch (tool) {
+      case 'docker': return { pull: 'docker pull', tag: 'docker tag' };
+      case 'podman': return { pull: 'podman pull', tag: 'podman tag' };
+      case 'ctr': return { pull: 'ctr image pull', tag: 'ctr image tag' };
+      default: return { pull: 'docker pull', tag: 'docker tag' };
+    }
+  }
+
+  function renderSupportedList() {
+    var displays = {};
+    Object.keys(domainMap).forEach(function(domain) {
+      var info = domainMap[domain];
+      if (!displays[info.display]) {
+        displays[info.display] = true;
+      }
+    });
+    unsupportedList.innerHTML = Object.keys(displays).map(function(d) {
+      return '<span class="converter-chip">' + d + '</span>';
+    }).join('');
+  }
+
+  function update() {
+    var value = input.value.trim();
+    if (!value) {
+      result.style.display = 'none';
+      unsupported.style.display = 'none';
+      return;
+    }
+
+    var parsed = parseImage(value);
+    if (!parsed) {
+      result.style.display = 'none';
+      unsupported.style.display = 'none';
+      return;
+    }
+
+    var commands = generateCommands(parsed);
+    if (!commands) {
+      result.style.display = 'none';
+      unsupported.style.display = 'block';
+      renderSupportedList();
+      return;
+    }
+
+    unsupported.style.display = 'none';
+    result.style.display = 'block';
+
+    var toolPrefix = getToolPrefix(currentTool);
+    var targetImage = currentMode === 'mirror' ? commands.mirror : commands.prefix;
+
+    var pullCmd = toolPrefix.pull + ' ' + targetImage;
+    var tagCmd = toolPrefix.tag + ' ' + targetImage + ' ' + commands.original;
+
+    pullCmdEl.textContent = pullCmd;
+    tagCmdEl.textContent = tagCmd;
+
+    document.querySelector('[data-copy="pull"]').setAttribute('data-copy-value', pullCmd);
+    document.querySelector('[data-copy="tag"]').setAttribute('data-copy-value', tagCmd);
+    document.querySelector('[data-copy="all"]').setAttribute('data-copy-value', pullCmd + '\n' + tagCmd);
+
+    ctrHint.style.display = currentTool === 'ctr' ? 'block' : 'none';
+    mirrorWarn.style.display = currentMode === 'mirror' ? 'block' : 'none';
+  }
+
+  input.addEventListener('input', update);
+
+  document.getElementById('converter-switch').addEventListener('click', function() {
+    currentMode = currentMode === 'prefix' ? 'mirror' : 'prefix';
+    this.classList.toggle('on');
+    document.getElementById('converter-label-prefix').classList.toggle('active');
+    document.getElementById('converter-label-mirror').classList.toggle('active');
+    update();
+  });
+
+  document.querySelectorAll('.converter-tool-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.converter-tool-tab').forEach(function(t) { t.classList.remove('active'); });
+      this.classList.add('active');
+      currentTool = this.getAttribute('data-tool');
+      update();
+    });
+  });
+
+  document.querySelectorAll('[data-copy]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var text = this.getAttribute('data-copy-value');
+      if (!text) return;
+
+      var self = this;
+      var isIconButton = self.classList.contains('converter-copy-btn');
+
+      navigator.clipboard.writeText(text).then(function() {
+        if (isIconButton) {
+          var originalHTML = self.innerHTML;
+          self.innerHTML = '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
+          self.classList.add('copied');
+          setTimeout(function() {
+            self.innerHTML = originalHTML;
+            self.classList.remove('copied');
+          }, 1500);
+        } else {
+          var originalText = self.textContent;
+          self.textContent = '✓ 已复制';
+          self.classList.add('copied');
+          setTimeout(function() {
+            self.textContent = originalText;
+            self.classList.remove('copied');
+          }, 1500);
+        }
+      });
+    });
+  });
+})();
+</script>

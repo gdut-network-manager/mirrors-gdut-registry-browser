@@ -1,5 +1,7 @@
-<div class="justify-content-center">
-  <div>
+<script type="application/json" id="converter-config"><%= @converter_config.to_json.html_safe %></script>
+
+<div class="homepage-layout">
+  <div class="homepage-main">
     <% if @projects.any? %>
       <div class="project-grid">
         <% @projects.each do |project| %>
@@ -64,4 +66,8 @@
 
     <%= render "shared/pagination", total_pages: @projects.total_pages, current_page: @projects.page, path_helper: :root_path %>
   </div>
+
+  <aside class="homepage-sidebar">
+    <%= render "converter" %>
+  </aside>
 </div>

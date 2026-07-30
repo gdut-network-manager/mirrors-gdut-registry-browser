@@ -110,5 +110,31 @@ class Project
     all
   end
 
+  def self.registry_domain_map
+    registries = fetch_registry_map
+    projects = fetch_all_projects
+
+    domain_map = {}
+
+    projects.each do |p|
+      next unless p["registry_id"].present? && p["registry_id"].to_i > 0
+      registry = registries[p["registry_id"]]
+      next unless registry
+
+      display = registry.name
+      project_name = p["name"]
+
+      domain_map[registry.name.downcase] = { "project" => project_name, "type" => registry.type, "display" => display }
+
+      if registry.name.downcase == "docker"
+        %w[docker.io hub.docker.com registry.hub.docker.com registry-1.docker.io].each do |dh_domain|
+          domain_map[dh_domain] = { "project" => project_name, "type" => "docker-hub", "display" => "Docker Hub" }
+        end
+      end
+    end
+
+    domain_map
+  end
+
   private_class_method :fetch_registry_map, :fetch_quota_map, :fetch_registry_for, :fetch_all_projects
 end
