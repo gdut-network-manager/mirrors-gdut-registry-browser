@@ -1,5 +1,11 @@
 # Changelog
 
+# v2.4.2
+
+* 修复面包屑 SVG 图标与文字垂直对齐问题
+  - `.breadcrumb-item a` 添加 `display: inline-flex` + `align-items: center` + `line-height: 1`
+* AGENTS.md 新增前端对齐验证规则
+
 # v2.4.1
 
 * 修复 Favicon 子路径部署不显示的问题

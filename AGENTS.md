@@ -32,6 +32,18 @@ Single-context layout: `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/ag
 
 ## Verification
 
+### 前端对齐验证(必读)
+
+每次对前端(CSS/HTML/ERB 模板)进行修改时,**必须**用 Playwright 验证涉及元素的垂直对齐。重点检查:
+
+- SVG 图标与旁边文字的垂直居中(`<a>`、`<button>` 等包含 SVG + 文字的容器)
+- 全局 `line-height: 1.6` 会导致文字行框比 SVG 高,需在容器上加 `line-height: 1` + `display: inline-flex` + `align-items: center`
+- 验证方法: 用 `browser_evaluate` 检查 SVG 的 `getBoundingClientRect()` center 与容器 center 是否一致
+
+历史教训:
+1. 底栏 footer SVG 图标偏下 → `.footer a` 加 `line-height: 1` + `inline-flex`
+2. 面包屑 breadcrumb SVG 图标偏下 → `.breadcrumb-item a` 同上
+
 ### 生产环境验证(必读)
 
 本地开发环境与生产环境差异较大,仅本地验证通过不代表生产环境没问题。涉及前端、路由、资源、MIME 类型、URL 拼接等改动时,**必须**同时用 Playwright 测试生产环境页面。

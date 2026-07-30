@@ -466,6 +466,10 @@ strong, .font-weight-bold {
 .breadcrumb-item a {
     color: var(--color-text-muted);
     transition: color var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    line-height: 1;
 }
 
 .breadcrumb-item a:hover {
