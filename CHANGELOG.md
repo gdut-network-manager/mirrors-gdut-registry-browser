@@ -1,5 +1,12 @@
 # Changelog
 
+# v2.5.5
+
+* container max-width 1400px→1800px 适配 2K+ 显示器
+* 项目网格 max-width: 900px 在左侧 2/3 区域内居中
+* 转换器 max-width: 520px 在右侧 1/3 区域内居中
+* sidebar align-items: center 确保转换器水平居中
+
 # v2.5.4
 
 * 修复转换器布局: 取消项目网格 max-width 限制撑满左侧

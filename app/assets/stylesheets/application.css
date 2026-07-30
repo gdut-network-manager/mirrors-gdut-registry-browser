@@ -320,13 +320,13 @@ strong, .font-weight-bold {
    ========================================== */
 
 .main-container {
-    max-width: 1400px;
+    max-width: 1800px;
     margin: 0 auto;
     padding: var(--spacing-2xl) var(--spacing-xl);
 }
 
 .container {
-    max-width: 1400px;
+    max-width: 1800px;
     margin: 0 auto;
     padding: var(--spacing-2xl) var(--spacing-xl);
 }
@@ -2744,15 +2744,16 @@ img {
 
 .homepage-main .project-grid {
     width: 100%;
+    max-width: 900px;
 }
 
 .homepage-sidebar {
     position: sticky;
     top: 88px;
     height: calc(100vh - 152px);
-    padding-right: var(--spacing-sm);
     display: flex;
     flex-direction: column;
+    align-items: center;
 }
 
 .homepage-sidebar::-webkit-scrollbar {
@@ -2776,6 +2777,7 @@ img {
     margin-bottom: 0;
     padding: var(--spacing-xl);
     width: 100%;
+    max-width: 520px;
     box-sizing: border-box;
     flex: 1;
     display: flex;
@@ -3056,11 +3058,15 @@ img {
     .homepage-sidebar {
         position: static;
         height: auto;
-        padding-right: 0;
         order: -1;
     }
 
+    .homepage-main .project-grid {
+        max-width: 100%;
+    }
+
     .converter-collapsible.island {
+        max-width: 100%;
         flex: none;
         overflow: visible;
     }
