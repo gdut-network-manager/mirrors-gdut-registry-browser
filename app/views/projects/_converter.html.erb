@@ -11,7 +11,12 @@
 
   <div class="island-body converter-body">
     <input type="text" id="converter-input" class="converter-input" placeholder="nginx:latest" autocomplete="off" spellcheck="false">
-    <p class="converter-hint">支持: nginx:latest | harbor/harbor-core | docker.io/library/nginx | ghcr.io/xxx/yyy | quay.io/xxx</p>
+    <div class="converter-examples">
+      <span class="converter-example" data-example="nginx:latest">nginx:latest</span>
+      <span class="converter-example" data-example="harbor/harbor-core">harbor/harbor-core</span>
+      <span class="converter-example" data-example="docker.io/library/nginx">docker.io/library/nginx</span>
+      <span class="converter-example" data-example="ghcr.io/xxx/yyy">ghcr.io/xxx/yyy</span>
+    </div>
 
     <div id="converter-unsupported" class="converter-unsupported" style="display:none">
       <p class="converter-unsupported-text">该仓库暂不支持加速，请查看支持的仓库列表：</p>
@@ -277,6 +282,14 @@
   }
 
   input.addEventListener('input', update);
+
+  document.querySelectorAll('.converter-example').forEach(function(ex) {
+    ex.addEventListener('click', function() {
+      input.value = this.getAttribute('data-example');
+      input.dispatchEvent(new Event('input', {bubbles: true}));
+      input.focus();
+    });
+  });
 
   document.getElementById('converter-switch').addEventListener('click', function() {
     currentMode = currentMode === 'prefix' ? 'mirror' : 'prefix';

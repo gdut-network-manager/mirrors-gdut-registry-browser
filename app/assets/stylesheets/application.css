@@ -2730,8 +2730,8 @@ img {
 
 .homepage-layout {
     display: grid;
-    grid-template-columns: 1fr 380px;
-    gap: var(--spacing-md);
+    grid-template-columns: minmax(0, 1fr) 420px;
+    gap: var(--spacing-lg);
     align-items: start;
 }
 
@@ -2741,7 +2741,23 @@ img {
 
 .homepage-sidebar {
     position: sticky;
-    top: var(--spacing-md);
+    top: 88px;
+    max-height: calc(100vh - 104px);
+    overflow-y: auto;
+    padding-right: var(--spacing-sm);
+}
+
+.homepage-sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.homepage-sidebar::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 2px;
+}
+
+.homepage-sidebar::-webkit-scrollbar-track {
+    background: transparent;
 }
 
 /* ==========================================
@@ -2750,6 +2766,7 @@ img {
 
 .converter-collapsible.island {
     margin-bottom: 0;
+    padding: var(--spacing-lg);
 }
 
 .converter-collapsible.island:hover {
@@ -2782,7 +2799,7 @@ img {
     border-radius: var(--radius-sm);
     background: var(--color-surface);
     color: var(--color-text);
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
     font-family: 'Fira Code', monospace;
     transition: border-color var(--transition-fast);
     box-sizing: border-box;
@@ -2793,12 +2810,28 @@ img {
     border-color: var(--color-primary);
 }
 
-.converter-hint {
-    font-size: 0.75rem;
-    color: var(--color-text-muted);
+.converter-examples {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
     margin-top: var(--spacing-xs);
-    margin-bottom: 0;
-    line-height: 1.4;
+}
+
+.converter-example {
+    padding: 3px 10px;
+    background: var(--color-hover);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-family: 'Fira Code', monospace;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.converter-example:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
 }
 
 .converter-unsupported {
@@ -2855,12 +2888,12 @@ img {
 }
 
 .converter-tool-tab {
-    padding: 4px 12px;
+    padding: 5px 14px;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
     background: var(--color-surface);
     color: var(--color-text-muted);
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
     cursor: pointer;
     transition: all var(--transition-fast);
 }
@@ -2888,7 +2921,7 @@ img {
 }
 
 .converter-cmd-label {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     color: var(--color-text-muted);
 }
@@ -2918,15 +2951,15 @@ img {
 .converter-cmd-text {
     display: block;
     font-family: 'Fira Code', monospace;
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     padding: var(--spacing-xs) var(--spacing-sm);
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
     color: var(--color-text);
-    overflow-x: auto;
-    white-space: nowrap;
-    line-height: 1.5;
+    word-break: break-all;
+    white-space: pre-wrap;
+    line-height: 1.6;
 }
 
 .converter-ctr-hint {
@@ -2948,7 +2981,7 @@ img {
     border-radius: var(--radius-sm);
     background: transparent;
     color: var(--color-primary);
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
     transition: all var(--transition-fast);
@@ -2990,6 +3023,9 @@ img {
 
     .homepage-sidebar {
         position: static;
+        max-height: none;
+        overflow-y: visible;
+        padding-right: 0;
         order: -1;
     }
 }
