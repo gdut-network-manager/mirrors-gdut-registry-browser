@@ -2743,15 +2743,13 @@ img {
 }
 
 .homepage-main .project-grid {
-    max-width: 680px;
     width: 100%;
 }
 
 .homepage-sidebar {
     position: sticky;
     top: 88px;
-    height: calc(100vh - 104px);
-    overflow-y: auto;
+    height: calc(100vh - 152px);
     padding-right: var(--spacing-sm);
     display: flex;
     flex-direction: column;
@@ -2782,10 +2780,25 @@ img {
     flex: 1;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .converter-collapsible.island > .converter-body {
     flex: 1;
+    overflow-y: auto;
+}
+
+.converter-collapsible.island > .converter-body::-webkit-scrollbar {
+    width: 4px;
+}
+
+.converter-collapsible.island > .converter-body::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 2px;
+}
+
+.converter-collapsible.island > .converter-body::-webkit-scrollbar-track {
+    background: transparent;
 }
 
 .converter-collapsible.island:hover {
@@ -3043,13 +3056,17 @@ img {
     .homepage-sidebar {
         position: static;
         height: auto;
-        overflow-y: visible;
         padding-right: 0;
         order: -1;
     }
 
     .converter-collapsible.island {
         flex: none;
+        overflow: visible;
+    }
+
+    .converter-collapsible.island > .converter-body {
+        overflow-y: visible;
     }
 }
 

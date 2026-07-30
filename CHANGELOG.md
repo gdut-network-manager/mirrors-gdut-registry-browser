@@ -1,5 +1,11 @@
 # Changelog
 
+# v2.5.4
+
+* 修复转换器布局: 取消项目网格 max-width 限制撑满左侧
+* 转换器底部留 64px 间隙不贴浏览器底边
+* 转换器内容区独立滚动 (converter-body overflow-y: auto)
+
 # v2.5.3
 
 * 转换器卡片撑满右侧区域高度 (height: calc(100vh-104px) + flex:1)
