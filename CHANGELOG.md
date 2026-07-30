@@ -1,5 +1,11 @@
 # Changelog
 
+# v2.5.7
+
+* 修复示例标签与拉取模式行间距 (margin-bottom: 24px)
+* Label 字号 0.8125rem→0.875rem
+* 命令块间距 12px→24px, 拉开上下行间隔
+
 # v2.5.6
 
 * 去掉所有固定 max-width 限制, 适配任意分辨率 (4K/8K+)
