@@ -1,5 +1,13 @@
 # Changelog
 
+# v2.5.6
+
+* 去掉所有固定 max-width 限制, 适配任意分辨率 (4K/8K+)
+  - container max-width: none (原 1800px)
+  - 项目网格去掉 max-width: 900px
+  - 转换器去掉 max-width: 520px
+  - 全部 width: 100% 撑满各自 2fr/1fr 区域
+
 # v2.5.5
 
 * container max-width 1400px→1800px 适配 2K+ 显示器
