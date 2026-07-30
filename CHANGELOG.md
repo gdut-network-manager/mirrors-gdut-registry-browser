@@ -1,5 +1,11 @@
 # Changelog
 
+# v2.5.3
+
+* 转换器卡片撑满右侧区域高度 (height: calc(100vh-104px) + flex:1)
+* 项目卡片网格 max-width: 680px 在左侧区域内居中
+* 移动端断点正确覆盖 height: auto + flex: none
+
 # v2.5.2
 
 * 重构首页布局为 2/3 + 1/3 双区域
