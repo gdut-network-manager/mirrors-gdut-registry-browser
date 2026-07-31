@@ -320,15 +320,28 @@ strong, .font-weight-bold {
    ========================================== */
 
 .main-container {
-    max-width: none;
+    max-width: 1400px;
     margin: 0 auto;
     padding: var(--spacing-2xl) var(--spacing-xl);
 }
 
 .container {
-    max-width: none;
+    max-width: 1400px;
     margin: 0 auto;
     padding: var(--spacing-2xl) var(--spacing-xl);
+}
+
+/* 首页: 撑满全宽, 不受 1400px 限制 */
+main.container:has(.homepage-layout) {
+    max-width: none;
+}
+
+/* 首页 >2K: 左右各留 1/12 视口间隔 */
+@media (min-width: 2560px) {
+    main.container:has(.homepage-layout) {
+        padding-left: calc(100vw / 12);
+        padding-right: calc(100vw / 12);
+    }
 }
 
 /* ==========================================
