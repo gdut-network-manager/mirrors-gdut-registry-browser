@@ -260,8 +260,6 @@ strong, .font-weight-bold {
 }
 
 .navbar-container {
-    max-width: 1400px;
-    margin: 0 auto;
     padding: var(--spacing-md) var(--spacing-xl);
     display: flex;
     align-items: center;
@@ -337,7 +335,7 @@ main.container:has(.homepage-layout) {
 }
 
 /* 首页 >2K: 左右各留 1/12 视口间隔 */
-@media (min-width: 2560px) {
+@media (min-width: 1920px) {
     main.container:has(.homepage-layout) {
         padding-left: calc(100vw / 12);
         padding-right: calc(100vw / 12);
@@ -2791,14 +2789,16 @@ img {
     width: 100%;
     box-sizing: border-box;
     flex: 1;
-    display: flex;
-    flex-direction: column;
+    min-height: 0;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
     overflow: hidden;
 }
 
 .converter-collapsible.island > .converter-body {
-    flex: 1;
+    min-height: 0;
     overflow-y: auto;
+    max-height: 100%;
 }
 
 .converter-collapsible.island > .converter-body::-webkit-scrollbar {

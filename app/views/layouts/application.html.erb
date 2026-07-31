@@ -18,16 +18,56 @@
   <body class="fade-in">
     <script>
       (function() {
-        var saved = localStorage.getItem('theme');
-        var isDark;
-        if (saved === 'dark' || saved === 'light') {
-          isDark = saved === 'dark';
-          document.documentElement.classList.add(isDark ? 'dark-theme' : 'light-manual');
-        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          isDark = true;
-          document.documentElement.classList.add('dark-theme');
-        } else {
-          isDark = false;
+        function applyTheme(mode) {
+          var html = document.documentElement;
+          html.classList.remove('dark-theme', 'light-manual');
+          if (mode === 'dark') {
+            html.classList.add('dark-theme');
+          } else if (mode === 'light') {
+            html.classList.add('light-manual');
+          } else {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+              html.classList.add('dark-theme');
+            }
+          }
+        }
+
+        function updateThemeIcon(mode) {
+          var btn = document.querySelector('.theme-toggle');
+          if (!btn) return;
+          btn.querySelector('.icon-sun').style.display = mode === 'light' ? '' : 'none';
+          btn.querySelector('.icon-moon').style.display = mode === 'dark' ? '' : 'none';
+          btn.querySelector('.icon-auto').style.display = mode === 'auto' ? '' : 'none';
+          var labels = { light: '浅色模式', dark: '深色模式', auto: '自动模式（跟随系统）' };
+          btn.setAttribute('title', '当前: ' + labels[mode] + ' — 点击切换');
+          btn.setAttribute('aria-label', '当前: ' + labels[mode] + ' — 点击切换');
+        }
+
+        window.applyTheme = applyTheme;
+        window.updateThemeIcon = updateThemeIcon;
+
+        window.cycleTheme = function() {
+          var current = localStorage.getItem('theme') || 'auto';
+          var next;
+          if (current === 'auto') next = 'light';
+          else if (current === 'light') next = 'dark';
+          else next = 'auto';
+          localStorage.setItem('theme', next);
+          applyTheme(next);
+          updateThemeIcon(next);
+        };
+
+        var saved = localStorage.getItem('theme') || 'auto';
+        applyTheme(saved);
+
+        if (window.matchMedia) {
+          var mq = window.matchMedia('(prefers-color-scheme: dark)');
+          mq.addEventListener('change', function() {
+            var mode = localStorage.getItem('theme') || 'auto';
+            if (mode === 'auto') {
+              applyTheme('auto');
+            }
+          });
         }
       })();
     </script>

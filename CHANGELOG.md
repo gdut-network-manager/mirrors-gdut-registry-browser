@@ -1,5 +1,15 @@
 # Changelog
 
+# v2.5.9
+
+* 首页 >1.5K (≥1920px) 左右各留 1/12 视口间隔 (原阈值 2K/2560px)
+* Header navbar 改为全宽布局, Logo 贴左边缘, 明暗切换按钮贴右边缘 (对齐镜像站主页/文档中心)
+* 明暗模式切换新增"自动"模式, 三态循环: 自动→浅色→深色→自动
+  - 自动模式跟随系统偏好, 系统切换时实时响应 (matchMedia listener)
+* 修复转换器卡片内容过多时被边框遮住的问题
+  - 根因: details 元素内 flex/grid 子项不受父级高度约束
+  - 修复: grid-template-rows: auto minmax(0,1fr) + max-height:100% + overflow-y:auto
+
 # v2.5.8
 
 * 二级/三级页面 container 恢复 max-width: 1400px (原宽度)

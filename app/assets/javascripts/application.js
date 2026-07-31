@@ -17,9 +17,10 @@ $(document).on("turbo:load", function () {
 
   var btn = document.querySelector('.theme-toggle');
   if (btn) {
-    var isDark = document.documentElement.classList.contains('dark-theme');
-    btn.querySelector('.icon-sun').style.display = isDark ? '' : 'none';
-    btn.querySelector('.icon-moon').style.display = isDark ? 'none' : '';
+    var mode = localStorage.getItem('theme') || 'auto';
+    if (window.updateThemeIcon) {
+      window.updateThemeIcon(mode);
+    }
   }
 
   // Copy to clipboard (field style - click icon to copy from input)
