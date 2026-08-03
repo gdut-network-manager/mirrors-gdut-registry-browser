@@ -30,7 +30,7 @@ sonarqube-check:
 
 github-mirror:
   stage: check
-  image: ubuntu:latest
+  image: alpine/git:latest
   tags:
     - dev
   before_script:
