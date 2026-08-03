@@ -1,5 +1,9 @@
 # Changelog
 
+# v2.5.10
+
+* docker-compose.yml SECRET_KEY_BASE 改为占位符 changeme (原硬编码密钥已废弃)
+
 # v2.5.9
 
 * 首页 >1.5K (≥1920px) 左右各留 1/12 视口间隔 (原阈值 2K/2560px)
