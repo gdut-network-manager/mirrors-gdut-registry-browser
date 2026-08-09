@@ -1,42 +1,35 @@
 <% if manifest.layers.any? %>
-  <%-
-    colors = %w(#8bcf69 #e6d450 #f28f68 #cf82bf #719fd1)
-    layer_display = Struct.new(:index, :digest, :size, :percent, :color, keyword_init: true)
-
-    layers = manifest.layers.each_with_index.map do |layer, index|
-      percent = ((layer.size * 100.0) / manifest.layers.sum(&:size)).round(2)
-
-      color = if percent > 0
-        colors.shift.tap { |c| colors.push(c) }
-      else
-        'transparent'
-      end
-
-      layer_display.new(
-        index:   '#%03d' % index,
-        digest:  layer.digest,
-        size:    number_to_human_size(layer.size),
-        percent: percent,
-        color:   color
-      )
-    end
-  %>
+  <%- total_size = manifest.layers.sum(&:size) %>
 
   <h5 class="mt-4">层信息</h5>
-
-  <% layers.each do |layer| %>
-    <p class="text-monospace">
-      <small>
-        [<%= layer.index %>] <%= layer.digest %> - <%= layer.percent %>% (<%= layer.size %>)
-      </small>
-
-      <div class="progress">
-        <% layers.each do |inner| %>
-          <div class="progress-bar" style="width: <%= inner.percent %>%; background-color: <% if inner.index == layer.index %><%= inner.color %><% else %>transparent<% end %>;"></div>
+  <div class="layer-table-wrapper">
+    <table class="layer-table">
+      <thead>
+        <tr>
+          <th class="layer-th-index">#</th>
+          <th class="layer-th-digest">Digest</th>
+          <th class="layer-th-size">大小</th>
+          <th class="layer-th-bar">占比</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% manifest.layers.each_with_index do |layer, index| %>
+          <%- percent = total_size > 0 ? (layer.size.to_f / total_size * 100).round(2) : 0 %>
+          <tr>
+            <td class="layer-td-index"><%= index + 1 %></td>
+            <td class="layer-td-digest" title="<%= layer.digest %>"><%= layer.digest %></td>
+            <td class="layer-td-size"><%= bytes_to_human(layer.size) %></td>
+            <td class="layer-td-bar">
+              <div class="layer-progress">
+                <div class="layer-progress-fill" style="width: <%= percent %>%"></div>
+              </div>
+              <span class="layer-progress-text"><%= percent %>%</span>
+            </td>
+          </tr>
         <% end %>
-      </div>
-    </p>
-  <% end %>
+      </tbody>
+    </table>
+  </div>
 
   <hr />
 <% end %>
