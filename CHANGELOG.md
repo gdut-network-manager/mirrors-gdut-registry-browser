@@ -1,5 +1,9 @@
 # Changelog
 
+# v2.5.11
+
+* 镜像名称转换器: 输入大写时按 OCI 标准自动转小写 (digest 除外)
+
 # v2.5.10
 
 * docker-compose.yml SECRET_KEY_BASE 改为占位符 changeme (原硬编码密钥已废弃)
