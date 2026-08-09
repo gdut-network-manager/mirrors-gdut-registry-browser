@@ -594,49 +594,64 @@ main.container:has(.homepage-layout) {
 }
 
 /* ==========================================
-   Labels Table
+   Info Table (Labels / Environment Variables)
    ========================================== */
 
-.labels-table {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    margin: var(--spacing-md) 0;
-}
-
-.labels-row {
-    display: flex;
-    align-items: baseline;
-    gap: var(--spacing-lg);
-    padding: var(--spacing-md);
+.info-table-wrapper {
+    overflow-x: auto;
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
-    transition: background var(--transition-fast);
+    max-height: 600px;
+    overflow-y: auto;
 }
 
-.labels-row:hover {
+.info-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+}
+
+.info-table thead {
+    position: sticky;
+    top: 0;
+    background: var(--color-hover);
+    z-index: 1;
+}
+
+.info-table th {
+    padding: var(--spacing-sm) var(--spacing-md);
+    text-align: left;
+    font-weight: 600;
+    color: var(--color-text);
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+}
+
+.info-table td {
+    padding: var(--spacing-sm) var(--spacing-md);
+    color: var(--color-text-secondary);
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: top;
+}
+
+.info-table tbody tr:hover {
     background: var(--color-hover);
 }
 
-.labels-key {
-    flex: 0 0 280px;
-    min-width: 0;
+.info-table tbody tr:last-child td {
+    border-bottom: none;
 }
 
-.labels-value {
-    flex: 1;
-    min-width: 0;
+.info-td-key {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.75rem;
+    color: var(--color-text);
+    white-space: nowrap;
+}
+
+.info-td-value {
+    font-family: 'Fira Code', monospace;
     word-break: break-all;
-    color: var(--color-text-secondary);
-}
-
-@media (max-width: 640px) {
-    .labels-row {
-        flex-direction: column;
-        gap: var(--spacing-xs);
-    }
-    .labels-key {
-        flex: none;
-    }
 }
 
 /* ==========================================

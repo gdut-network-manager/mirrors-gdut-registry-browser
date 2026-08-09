@@ -1,12 +1,22 @@
 <% if manifest.labels.any? %>
   <h5 class="mt-4">标签（Labels）</h5>
-  <div class="labels-table">
-    <% manifest.labels.each do |key, value| %>
-      <div class="labels-row">
-        <span class="labels-key text-monospace small"><span class="badge-pill badge-dlayer"><%= key %></span></span>
-        <span class="labels-value text-monospace small"><%= value %></span>
-      </div>
-    <% end %>
+  <div class="info-table-wrapper">
+    <table class="info-table">
+      <thead>
+        <tr>
+          <th class="info-th-key">键</th>
+          <th class="info-th-value">值</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% manifest.labels.each do |key, value| %>
+          <tr>
+            <td class="info-td-key"><%= key %></td>
+            <td class="info-td-value"><%= value %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
   </div>
 
   <hr />

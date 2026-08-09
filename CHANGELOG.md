@@ -1,5 +1,11 @@
 # Changelog
 
+# v2.5.14
+
+* 标签（Labels）和环境变量部分改为表格样式, 与漏洞扫描/SBOM/构建历史一致
+  - flex div / p 标签 → table + thead(sticky) + tbody(hover)
+  - 通用 .info-table 样式, 复用 history-table 的设计语言
+
 # v2.5.13
 
 * 修复镜像详情页拉取命令过长时需左右滚动的问题 (white-space: nowrap → pre-wrap + word-break: break-all)

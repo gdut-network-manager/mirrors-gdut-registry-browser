@@ -1,12 +1,24 @@
 <% if manifest.env.any? %>
   <h5 class="mt-4">环境变量</h5>
-
-  <% manifest.env.sort.each do |env| %>
-    <%- key, value = env.split("=", 2) %>
-
-    <span class="text-muted small"><%= key %></span>
-    <p class="mb-3 text-monospace"><%= value %></p>
-  <% end %>
+  <div class="info-table-wrapper">
+    <table class="info-table">
+      <thead>
+        <tr>
+          <th class="info-th-key">变量名</th>
+          <th class="info-th-value">值</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% manifest.env.sort.each do |env| %>
+          <%- key, value = env.split("=", 2) %>
+          <tr>
+            <td class="info-td-key"><%= key %></td>
+            <td class="info-td-value"><%= value %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
 
   <hr />
 <% end %>
