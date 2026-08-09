@@ -16,7 +16,7 @@ type: application
 # - config/initializers/version.rb: 应用版本号(单一事实来源, CI/CD 从此文件提取)
 # - version / appVersion (下方): 必须与 version.rb 保持一致
 # CI/CD 仅在版本号变更时触发构建, 版本号未变则跳过
-version: 2.5.15
+version: 2.5.16
 
 # 应用版本号, 必须与 config/initializers/version.rb 中的版本保持一致
-appVersion: "2.5.15"
+appVersion: "2.5.16"

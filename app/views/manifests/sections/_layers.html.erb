@@ -1,5 +1,6 @@
 <% if manifest.layers.any? %>
   <%- total_size = manifest.layers.sum(&:size) %>
+  <%- cumulative = 0 %>
 
   <h5 class="mt-4">层信息</h5>
   <div class="layer-table-wrapper">
@@ -9,22 +10,20 @@
           <th class="layer-th-index">#</th>
           <th class="layer-th-digest">Digest</th>
           <th class="layer-th-size">大小</th>
-          <th class="layer-th-bar">占比</th>
+          <th class="layer-th-percent">占比</th>
         </tr>
       </thead>
       <tbody>
         <% manifest.layers.each_with_index do |layer, index| %>
           <%- percent = total_size > 0 ? (layer.size.to_f / total_size * 100).round(2) : 0 %>
-          <tr>
+          <%- start_pct = cumulative %>
+          <%- end_pct = cumulative + percent %>
+          <%- cumulative = end_pct %>
+          <tr style="--bar-start: <%= start_pct %>%; --bar-end: <%= end_pct %>%;">
             <td class="layer-td-index"><%= index + 1 %></td>
             <td class="layer-td-digest" title="<%= layer.digest %>"><%= layer.digest %></td>
             <td class="layer-td-size"><%= bytes_to_human(layer.size) %></td>
-            <td class="layer-td-bar">
-              <div class="layer-progress">
-                <div class="layer-progress-fill" style="width: <%= percent %>%"></div>
-              </div>
-              <span class="layer-progress-text"><%= percent %>%</span>
-            </td>
+            <td class="layer-td-percent"><%= percent %>%</td>
           </tr>
         <% end %>
       </tbody>

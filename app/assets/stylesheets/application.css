@@ -695,8 +695,22 @@ main.container:has(.homepage-layout) {
     vertical-align: middle;
 }
 
+.layer-table tbody tr {
+    background: linear-gradient(to right,
+        transparent var(--bar-start, 0%),
+        rgba(var(--color-primary-rgb), 0.10) var(--bar-start, 0%),
+        rgba(var(--color-primary-rgb), 0.10) var(--bar-end, 0%),
+        transparent var(--bar-end, 0%)
+    );
+}
+
 .layer-table tbody tr:hover {
-    background: var(--color-hover);
+    background: linear-gradient(to right,
+        transparent var(--bar-start, 0%),
+        rgba(var(--color-primary-rgb), 0.18) var(--bar-start, 0%),
+        rgba(var(--color-primary-rgb), 0.18) var(--bar-end, 0%),
+        transparent var(--bar-end, 0%)
+    );
 }
 
 .layer-table tbody tr:last-child td {
@@ -727,33 +741,13 @@ main.container:has(.homepage-layout) {
     width: 80px;
 }
 
-.layer-td-bar {
-    width: 200px;
-}
-
-.layer-progress {
-    display: inline-block;
-    width: 120px;
-    height: 8px;
-    background: var(--color-border);
-    border-radius: var(--radius-xl);
-    overflow: hidden;
-    vertical-align: middle;
-}
-
-.layer-progress-fill {
-    height: 100%;
-    background: var(--gradient-primary);
-    border-radius: var(--radius-xl);
-    transition: width var(--transition-base);
-}
-
-.layer-progress-text {
-    margin-left: var(--spacing-xs);
+.layer-td-percent {
     font-family: 'Fira Code', monospace;
     font-size: 0.75rem;
     color: var(--color-text-muted);
-    vertical-align: middle;
+    white-space: nowrap;
+    text-align: right;
+    width: 60px;
 }
 
 /* ==========================================
