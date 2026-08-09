@@ -35,7 +35,7 @@
       </div>
     </div>
 
-    <%= turbo_frame_tag "vuln-frame-#{manifest.id}", src: tag_vulnerabilities_path(project_name: @project.name, repo: @repository.relative_name, tag: @tag.name, manifest_id: manifest.id, artifact_digest: manifest.artifact_digest) do %>
+    <%= turbo_frame_tag "vuln-frame-#{manifest.id}", src: tag_vulnerabilities_path(project_name: @project.name, repo: @repository.relative_name, tag: @tag.reference, manifest_id: manifest.id, artifact_digest: manifest.artifact_digest) do %>
       <div class="vuln-loading">
         <%= render "shared/icon", name: "loader", size: 24 %>
         <span>加载漏洞列表中...</span>

@@ -1,5 +1,15 @@
 # Changelog
 
+# v2.5.12
+
+* 修复无 tag 制品(只有 Digest)在制品列表中显示"暂无标签"的问题
+  - Tag.list: artifact.tags 为空时创建 name:nil 条目,不再跳过
+  - Tag.find: 通过 artifact.tags.include? 判断引用是 tag 还是 digest
+  - 列表页: 无 tag 制品显示 "Digest" 徽章 + 截断 digest + hover 显示完整 digest
+  - 详情页: header/breadcrumb 显示 "Digest" + @digest 格式
+  - 拉取命令: 无 tag 时用 @digest 格式 (OCI 标准) 代替 :tag
+  - vuln/sbom 路由用 tag.reference 代替 tag.name 避免 nil 路由参数
+
 # v2.5.11
 
 * 镜像名称转换器: 输入大写时按 OCI 标准自动转小写 (digest 除外)

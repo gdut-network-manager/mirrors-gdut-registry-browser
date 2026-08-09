@@ -33,10 +33,15 @@
             <div class="list-group list-group-flush" id="tag-list">
               <% @tags.each do |tag| %>
                 <div class="tag-entry d-flex align-items-center">
-                  <%= link_to tag_path(@project.name, @repository.relative_name, tag.name), class: "list-group-item list-group-item-action d-flex justify-content-between align-items-center flex-grow-1" do %>
+                  <%= link_to tag_path(@project.name, @repository.relative_name, tag.reference), class: "list-group-item list-group-item-action d-flex justify-content-between align-items-center flex-grow-1" do %>
                     <div class="flex-grow-1 d-flex align-items-center gap-2">
-                      <%= content_tag :span, "标签", class: "badge badge-dtag text-uppercase mr-1" %>
-                      <span class="text-monospace small"><%= tag.name %></span>
+                      <% if tag.name %>
+                        <%= content_tag :span, "标签", class: "badge badge-dtag text-uppercase mr-1" %>
+                        <span class="text-monospace small"><%= tag.name %></span>
+                      <% else %>
+                        <%= content_tag :span, "Digest", class: "badge badge-digest mr-1" %>
+                        <span class="text-monospace small" title="<%= tag.content_digest %>"><%= tag.display_name %></span>
+                      <% end %>
                       <% if tag.display_type %>
                         <span class="artifact-type-badge">
                           <%= render "shared/icon", name: tag.type_icon, size: 14 %>

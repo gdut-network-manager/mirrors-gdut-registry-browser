@@ -691,6 +691,11 @@ main.container:has(.homepage-layout) {
     color: var(--color-tag);
 }
 
+.badge-digest {
+    background: rgba(var(--color-primary-rgb), 0.1);
+    color: var(--color-primary);
+}
+
 .badge-local {
     background: rgba(var(--color-docker-rgb), 0.1);
     color: var(--color-docker);

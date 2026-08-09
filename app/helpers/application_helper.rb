@@ -6,15 +6,16 @@ module ApplicationHelper
     }.fetch(type, type)
   end
 
-  def pull_command_prefix(project_name, repository_name, tag_name)
+  def pull_command_prefix(project_name, repository_name, tag_name, digest = nil)
     base = Rails.configuration.x.public_registry_url
     return nil unless base
 
     domain = base.sub(/^https?:\/\//, "")
-    "docker pull #{domain}/#{project_name}/#{repository_name}:#{tag_name}"
+    ref = tag_name ? ":#{tag_name}" : "@#{digest}"
+    "docker pull #{domain}/#{project_name}/#{repository_name}#{ref}"
   end
 
-  def pull_command_mirror(project, repository_name, tag_name)
+  def pull_command_mirror(project, repository_name, tag_name, digest = nil)
     return nil unless project.proxy_cache?
 
     base = Rails.configuration.x.public_registry_url
@@ -24,7 +25,8 @@ module ApplicationHelper
     subdomain = domain_mirror_subdomain(project.name)
     return nil unless subdomain
 
-    "docker pull #{subdomain}.#{domain}/#{repository_name}:#{tag_name}"
+    ref = tag_name ? ":#{tag_name}" : "@#{digest}"
+    "docker pull #{subdomain}.#{domain}/#{repository_name}#{ref}"
   end
 
   def domain_mirror_subdomain(project_name)

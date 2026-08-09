@@ -46,7 +46,7 @@
       </div>
     </div>
 
-    <%= turbo_frame_tag "sbom-frame-#{manifest.id}", src: tag_sbom_path(project_name: @project.name, repo: @repository.relative_name, tag: @tag.name, sbom_digest: manifest.sbom_digest, manifest_id: manifest.id) do %>
+    <%= turbo_frame_tag "sbom-frame-#{manifest.id}", src: tag_sbom_path(project_name: @project.name, repo: @repository.relative_name, tag: @tag.reference, sbom_digest: manifest.sbom_digest, manifest_id: manifest.id) do %>
       <div class="sbom-loading">
         <%= render "shared/icon", name: "loader", size: 24 %>
         <span>加载 SBOM 中...</span>

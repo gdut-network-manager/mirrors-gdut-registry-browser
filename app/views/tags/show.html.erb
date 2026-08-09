@@ -11,8 +11,8 @@
       </div>
 
       <div class="island-header-group">
-        <span class="text-muted small">仓库 / 标签</span>
-        <h5 class="island-title"><%= @repository.relative_name %>:<%= @tag.name %></h5>
+        <span class="text-muted small">仓库 / <% if @tag.name %>标签<% else %>Digest<% end %></span>
+        <h5 class="island-title"><%= @repository.relative_name %><% if @tag.name %>:<%= @tag.name %><% else %>@<%= @tag.display_name %><% end %></h5>
       </div>
 
       <% if @tag.display_type %>
@@ -38,9 +38,9 @@
         </div>
       </div>
       <div class="pull-cmd-display">
-        <code class="pull-cmd-text" id="pull-cmd-prefix"><%= pull_command_prefix(@project.name, @repository.relative_name, @tag.name) %></code>
-        <code class="pull-cmd-text hidden" id="pull-cmd-mirror"><%= pull_command_mirror(@project, @repository.relative_name, @tag.name) %></code>
-          <%= link_to "#copy", title: "复制到剪贴板", data: { copy: pull_command_prefix(@project.name, @repository.relative_name, @tag.name), tooltip: "复制到剪贴板" } do %>
+        <code class="pull-cmd-text" id="pull-cmd-prefix"><%= pull_command_prefix(@project.name, @repository.relative_name, @tag.name, @tag.content_digest) %></code>
+        <code class="pull-cmd-text hidden" id="pull-cmd-mirror"><%= pull_command_mirror(@project, @repository.relative_name, @tag.name, @tag.content_digest) %></code>
+          <%= link_to "#copy", title: "复制到剪贴板", data: { copy: pull_command_prefix(@project.name, @repository.relative_name, @tag.name, @tag.content_digest), tooltip: "复制到剪贴板" } do %>
             <%= render "shared/icon", name: "copy", size: 16 %>
           <% end %>
         </div>

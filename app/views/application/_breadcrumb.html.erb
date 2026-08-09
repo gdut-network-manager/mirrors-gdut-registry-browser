@@ -14,6 +14,10 @@
   <% end if @repository %>
 
   <%= content_tag :div, class: "breadcrumb-item breadcrumb-tag" do %>
-    <%= @tag.name %>
-  <% end if @tag && @tag.name.presence %>
+    <% if @tag.name %>
+      <%= @tag.name %>
+    <% else %>
+      <%= @tag.display_name %>
+    <% end %>
+  <% end if @tag %>
 <% end %>

@@ -20,14 +20,36 @@ class Tag
     artifact&.type_icon
   end
 
+  def reference
+    name.presence || content_digest
+  end
+
+  def display_name
+    return name if name.present?
+    d = content_digest.to_s
+    d.length > 19 ? d[0, 19] + "\u2026" : d
+  end
+
   def self.list(project_name:, repository_name:, page: 1, page_size: Rails.configuration.x.page_size)
     artifacts = Artifact.list(project_name: project_name, repository_name: repository_name, page: page, page_size: page_size)
 
     tags = []
     artifacts.each do |artifact|
-      artifact.tags.each do |tag_name|
+      if artifact.tags.any?
+        artifact.tags.each do |tag_name|
+          tags << new(
+            name: tag_name,
+            artifact: artifact,
+            push_time: artifact.push_time,
+            pull_time: artifact.pull_time,
+            content_digest: artifact.digest,
+            project_name: project_name,
+            repository_name: repository_name
+          )
+        end
+      else
         tags << new(
-          name: tag_name,
+          name: nil,
           artifact: artifact,
           push_time: artifact.push_time,
           pull_time: artifact.pull_time,
@@ -54,8 +76,10 @@ class Tag
 
     artifact = Artifact.from_api(response.body, project_name, repository_name)
 
+    actual_name = artifact.tags.include?(name) ? name : nil
+
     new(
-      name: name,
+      name: actual_name,
       artifact: artifact,
       push_time: artifact.push_time,
       pull_time: artifact.pull_time,
