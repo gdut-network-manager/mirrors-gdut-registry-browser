@@ -1,5 +1,9 @@
 # Changelog
 
+# v2.5.13
+
+* 修复镜像详情页拉取命令过长时需左右滚动的问题 (white-space: nowrap → pre-wrap + word-break: break-all)
+
 # v2.5.12
 
 * 修复无 tag 制品(只有 Digest)在制品列表中显示"暂无标签"的问题

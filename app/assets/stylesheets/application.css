@@ -1826,8 +1826,8 @@ img {
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
     color: var(--color-text);
-    overflow-x: auto;
-    white-space: nowrap;
+    word-break: break-all;
+    white-space: pre-wrap;
 }
 
 .pull-cmd-display .pull-cmd-text.hidden {
