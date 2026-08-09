@@ -698,8 +698,8 @@ main.container:has(.homepage-layout) {
 .layer-table tbody tr {
     background: linear-gradient(to right,
         transparent var(--bar-start, 0%),
-        rgba(var(--color-primary-rgb), 0.10) var(--bar-start, 0%),
-        rgba(var(--color-primary-rgb), 0.10) var(--bar-end, 0%),
+        rgba(var(--color-primary-rgb), 0.25) var(--bar-start, 0%),
+        rgba(var(--color-primary-rgb), 0.25) var(--bar-end, 0%),
         transparent var(--bar-end, 0%)
     );
 }
@@ -707,8 +707,26 @@ main.container:has(.homepage-layout) {
 .layer-table tbody tr:hover {
     background: linear-gradient(to right,
         transparent var(--bar-start, 0%),
-        rgba(var(--color-primary-rgb), 0.18) var(--bar-start, 0%),
-        rgba(var(--color-primary-rgb), 0.18) var(--bar-end, 0%),
+        rgba(var(--color-primary-rgb), 0.35) var(--bar-start, 0%),
+        rgba(var(--color-primary-rgb), 0.35) var(--bar-end, 0%),
+        transparent var(--bar-end, 0%)
+    );
+}
+
+.dark-theme .layer-table tbody tr {
+    background: linear-gradient(to right,
+        transparent var(--bar-start, 0%),
+        rgba(var(--color-primary-rgb), 0.4) var(--bar-start, 0%),
+        rgba(var(--color-primary-rgb), 0.4) var(--bar-end, 0%),
+        transparent var(--bar-end, 0%)
+    );
+}
+
+.dark-theme .layer-table tbody tr:hover {
+    background: linear-gradient(to right,
+        transparent var(--bar-start, 0%),
+        rgba(var(--color-primary-rgb), 0.5) var(--bar-start, 0%),
+        rgba(var(--color-primary-rgb), 0.5) var(--bar-end, 0%),
         transparent var(--bar-end, 0%)
     );
 }
