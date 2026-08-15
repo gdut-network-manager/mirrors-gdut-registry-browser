@@ -1,5 +1,10 @@
 # Changelog
 
+# v2.5.19
+
+* 修复 Ruby 4.0 下 rubocop 加载 benchmark 失败的问题
+  - Ruby 4.0 将 benchmark 从默认 gems 移除, 添加显式依赖
+
 # v2.5.18
 
 * GitHub Actions CI 修复与改进

@@ -62,6 +62,7 @@ end
 
 # custom
 
+gem "benchmark"  # Ruby 4.0 removed it from default gems, rubocop still needs it
 gem "faraday", "~> 2.9"
 gem "faraday-follow_redirects", "~> 0.5.0"
 
