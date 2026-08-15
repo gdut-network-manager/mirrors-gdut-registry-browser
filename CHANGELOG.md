@@ -1,5 +1,10 @@
 # Changelog
 
+# v2.5.20
+
+* 修复 RuboCop 不识别 Ruby 4.0 的问题
+  - .rubocop.yml 固定 TargetRubyVersion: 3.4 (RuboCop 最高支持)
+
 # v2.5.19
 
 * 修复 Ruby 4.0 下 rubocop 加载 benchmark 失败的问题
