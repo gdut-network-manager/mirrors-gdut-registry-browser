@@ -81,10 +81,14 @@ docker-build-and-push:
         docker push ${HARBORHOST}/docker-registry-browser/docker-registry-browser:${APP_VERSION}
         docker push ${HARBORHOST}/docker-registry-browser/docker-registry-browser:latest
         echo "============================= CLEAN UP MIRRORS ============================="
-        docker rmi ${HARBORHOST}/docker-registry-browser/docker-registry-browser:${APP_VERSION}
+        docker rmi ${HARBORHOST}/docker-registry-browser/docker-registry-browser:${APP_VERSION} || true
+        docker rmi ${HARBORHOST}/docker-registry-browser/docker-registry-browser:latest || true
         echo "SKIP_DOCKER=false" >> build.env
       fi
     - echo "APP_VERSION=${APP_VERSION}" >> build.env
+  after_script:
+    - echo "============================ CLEAN BUILD CACHE ============================="
+    - docker buildx prune -a -f || true
   artifacts:
     reports:
       dotenv: build.env
