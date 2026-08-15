@@ -1,5 +1,11 @@
 # Changelog
 
+# v2.5.18
+
+* GitHub Actions CI 修复与改进
+  - 构建前将 Gemfile source 从校内镜像替换为 rubygems.org 源站
+  - Docker 镜像发布从 Docker Hub 迁移到 GHCR (GitHub Container Registry)
+
 # v2.5.17
 
 * 层信息进度条暗色模式下可见度提升
