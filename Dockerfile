@@ -1,6 +1,7 @@
 FROM ruby:4.0.6-alpine
 
 ARG SOURCE_COMMIT
+ARG ALPINE_MIRROR=https://mirrors.cernet.edu.cn/alpine
 ENV SOURCE_COMMIT=$SOURCE_COMMIT
 
 ENV PORT=8080
@@ -15,7 +16,9 @@ WORKDIR /app
 
 ADD . .
 
-RUN sed -i 's#https\?://dl-cdn.alpinelinux.org/alpine#https://mirrors.cernet.edu.cn/alpine#g' /etc/apk/repositories \
+RUN if [ -n "$ALPINE_MIRROR" ]; then \
+      sed -i "s#https\?://dl-cdn.alpinelinux.org/alpine#$ALPINE_MIRROR#g" /etc/apk/repositories; \
+    fi \
  && apk update \
  && for i in 1 2 3; do \
       apk add -v --progress build-base zlib-dev tzdata openssl-dev shared-mime-info libc6-compat && break; \

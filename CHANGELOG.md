@@ -1,5 +1,11 @@
 # Changelog
 
+# v2.5.23
+
+* Alpine 镜像源改为 build arg 控制
+  - 本地构建默认使用 CERNET 镜像源
+  - GitHub Actions 传空值走源站
+
 # v2.5.22
 
 * Dockerfile apk add 添加重试机制 (至多 3 次)
