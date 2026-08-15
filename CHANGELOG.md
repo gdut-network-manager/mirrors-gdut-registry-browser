@@ -1,5 +1,9 @@
 # Changelog
 
+# v2.5.22
+
+* Dockerfile apk add 添加重试机制 (至多 3 次)
+
 # v2.5.21
 
 * 移除 GitHub Actions test job (rubocop + rspec)

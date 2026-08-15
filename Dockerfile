@@ -17,7 +17,12 @@ ADD . .
 
 RUN sed -i 's#https\?://dl-cdn.alpinelinux.org/alpine#https://mirrors.cernet.edu.cn/alpine#g' /etc/apk/repositories \
  && apk update \
- && apk add -v --progress build-base zlib-dev tzdata openssl-dev shared-mime-info libc6-compat \
+ && for i in 1 2 3; do \
+      apk add -v --progress build-base zlib-dev tzdata openssl-dev shared-mime-info libc6-compat && break; \
+      echo "apk add attempt $i failed, retrying..."; \
+      rm -rf /var/cache/apk/*; \
+      [ $i -eq 3 ] && exit 1; \
+    done \
  && rm -rf /var/cache/apk/* \
  && gem install bundler \
  && bundle config set without "development test" \
