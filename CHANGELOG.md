@@ -1,5 +1,9 @@
 # Changelog
 
+# v2.5.21
+
+* 移除 GitHub Actions test job (rubocop + rspec)
+
 # v2.5.20
 
 * 修复 RuboCop 不识别 Ruby 4.0 的问题

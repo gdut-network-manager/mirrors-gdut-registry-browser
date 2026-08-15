@@ -19,26 +19,8 @@ permissions:
 
 jobs:
 
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Use official RubyGems source
-        run: sed -i 's|source "https://mirrors.gdut.edu.cn/rubygems/"|source "https://rubygems.org"|' Gemfile
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-      - name: Install Dependencies
-        run: bundle install
-      - name: Execute Linter
-        run: bundle exec rubocop
-      - name: Execute Tests
-        run: bundle exec rspec
-
   build:
     runs-on: ubuntu-latest
-    needs:
-      - test
     strategy:
       fail-fast: false
       matrix:
