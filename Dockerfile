@@ -1,6 +1,4 @@
-FROM registry.gdut.edu.cn/docker/library/ruby:4.0.6-alpine
-
-MAINTAINER Klaus Meyer <spam@klaus-meyer.net>
+FROM ruby:4.0.6-alpine
 
 ARG SOURCE_COMMIT
 ENV SOURCE_COMMIT=$SOURCE_COMMIT
