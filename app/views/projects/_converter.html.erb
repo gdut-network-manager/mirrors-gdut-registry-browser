@@ -116,12 +116,18 @@
   }
 
   function findRegistry(domain) {
-    domain = domain.toLowerCase();
-    if (domainMap[domain]) return domainMap[domain];
-    if (/^registry-[\w-]+\.docker\.io$/.test(domain)) {
-      return domainMap['docker.io'];
-    }
-    return null;
+    return domainMap[domain.toLowerCase()] || null;
+  }
+
+  // Docker Hub 官方域名的全部变体, 统一归一化为 docker.io
+  function isDockerHubDomain(domain) {
+    return domain === 'docker.io' ||
+           domain === 'index.docker.io' ||
+           domain === 'index.docker.com' ||
+           domain === 'registry.docker.io' ||
+           domain === 'registry.docker.com' ||
+           domain === 'registry.hub.docker.com' ||
+           /^registry-\d+\.docker\.(io|com)$/.test(domain);
   }
 
   function parseImage(inputStr) {
@@ -165,9 +171,12 @@
 
     if (!registryDomain) {
       registryDomain = 'docker.io';
-      if (imagePath.indexOf('/') === -1) {
-        imagePath = 'library/' + imagePath;
-      }
+    } else if (isDockerHubDomain(registryDomain)) {
+      registryDomain = 'docker.io';
+    }
+
+    if (registryDomain === 'docker.io' && imagePath.indexOf('/') === -1) {
+      imagePath = 'library/' + imagePath;
     }
 
     return {

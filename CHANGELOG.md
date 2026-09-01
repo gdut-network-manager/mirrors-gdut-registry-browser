@@ -1,5 +1,10 @@
 # Changelog
 
+# v2.5.24
+
+* 镜像名称转换工具适配 Docker Hub 全部官方域名变体
+  - index.docker.io / registry.docker.io / registry-*.docker.io 统一归一化为 docker.io
+
 # v2.5.23
 
 * Alpine 镜像源改为 build arg 控制
