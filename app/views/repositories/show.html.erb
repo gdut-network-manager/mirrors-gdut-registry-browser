@@ -75,7 +75,9 @@
     </div>
 
     <% unless params[:tab] == "description" %>
-      <%= render "shared/pagination", total_pages: @tags_collection.total_pages, current_page: @tags_collection.page, path_helper: :repository_path, path_args: { project_name: @project.name, repo: @repository.relative_name } %>
+      <div id="tag-pagination" <%= 'hidden' if @tags_collection.total_pages <= 1 %>>
+        <%= render "shared/pagination", total_pages: @tags_collection.total_pages, current_page: @tags_collection.page, path_helper: :repository_path, path_args: { project_name: @project.name, repo: @repository.relative_name } %>
+      </div>
     <% end %>
   </div>
 </div>
@@ -93,13 +95,19 @@ function filterTags() {
   var input = document.getElementById("tag-filter");
   var filter = input.value.toLowerCase();
   var entries = document.getElementById("tag-list").getElementsByClassName("tag-entry");
+  var visibleCount = 0;
   for (var i = 0; i < entries.length; i++) {
     var text = entries[i].textContent || entries[i].innerText;
     if (text.toLowerCase().indexOf(filter) > -1) {
       entries[i].style.display = "";
+      visibleCount++;
     } else {
       entries[i].style.display = "none";
     }
+  }
+  var pagination = document.getElementById("tag-pagination");
+  if (pagination) {
+    pagination.hidden = filter !== "" || !pagination.querySelector(".pagination");
   }
 }
 </script>

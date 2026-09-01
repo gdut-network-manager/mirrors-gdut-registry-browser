@@ -96,6 +96,11 @@ $(document).on("turbo:load", function () {
           if (newList) {
             document.getElementById("repo-list").replaceWith(newList);
           }
+          var newPagination = doc.getElementById("repo-pagination");
+          var currentPagination = document.getElementById("repo-pagination");
+          if (newPagination && currentPagination) {
+            currentPagination.replaceWith(newPagination);
+          }
         });
     }, 350);
   });
