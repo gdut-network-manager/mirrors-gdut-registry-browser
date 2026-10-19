@@ -1,5 +1,11 @@
 # Changelog
 
+# v2.5.27
+
+* 修复镜像数排序不生效的问题
+  - Harbor sort 参数仅支持数据库列, artifact_count/update_time 会被静默忽略
+  - 改为客户端模拟: 拉全量(page_size=100 分页)后内存排序 + 本地切片分页
+
 # v2.6.0
 
 * 仓库列表升级为卡片式表格, 新增排序功能
