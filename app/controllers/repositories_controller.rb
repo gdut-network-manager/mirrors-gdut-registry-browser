@@ -1,13 +1,17 @@
 class RepositoriesController < ApplicationController
   helper_method :configs
 
+  SORT_WHITELIST = %w[name -name artifact_count -artifact_count pull_count -pull_count update_time -update_time].freeze
+
   def index
     @project = Project.find(params[:project_name])
     @query = params[:q].to_s.strip
+    @sort = SORT_WHITELIST.include?(params[:sort]) ? params[:sort] : "-pull_count"
     @repositories = Repository.list(
       project_name: params[:project_name],
       page: params[:page]&.to_i || 1,
-      query: @query.presence
+      query: @query.presence,
+      sort: @sort
     )
   end
 

@@ -30,12 +30,12 @@
                  data-search-url="<%= project_path(project_name: @project.name) %>">
         </div>
 
-        <%= render "repo_list", repositories: @repositories, project: @project, query: @query %>
+        <%= render "repo_list", repositories: @repositories, project: @project, query: @query, sort: @sort %>
       </div>
     </div>
 
     <div id="repo-pagination">
-      <%= render "shared/pagination", total_pages: @repositories.total_pages, current_page: @repositories.page, path_helper: :project_path, path_args: { project_name: @project.name }.merge(@query.present? ? { q: @query } : {}) %>
+      <%= render "shared/pagination", total_pages: @repositories.total_pages, current_page: @repositories.page, path_helper: :project_path, path_args: { project_name: @project.name }.merge(@query.present? ? { q: @query } : {}).merge(@sort.present? && @sort != "-pull_count" ? { sort: @sort } : {}) %>
     </div>
   </div>
 </div>

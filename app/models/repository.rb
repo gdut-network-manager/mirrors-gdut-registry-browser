@@ -1,11 +1,12 @@
 class Repository
   include ActiveModel::Model
 
-  attr_accessor :name, :project_name, :artifact_count, :pull_count, :description
+  attr_accessor :name, :project_name, :artifact_count, :pull_count, :description, :update_time
 
-  def self.list(project_name:, page: 1, page_size: Rails.configuration.x.page_size, query: nil)
+  def self.list(project_name:, page: 1, page_size: Rails.configuration.x.page_size, query: nil, sort: nil)
     params = { page: page, page_size: page_size }
     params[:q] = "name=~#{query}" if query.present?
+    params[:sort] = sort if sort.present?
 
     response = HarborClient.api.get(
       "projects/#{project_name}/repositories",
@@ -18,7 +19,8 @@ class Repository
         project_name: project_name,
         artifact_count: r["artifact_count"],
         pull_count: r["pull_count"],
-        description: r["description"]
+        description: r["description"],
+        update_time: r["update_time"]
       )
     end
 

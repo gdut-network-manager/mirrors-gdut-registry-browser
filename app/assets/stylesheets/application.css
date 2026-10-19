@@ -3222,3 +3222,105 @@ img {
         margin-bottom: var(--spacing-md);
     }
 }
+
+/* ==========================================
+   Repo List Table (card-style rows, like mirrors homepage #distro-table)
+   ========================================== */
+.repo-table-wrap {
+    width: 100%;
+}
+
+.repo-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 6px;
+}
+
+.repo-table thead {
+    background: transparent;
+}
+
+.repo-table th {
+    padding: var(--spacing-md);
+    text-align: left;
+    font-weight: 600;
+    color: var(--color-text);
+    border-bottom: 2px solid var(--color-border);
+    white-space: nowrap;
+}
+
+.repo-table th .repo-sort-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: inherit;
+    text-decoration: none;
+    line-height: 1;
+}
+
+.repo-table th .repo-sort-link:hover {
+    color: var(--color-primary);
+}
+
+.repo-table th .sort-arrow {
+    font-size: 0.75em;
+    color: var(--color-primary);
+    min-width: 1em;
+    display: inline-block;
+}
+
+.repo-table tbody td {
+    padding: var(--spacing-md);
+    color: var(--color-text-secondary);
+    background: transparent;
+    border: none;
+    position: relative;
+    z-index: 2;
+}
+
+.repo-table tbody tr {
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.repo-table tbody tr:hover {
+    transform: scale(1.02);
+    z-index: 1;
+}
+
+.repo-table tbody tr::after {
+    content: '';
+    display: block;
+    position: absolute;
+    inset: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: transparent;
+    pointer-events: none;
+    transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color var(--transition-fast);
+    z-index: 0;
+}
+
+.repo-table tbody tr:hover::after {
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-primary);
+}
+
+.repo-col-name {
+    max-width: 0;
+    width: 45%;
+}
+
+.repo-col-name .text-monospace {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+@media (max-width: 768px) {
+    .repo-col-time {
+        display: none;
+    }
+}

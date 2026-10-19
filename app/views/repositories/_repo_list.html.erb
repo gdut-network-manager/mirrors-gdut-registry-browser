@@ -1,19 +1,69 @@
-<% if repositories.any? %>
-  <div class="list-group list-group-flush" id="repo-list">
-    <% repositories.each do |repo| %>
-      <%= link_to repository_path(project.name, repo.relative_name), class: "list-group-item list-group-item-action d-flex align-items-center repo-entry" do %>
-        <div class="flex-grow-1">
-          <span class="badge badge-dimage text-uppercase mr-1">IMG</span>
-          <span class="text-monospace small text-truncate"><%= repo.relative_name %></span>
-        </div>
-        <span class="badge badge-dtag mr-2"><%= repo.artifact_count %> 镜像</span>
-        <%= render "shared/icon", name: "arrow-right", size: 16 %>
+<%
+  sort = local_assigns[:sort] || "-pull_count"
+  query = local_assigns[:query]
+
+  columns = [
+    { key: "name", label: "仓库名称" },
+    { key: "artifact_count", label: "镜像数" },
+    { key: "pull_count", label: "下载次数" },
+    { key: "update_time", label: "更新时间", class: "repo-col-time" }
+  ]
+%>
+
+<div class="repo-table-wrap" id="repo-list">
+  <table class="repo-table">
+    <thead>
+      <tr>
+        <% columns.each do |col| %>
+          <%
+            current_desc = sort.start_with?("-")
+            current_key = current_desc ? sort[1..] : sort
+            active = current_key == col[:key]
+            next_sort = if active
+              current_desc ? col[:key] : "-#{col[:key]}"
+            else
+              col[:key] == "name" ? "name" : "-#{col[:key]}"
+            end
+            sort_params = { page: 1 }
+            sort_params[:sort] = next_sort
+            sort_params[:q] = query if query.present?
+          %>
+          <%= content_tag :th, class: [(col[:class]), ("sorted" if active), ("desc" if active && current_desc), ("asc" if active && !current_desc)].compact.join(" ") do %>
+            <%= link_to project_path(project_name: project.name, **sort_params), class: "repo-sort-link" do %>
+              <span><%= col[:label] %></span>
+              <span class="sort-arrow"><%= active ? (current_desc ? "▼" : "▲") : "" %></span>
+            <% end %>
+          <% end %>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <% if repositories.any? %>
+        <% repositories.each do |repo| %>
+          <tr data-href="<%= repository_path(project.name, repo.relative_name) %>">
+            <td class="repo-col-name">
+              <span class="badge badge-dimage text-uppercase mr-1">IMG</span>
+              <span class="text-monospace small"><%= repo.relative_name %></span>
+            </td>
+            <td><span class="badge badge-dtag"><%= repo.artifact_count %></span></td>
+            <td><%= repo.pull_count %></td>
+            <td class="repo-col-time"><%= repo.update_time ? Time.parse(repo.update_time.to_s).strftime("%Y-%m-%d %H:%M") : "-" %></td>
+          </tr>
+        <% end %>
+      <% else %>
+        <tr><td colspan="4" class="text-center py-4 text-muted">未找到匹配的仓库</td></tr>
       <% end %>
-    <% end %>
-  </div>
-<% else %>
-  <div class="text-center py-4" id="repo-list">
-    <%= render "shared/icon", name: "inbox", size: 48, class: "island-icon" %>
-    <p class="text-muted mt-2">未找到匹配的仓库</p>
-  </div>
-<% end %>
+    </tbody>
+  </table>
+</div>
+<script>
+(function() {
+  var table = document.getElementById("repo-list");
+  if (!table) return;
+  table.addEventListener("click", function(e) {
+    if (e.target.closest("a")) return;
+    var row = e.target.closest("tr[data-href]");
+    if (row) window.location.href = row.getAttribute("data-href");
+  });
+})();
+</script>
