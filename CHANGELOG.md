@@ -1,6 +1,6 @@
 # Changelog
 
-# v2.5.27
+# v2.6.1
 
 * 修复镜像数排序不生效的问题
   - Harbor sort 参数仅支持数据库列, artifact_count/update_time 会被静默忽略
