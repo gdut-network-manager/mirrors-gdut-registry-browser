@@ -60,12 +60,6 @@
                             <%= render "shared/icon", name: "copy", size: 13 %>
                           </button>
                         </span>
-                        <% if tag.display_type %>
-                          <span class="artifact-type-badge">
-                            <%= render "shared/icon", name: tag.type_icon, size: 13 %>
-                            <%= tag.display_type %>
-                          </span>
-                        <% end %>
                       </td>
                       <td class="artifact-col-tags">
                         <% if tag.name %>
@@ -79,17 +73,39 @@
                           <span class="text-muted">—</span>
                         <% end %>
                       </td>
+                      <td class="artifact-col-type">
+                        <% if tag.display_type %>
+                          <span class="artifact-type-badge">
+                            <%= render "shared/icon", name: tag.type_icon, size: 13 %>
+                            <%= tag.display_type %>
+                          </span>
+                        <% else %>
+                          <span class="text-muted">—</span>
+                        <% end %>
+                      </td>
                       <td><%= number_to_human_size(tag.size) %></td>
                       <td class="artifact-col-vuln">
                         <% if scan.nil? || scan[:status] != "Success" %>
                           <span class="text-muted"><%= scan.nil? ? "未扫描" : format_scan_status(scan[:status]) %></span>
                         <% else %>
                           <span class="vuln-cell">
-                            <% scan[:details].each do |sev, count| %>
-                              <span class="vuln-count" style="color: <%= vuln_severity_color(sev) %>" title="<%= vuln_severity_label(sev) %>"><%= count %></span>
-                            <% end %>
                             <% if scan[:details].empty? %>
-                              <span class="vuln-count vuln-clean">0</span>
+                              <span class="vuln-count vuln-clean" title="无漏洞">
+                                <%= render "shared/icon", name: "shield-check", size: 14 %>
+                                0
+                              </span>
+                            <% else %>
+                              <% scan[:details].each do |sev, count| %>
+                                <%
+                                  # 漏洞严重性 → 图标: 危急=骷髅, 严重/中等=bug, 较低=警告三角, 无评分=问号
+                                  sev_icon = { "critical" => "skull", "high" => "bug", "medium" => "bug",
+                                               "low" => "triangle-alert", "unknown" => "circle-help" }.fetch(sev.downcase, "bug")
+                                %>
+                                <span class="vuln-count" style="color: <%= vuln_severity_color(sev) %>" title="<%= vuln_severity_label(sev) %>">
+                                  <%= render "shared/icon", name: sev_icon, size: 14 %>
+                                  <%= count %>
+                                </span>
+                              <% end %>
                             <% end %>
                           </span>
                         <% end %>

@@ -3334,7 +3334,7 @@ img {
 
 .artifact-col-digest {
     max-width: 0;
-    width: 24%;
+    width: 16%;
 }
 
 .artifact-col-tags {
@@ -3409,4 +3409,44 @@ img {
     .artifact-col-time {
         display: none;
     }
+}
+
+.artifact-table {
+    table-layout: fixed;
+}
+
+.artifact-table .artifact-col-digest {
+    width: 16%;
+    max-width: none;
+}
+
+.artifact-table .artifact-col-tags {
+    width: 14%;
+    max-width: none;
+}
+
+.artifact-table .artifact-col-type {
+    width: 12%;
+}
+
+.artifact-table td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.artifact-col-vuln {
+    overflow: visible !important;
+    white-space: normal !important;
+}
+
+.vuln-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    line-height: 1;
+}
+
+.vuln-count svg {
+    flex-shrink: 0;
 }
