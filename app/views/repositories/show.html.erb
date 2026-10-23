@@ -30,29 +30,77 @@
         <div class="tab-content <% unless params[:tab] == "description" %>active<% end %>" id="tab-artifacts">
           <% if @tags.any? %>
             <input type="text" id="tag-filter" class="form-control mb-3" placeholder="过滤标签…" onkeyup="filterTags()">
-            <div class="list-group list-group-flush" id="tag-list">
-              <% @tags.each do |tag| %>
-                <div class="tag-entry d-flex align-items-center">
-                  <%= link_to tag_path(@project.name, @repository.relative_name, tag.reference), class: "list-group-item list-group-item-action d-flex justify-content-between align-items-center flex-grow-1" do %>
-                    <div class="flex-grow-1 d-flex align-items-center gap-2">
-                      <% if tag.name %>
-                        <%= content_tag :span, "标签", class: "badge badge-dtag text-uppercase mr-1" %>
-                        <span class="text-monospace small"><%= tag.name %></span>
-                      <% else %>
-                        <%= content_tag :span, "Digest", class: "badge badge-digest mr-1" %>
-                        <span class="text-monospace small" title="<%= tag.content_digest %>"><%= tag.display_name %></span>
-                      <% end %>
-                      <% if tag.display_type %>
-                        <span class="artifact-type-badge">
-                          <%= render "shared/icon", name: tag.type_icon, size: 14 %>
-                          <%= tag.display_type %>
+            <div class="repo-table-wrap" id="tag-list">
+              <table class="repo-table artifact-table">
+                <thead>
+                  <tr>
+                    <th>制品 (Digest)</th>
+                    <th>标签</th>
+                    <th>类型</th>
+                    <th>大小</th>
+                    <th>漏洞</th>
+                    <th>推送时间</th>
+                    <th class="artifact-col-time">拉取时间</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @tags.each do |tag| %>
+                    <%
+                      scan = tag.artifact.scan_summary
+                      fmt = ->(t) { t ? Time.parse(t.to_s).strftime("%Y-%m-%d %H:%M") : "—" }
+                    %>
+                    <tr>
+                      <td class="artifact-col-digest">
+                        <span class="cell-with-copy">
+                          <%= link_to tag_path(@project.name, @repository.relative_name, tag.reference), class: "text-monospace small" do %>
+                            <span title="<%= tag.content_digest %>"><%= tag.content_digest.to_s.delete_prefix("sha256:")[0, 12] %></span>
+                          <% end %>
+                          <button type="button" class="copy-inline-btn" data-copy-text="<%= tag.content_digest %>" title="复制 Digest">
+                            <%= render "shared/icon", name: "copy", size: 13 %>
+                          </button>
                         </span>
-                      <% end %>
-                    </div>
-                    <%= render "shared/icon", name: "arrow-right", size: 16 %>
+                        <% if tag.display_type %>
+                          <span class="artifact-type-badge">
+                            <%= render "shared/icon", name: tag.type_icon, size: 13 %>
+                            <%= tag.display_type %>
+                          </span>
+                        <% end %>
+                      </td>
+                      <td class="artifact-col-tags">
+                        <% if tag.name %>
+                          <span class="cell-with-copy">
+                            <span class="text-monospace small"><%= tag.name %></span>
+                            <button type="button" class="copy-inline-btn" data-copy-text="<%= tag.name %>" title="复制标签">
+                              <%= render "shared/icon", name: "copy", size: 13 %>
+                            </button>
+                          </span>
+                        <% else %>
+                          <span class="text-muted">—</span>
+                        <% end %>
+                      </td>
+                      <td><%= number_to_human_size(tag.size) %></td>
+                      <td class="artifact-col-vuln">
+                        <% if scan.nil? || scan[:status] != "Success" %>
+                          <span class="text-muted"><%= scan.nil? ? "未扫描" : format_scan_status(scan[:status]) %></span>
+                        <% else %>
+                          <span class="vuln-cell">
+                            <% scan[:details].each do |sev, count| %>
+                              <span class="vuln-count" style="color: <%= vuln_severity_color(sev) %>" title="<%= vuln_severity_label(sev) %>"><%= count %></span>
+                            <% end %>
+                            <% if scan[:details].empty? %>
+                              <span class="vuln-count vuln-clean">0</span>
+                            <% end %>
+                          </span>
+                        <% end %>
+                      </td>
+                      <td><%= fmt.(tag.push_time) %></td>
+                      <td class="artifact-col-time"><%= fmt.(tag.pull_time) %></td>
+                      <td><%= render "shared/icon", name: "arrow-right", size: 15 %></td>
+                    </tr>
                   <% end %>
-                </div>
-              <% end %>
+                </tbody>
+              </table>
             </div>
           <% else %>
             <%= render "blank_tags" %>
@@ -94,15 +142,15 @@ function switchRepoTab(tab) {
 function filterTags() {
   var input = document.getElementById("tag-filter");
   var filter = input.value.toLowerCase();
-  var entries = document.getElementById("tag-list").getElementsByClassName("tag-entry");
+  var rows = document.getElementById("tag-list").querySelectorAll("tbody tr");
   var visibleCount = 0;
-  for (var i = 0; i < entries.length; i++) {
-    var text = entries[i].textContent || entries[i].innerText;
+  for (var i = 0; i < rows.length; i++) {
+    var text = rows[i].textContent || rows[i].innerText;
     if (text.toLowerCase().indexOf(filter) > -1) {
-      entries[i].style.display = "";
+      rows[i].style.display = "";
       visibleCount++;
     } else {
-      entries[i].style.display = "none";
+      rows[i].style.display = "none";
     }
   }
   var pagination = document.getElementById("tag-pagination");
@@ -110,4 +158,18 @@ function filterTags() {
     pagination.hidden = filter !== "" || !pagination.querySelector(".pagination");
   }
 }
+
+document.addEventListener("click", function(e) {
+  var btn = e.target.closest(".copy-inline-btn");
+  if (!btn) return;
+  e.preventDefault();
+  e.stopPropagation();
+  var text = btn.getAttribute("data-copy-text");
+  if (!text) return;
+  var self = btn;
+  navigator.clipboard.writeText(text).then(function() {
+    self.classList.add("copied");
+    setTimeout(function() { self.classList.remove("copied"); }, 1500);
+  });
+});
 </script>

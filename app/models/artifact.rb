@@ -3,7 +3,7 @@ class Artifact
 
   attr_accessor :digest, :size, :type, :media_type, :manifest_media_type,
                 :architecture, :os, :references, :tags, :push_time, :pull_time,
-                :repository_name, :project_name
+                :repository_name, :project_name, :scan_overview
 
   def display_type
     case type
@@ -54,7 +54,7 @@ class Artifact
       page_size: page_size,
       with_tag: true,
       with_label: false,
-      with_scan_overview: false,
+      with_scan_overview: true,
       with_sbom_overview: false,
       with_immutable_status: false,
       with_accessory: false
@@ -68,6 +68,18 @@ class Artifact
     more = page * page_size < total
 
     Collection.new(entries: entries, more: more, total: total, page: page)
+  end
+
+  def scan_summary
+    overview = scan_overview.to_h.values.first
+    return nil if overview.nil?
+    details = overview.dig("summary", "summary") || {}
+    {
+      status: overview["scan_status"],
+      severity: overview["severity"],
+      total: details.values.sum,
+      details: details
+    }
   end
 
   def self.from_api(data, project_name, repository_name)
@@ -85,6 +97,7 @@ class Artifact
       tags: (data["tags"] || []).map { |t| t["name"] },
       push_time: data["push_time"],
       pull_time: data["pull_time"],
+      scan_overview: data["scan_overview"],
       repository_name: repository_name,
       project_name: project_name
     )

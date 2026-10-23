@@ -3324,3 +3324,89 @@ img {
         display: none;
     }
 }
+
+/* ==========================================
+   Artifact Table (3rd-level list, card-style rows)
+   ========================================== */
+.artifact-table tbody tr {
+    cursor: default;
+}
+
+.artifact-col-digest {
+    max-width: 0;
+    width: 24%;
+}
+
+.artifact-col-tags {
+    max-width: 0;
+    width: 18%;
+}
+
+.cell-with-copy {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    line-height: 1;
+    max-width: 100%;
+}
+
+.cell-with-copy .text-monospace {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.artifact-col-digest .artifact-type-badge {
+    margin-left: 6px;
+}
+
+.copy-inline-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    border: none;
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    border-radius: 4px;
+    line-height: 1;
+    opacity: 0;
+    transition: opacity var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
+}
+
+.artifact-table tbody tr:hover .copy-inline-btn,
+.copy-inline-btn:focus-visible {
+    opacity: 1;
+}
+
+.copy-inline-btn:hover {
+    color: var(--color-primary);
+    background: rgba(var(--color-primary-rgb), 0.1);
+}
+
+.copy-inline-btn.copied {
+    color: #16a34a;
+    opacity: 1;
+}
+
+.vuln-cell {
+    display: inline-flex;
+    gap: 6px;
+    line-height: 1;
+}
+
+.vuln-count {
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.vuln-count.vuln-clean {
+    color: #16a34a;
+}
+
+@media (max-width: 768px) {
+    .artifact-col-time {
+        display: none;
+    }
+}

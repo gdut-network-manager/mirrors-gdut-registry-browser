@@ -10,7 +10,7 @@ class Tag
   ]
 
   attr_accessor :name, :artifact, :push_time, :pull_time, :content_digest,
-                :project_name, :repository_name
+                :project_name, :repository_name, :size, :scan_overview
 
   def display_type
     artifact&.display_type
@@ -35,28 +35,22 @@ class Tag
 
     tags = []
     artifacts.each do |artifact|
+      base = {
+        artifact: artifact,
+        push_time: artifact.push_time,
+        pull_time: artifact.pull_time,
+        content_digest: artifact.digest,
+        project_name: project_name,
+        repository_name: repository_name,
+        size: artifact.size,
+        scan_overview: artifact.scan_overview
+      }
       if artifact.tags.any?
         artifact.tags.each do |tag_name|
-          tags << new(
-            name: tag_name,
-            artifact: artifact,
-            push_time: artifact.push_time,
-            pull_time: artifact.pull_time,
-            content_digest: artifact.digest,
-            project_name: project_name,
-            repository_name: repository_name
-          )
+          tags << new(**base, name: tag_name)
         end
       else
-        tags << new(
-          name: nil,
-          artifact: artifact,
-          push_time: artifact.push_time,
-          pull_time: artifact.pull_time,
-          content_digest: artifact.digest,
-          project_name: project_name,
-          repository_name: repository_name
-        )
+        tags << new(**base, name: nil)
       end
     end
 
