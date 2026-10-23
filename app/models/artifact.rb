@@ -70,15 +70,18 @@ class Artifact
     Collection.new(entries: entries, more: more, total: total, page: page)
   end
 
+  VULN_SEVERITY_ORDER = { "Critical" => 0, "High" => 1, "Medium" => 2, "Low" => 3, "Unknown" => 4 }.freeze
+
   def scan_summary
     overview = scan_overview.to_h.values.first
     return nil if overview.nil?
     details = overview.dig("summary", "summary") || {}
+    sorted = details.sort_by { |sev, _| VULN_SEVERITY_ORDER.fetch(sev, 99) }.to_h
     {
       status: overview["scan_status"],
       severity: overview["severity"],
-      total: details.values.sum,
-      details: details
+      total: sorted.values.sum,
+      details: sorted
     }
   end
 

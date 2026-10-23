@@ -41,7 +41,6 @@
                     <th>漏洞</th>
                     <th>推送时间</th>
                     <th class="artifact-col-time">拉取时间</th>
-                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -112,7 +111,6 @@
                       </td>
                       <td><%= fmt.(tag.push_time) %></td>
                       <td class="artifact-col-time"><%= fmt.(tag.pull_time) %></td>
-                      <td><%= render "shared/icon", name: "arrow-right", size: 15 %></td>
                     </tr>
                   <% end %>
                 </tbody>
