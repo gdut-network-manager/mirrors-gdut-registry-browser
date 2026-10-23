@@ -1642,8 +1642,11 @@ img {
 }
 
 .col-md-6 {
-    flex: 1 1 calc(50% - var(--spacing-lg));
+    flex: 0 1 calc(50% - var(--spacing-lg));
     min-width: 300px;
+    max-width: 860px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .col-md-4 {
