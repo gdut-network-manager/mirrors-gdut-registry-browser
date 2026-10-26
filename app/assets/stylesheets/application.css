@@ -3329,7 +3329,7 @@ img {
    Artifact Table (3rd-level list, card-style rows)
    ========================================== */
 .artifact-table tbody tr {
-    cursor: default;
+    cursor: pointer;
 }
 
 .artifact-col-digest {

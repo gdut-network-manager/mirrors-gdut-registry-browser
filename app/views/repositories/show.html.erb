@@ -58,7 +58,7 @@
                       scan = tag.artifact.scan_summary
                       fmt = ->(t) { t ? Time.parse(t.to_s).strftime("%Y-%m-%d %H:%M") : "—" }
                     %>
-                    <tr>
+                    <tr data-href="<%= tag_path(@project.name, @repository.relative_name, tag.reference) %>">
                       <td class="artifact-col-digest">
                         <span class="cell-with-copy">
                           <%= link_to tag_path(@project.name, @repository.relative_name, tag.reference), class: "text-monospace small" do %>
@@ -194,5 +194,11 @@ document.addEventListener("click", function(e) {
     self.classList.add("copied");
     setTimeout(function() { self.classList.remove("copied"); }, 1500);
   });
+});
+
+document.addEventListener("click", function(e) {
+  if (e.target.closest("a") || e.target.closest(".copy-inline-btn")) return;
+  var row = e.target.closest("tr[data-href]");
+  if (row) window.location.href = row.getAttribute("data-href");
 });
 </script>
