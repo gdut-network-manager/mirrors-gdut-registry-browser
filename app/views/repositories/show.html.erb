@@ -32,6 +32,15 @@
             <input type="text" id="tag-filter" class="form-control mb-3" placeholder="过滤标签…" onkeyup="filterTags()">
             <div class="repo-table-wrap" id="tag-list">
               <table class="repo-table artifact-table">
+                <colgroup>
+                  <col style="width: 16%">
+                  <col style="width: 14%">
+                  <col style="width: 12%">
+                  <col style="width: 10%">
+                  <col style="width: 18%">
+                  <col style="width: 15%">
+                  <col class="artifact-col-time" style="width: 15%">
+                </colgroup>
                 <thead>
                   <tr>
                     <th>制品 (Digest)</th>
@@ -109,8 +118,8 @@
                           </span>
                         <% end %>
                       </td>
-                      <td><%= fmt.(tag.push_time) %></td>
-                      <td class="artifact-col-time"><%= fmt.(tag.pull_time) %></td>
+                      <td class="artifact-col-push"><%= fmt.(tag.push_time) %></td>
+                      <td class="artifact-col-pull artifact-col-time"><%= fmt.(tag.pull_time) %></td>
                     </tr>
                   <% end %>
                 </tbody>

@@ -1642,11 +1642,8 @@ img {
 }
 
 .col-md-6 {
-    flex: 0 1 calc(50% - var(--spacing-lg));
+    flex: 1 1 calc(50% - var(--spacing-lg));
     min-width: 300px;
-    max-width: 860px;
-    margin-left: auto;
-    margin-right: auto;
 }
 
 .col-md-4 {
@@ -3416,6 +3413,7 @@ img {
 
 .artifact-table {
     table-layout: fixed;
+    width: 100%;
 }
 
 .artifact-table .artifact-col-digest {
@@ -3432,10 +3430,17 @@ img {
     width: 12%;
 }
 
+.artifact-table .artifact-col-push,
+.artifact-table .artifact-col-pull {
+    width: 15%;
+}
+
 .artifact-table td {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    padding-left: var(--spacing-sm);
+    padding-right: var(--spacing-sm);
 }
 
 .artifact-col-vuln {
