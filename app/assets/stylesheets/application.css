@@ -1304,12 +1304,14 @@ main.container:has(.homepage-layout) {
 }
 
 .footer-links {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-lg);
-    flex-wrap: wrap;
+    text-align: center;
+    line-height: 1;
     margin-bottom: var(--spacing-md);
+}
+
+.footer-sep {
+    color: var(--color-text-muted);
+    user-select: none;
 }
 
 .footer a {
@@ -1320,6 +1322,7 @@ main.container:has(.homepage-layout) {
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    vertical-align: middle;
 }
 
 .footer a svg {
@@ -1542,8 +1545,11 @@ main.container:has(.homepage-layout) {
     }
 
     .footer-links {
-        flex-direction: column;
-        gap: var(--spacing-sm);
+        line-height: 2;
+    }
+
+    .footer-sep {
+        display: none;
     }
 
     .nav-tabs {
