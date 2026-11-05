@@ -88,7 +88,9 @@ docker-build-and-push:
     - echo "APP_VERSION=${APP_VERSION}" >> build.env
   after_script:
     - echo "============================ CLEAN BUILD CACHE ============================="
-    - docker buildx prune -a -f || true
+    # buildx 的 --all 没有 -a 短选项(部分版本), 统一使用长选项
+    - docker builder prune --all --force || true
+    - docker buildx prune --all --force || true
   artifacts:
     reports:
       dotenv: build.env

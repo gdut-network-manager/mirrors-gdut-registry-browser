@@ -1,5 +1,15 @@
 # Changelog
 
+# v2.7.8
+
+* 修复 Docker 构建时 `apk add` 因镜像源同步滞后报 `HTTP 404: Not Found`
+  - 根因: 镜像后端 APKINDEX 已更新到新版本但包文件未同步(CERNET 重定向到滞后后端)
+  - 重试改为 `apk add --no-cache`, 每次重新拉取索引
+  - 新增 `ALPINE_FALLBACK_MIRROR`(默认阿里云), 第 3 次重试起自动切换兜底源
+  - `apk add` 增加 `--timeout 60`, 避免镜像源无响应时长时间挂起
+* 修复 GitLab CI `after_script` 的 `docker buildx prune -a -f` 报 `unknown shorthand flag: 'a'`
+  - 改用长选项 `--all --force`, 并补充 `docker builder prune` 兜底
+
 # v2.7.7
 
 * Helm chart: 探针配置可通过 values 自定义
