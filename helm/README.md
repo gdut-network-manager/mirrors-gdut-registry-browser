@@ -73,4 +73,42 @@ ingress:
 
 Ingress 会自动配置 `rewrite-target` 注解,应用会接收 `SCRIPT_NAME` 和 `RAILS_RELATIVE_URL_ROOT` 环境变量。
 
+## 健康检查探针
+
+Chart 默认对 `/ping` 做 HTTP 存活/就绪检查,可通过 values 调整阈值、关闭探针或更换探测方式:
+
+```yaml
+livenessProbe:
+  enabled: true
+  httpGet:
+    path: /ping
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 20
+  timeoutSeconds: 5
+  failureThreshold: 5
+
+# 关闭就绪检查
+readinessProbe:
+  enabled: false
+
+# 应用启动较慢(首次预热 Harbor API)时可开启启动探针
+startupProbe:
+  enabled: true
+  httpGet:
+    path: /ping
+    port: http
+  periodSeconds: 5
+  failureThreshold: 36
+```
+
+除 `enabled` 外的字段会原样透传给 Kubernetes,因此支持 `httpGet`、`tcpSocket`、`exec`、`grpc` 任意探测方式及全部阈值参数。切换探测方式时把默认的 `httpGet` 置空:
+
+```yaml
+livenessProbe:
+  httpGet: null
+  exec:
+    command: ["sh", "-c", "curl -fsS localhost:8080/ping"]
+```
+
 完整配置选项请参考 [values.yaml](values.yaml)。

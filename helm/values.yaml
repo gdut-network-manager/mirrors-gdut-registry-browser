@@ -69,6 +69,43 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
+# 健康检查探针配置
+# 每个探针除 enabled 外的字段会原样透传给 Kubernetes,因此支持 httpGet / tcpSocket /
+# exec / grpc 任意探测方式及全部阈值参数(initialDelaySeconds、periodSeconds、
+# timeoutSeconds、successThreshold、failureThreshold、terminationGracePeriodSeconds 等)。
+livenessProbe:
+  enabled: true
+  httpGet:
+    path: /ping
+    port: http
+  initialDelaySeconds: 0
+  periodSeconds: 10
+  timeoutSeconds: 1
+  failureThreshold: 3
+  successThreshold: 1
+
+readinessProbe:
+  enabled: true
+  httpGet:
+    path: /ping
+    port: http
+  initialDelaySeconds: 0
+  periodSeconds: 10
+  timeoutSeconds: 1
+  failureThreshold: 3
+  successThreshold: 1
+
+# 启动探针默认关闭。应用首次启动可能需要预热 Harbor API,容器频繁重启时可开启,
+# 启动成功前 liveness/readiness 不会生效。
+startupProbe:
+  enabled: false
+  httpGet:
+    path: /ping
+    port: http
+  periodSeconds: 5
+  timeoutSeconds: 1
+  failureThreshold: 30
+
 autoscaling:
   enabled: false
   minReplicas: 1

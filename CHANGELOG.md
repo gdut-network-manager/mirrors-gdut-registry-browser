@@ -1,5 +1,12 @@
 # Changelog
 
+# v2.7.7
+
+* Helm chart: 探针配置可通过 values 自定义
+  - 新增 `livenessProbe` / `readinessProbe` / `startupProbe` 三组配置
+  - 除 `enabled` 外的字段原样透传给 Kubernetes, 支持 httpGet/tcpSocket/exec/grpc 及全部阈值参数
+  - `startupProbe` 默认关闭
+
 # v2.7.6
 
 * 页脚链接与镜像站首页保持一致
