@@ -42,14 +42,45 @@
                   <col class="artifact-col-time" style="width: 15%">
                 </colgroup>
                 <thead>
+                  <%
+                    current_desc = @tag_sort.start_with?("-")
+                    current_key = current_desc ? @tag_sort[1..] : @tag_sort
+                    sort_params_for = ->(key) {
+                      active = current_key == key
+                      next_sort = if active
+                        current_desc ? key : "-#{key}"
+                      else
+                        %w[digest tag].include?(key) ? key : "-#{key}"
+                      end
+                      { page: 1, sort: next_sort }
+                    }
+                    tag_columns = [
+                      { key: "digest", label: "制品 (Digest)" },
+                      { key: "tag", label: "标签" },
+                      { key: nil, label: "类型" },
+                      { key: "size", label: "大小" },
+                      { key: "vuln", label: "漏洞" },
+                      { key: "push_time", label: "推送时间" },
+                      { key: "pull_time", label: "拉取时间", class: "artifact-col-time" }
+                    ]
+                  %>
                   <tr>
-                    <th>制品 (Digest)</th>
-                    <th>标签</th>
-                    <th>类型</th>
-                    <th>大小</th>
-                    <th>漏洞</th>
-                    <th>推送时间</th>
-                    <th class="artifact-col-time">拉取时间</th>
+                    <% tag_columns.each do |col| %>
+                      <% if col[:key].nil? %>
+                        <th>类型</th>
+                      <% else %>
+                        <%
+                          active = current_key == col[:key]
+                          arrow = active ? (current_desc ? "▼" : "▲") : ""
+                        %>
+                        <%= content_tag :th, class: [ col[:class], ("sorted" if active), ("desc" if active && current_desc), ("asc" if active && !current_desc) ].compact.join(" ").presence do %>
+                          <%= link_to repository_path(project_name: @project.name, repo: @repository.relative_name, **sort_params_for.(col[:key])), class: "repo-sort-link" do %>
+                            <span><%= col[:label] %></span>
+                            <span class="sort-arrow"><%= arrow %></span>
+                          <% end %>
+                        <% end %>
+                      <% end %>
+                    <% end %>
                   </tr>
                 </thead>
                 <tbody>
@@ -147,7 +178,7 @@
 
     <% unless params[:tab] == "description" %>
       <div id="tag-pagination" <%= 'hidden' if @tags_collection.total_pages <= 1 %>>
-        <%= render "shared/pagination", total_pages: @tags_collection.total_pages, current_page: @tags_collection.page, path_helper: :repository_path, path_args: { project_name: @project.name, repo: @repository.relative_name } %>
+        <%= render "shared/pagination", total_pages: @tags_collection.total_pages, current_page: @tags_collection.page, path_helper: :repository_path, path_args: { project_name: @project.name, repo: @repository.relative_name }.merge(@tag_sort.present? && @tag_sort != Tag::DEFAULT_SORT ? { sort: @tag_sort } : {}) %>
       </div>
     <% end %>
   </div>

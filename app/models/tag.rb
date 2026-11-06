@@ -30,9 +30,71 @@ class Tag
     d.length > 19 ? d[0, 19] + "\u2026" : d
   end
 
-  def self.list(project_name:, repository_name:, page: 1, page_size: Rails.configuration.x.page_size)
-    artifacts = Artifact.list(project_name: project_name, repository_name: repository_name, page: page, page_size: page_size)
+  # Harbor 服务端可排序的制品列(实测: digest / size / push_time / pull_time)
+  SERVER_SORTABLE = %w[digest size push_time pull_time].freeze
+  # 需客户端模拟: 标签名来自 tag 关联表, 漏洞总数由 scan_overview 现算
+  CLIENT_SORT_KEYS = %w[tag vuln].freeze
+  SORT_WHITELIST = (SERVER_SORTABLE + CLIENT_SORT_KEYS).flat_map { |k| [ k, "-#{k}" ] }.freeze
+  DEFAULT_SORT = "-push_time"
 
+  def self.list(project_name:, repository_name:, page: 1, page_size: Rails.configuration.x.page_size, sort: DEFAULT_SORT)
+    sort = DEFAULT_SORT unless SORT_WHITELIST.include?(sort.to_s)
+    sort_field = sort.to_s.sub(/\A-/, "")
+    desc = sort.to_s.start_with?("-")
+
+    if CLIENT_SORT_KEYS.include?(sort_field)
+      list_client_sorted(
+        project_name: project_name, repository_name: repository_name,
+        page: page, page_size: page_size,
+        sort_field: sort_field, desc: desc
+      )
+    else
+      list_server_sorted(
+        project_name: project_name, repository_name: repository_name,
+        page: page, page_size: page_size, sort: sort
+      )
+    end
+  end
+
+  def self.list_server_sorted(project_name:, repository_name:, page:, page_size:, sort:)
+    artifacts = Artifact.list(
+      project_name: project_name, repository_name: repository_name,
+      page: page, page_size: page_size, sort: sort
+    )
+
+    Collection.new(
+      entries: build_entries(artifacts, project_name, repository_name),
+      more: artifacts.more?, total: artifacts.total, page: artifacts.page
+    )
+  end
+
+  # 分页拉全量制品后在内存排序再切片; 未扫描的制品(漏洞数未知)始终排在末尾
+  def self.list_client_sorted(project_name:, repository_name:, page:, page_size:, sort_field:, desc:)
+    artifacts = Artifact.list_all(project_name: project_name, repository_name: repository_name)
+    entries = build_entries(artifacts, project_name, repository_name)
+
+    known, unknown = entries.partition { |tag| !sort_value(tag, sort_field).nil? }
+    known.sort_by! { |tag| [ sort_value(tag, sort_field), tag.content_digest.to_s ] }
+    known.reverse! if desc
+    sorted = known + unknown
+
+    offset = (page - 1) * page_size
+    Collection.new(
+      entries: sorted[offset, page_size] || [],
+      more: offset + page_size < sorted.size,
+      total: sorted.size,
+      page: page
+    )
+  end
+
+  def self.sort_value(tag, field)
+    case field
+    when "tag" then tag.name.presence&.downcase
+    when "vuln" then tag.artifact&.scan_summary&.dig(:total)
+    end
+  end
+
+  def self.build_entries(artifacts, project_name, repository_name)
     tags = []
     artifacts.each do |artifact|
       base = {
@@ -53,8 +115,7 @@ class Tag
         tags << new(**base, name: nil)
       end
     end
-
-    Collection.new(entries: tags, more: artifacts.more?, total: artifacts.total, page: artifacts.page)
+    tags
   end
 
   def self.find(project_name:, repository_name:, name:)

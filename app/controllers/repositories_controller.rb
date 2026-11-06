@@ -4,6 +4,9 @@ class RepositoriesController < ApplicationController
   SORT_WHITELIST = %w[name -name artifact_count -artifact_count pull_count -pull_count update_time -update_time].freeze
   DEFAULT_SORT = "-pull_count"
 
+  TAG_SORT_WHITELIST = Tag::SORT_WHITELIST
+  TAG_DEFAULT_SORT = Tag::DEFAULT_SORT
+
   def index
     @project = Project.find(params[:project_name])
     @query = params[:q].to_s.strip
@@ -19,10 +22,12 @@ class RepositoriesController < ApplicationController
   def show
     @project = Project.find(params[:project_name])
     @repository = Repository.find(project_name: params[:project_name], name: params[:repo])
+    @tag_sort = TAG_SORT_WHITELIST.include?(params[:sort]) ? params[:sort] : TAG_DEFAULT_SORT
     @tags_collection = Tag.list(
       project_name: params[:project_name],
       repository_name: params[:repo],
-      page: params[:page]&.to_i || 1
+      page: params[:page]&.to_i || 1,
+      sort: @tag_sort
     )
     @tags = @tags_collection.entries
   end

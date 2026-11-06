@@ -47,9 +47,12 @@ class Artifact
     end
   end
 
-  def self.list(project_name:, repository_name:, page: 1, page_size: Rails.configuration.x.page_size)
-    response = HarborClient.api.get(
-      "projects/#{project_name}/repositories/#{CGI.escape(repository_name)}/artifacts",
+  # Harbor 制品接口的 sort 参数只对 artifact 表的真实列生效
+  # (已实测: digest / size / push_time / pull_time 可用, 默认序等价于 -push_time)
+  SERVER_SORTABLE = %w[digest size push_time pull_time].freeze
+
+  def self.list(project_name:, repository_name:, page: 1, page_size: Rails.configuration.x.page_size, sort: nil)
+    params = {
       page: page,
       page_size: page_size,
       with_tag: true,
@@ -58,6 +61,12 @@ class Artifact
       with_sbom_overview: false,
       with_immutable_status: false,
       with_accessory: false
+    }
+    params[:sort] = sort if SERVER_SORTABLE.include?(sort.to_s.sub(/\A-/, ""))
+
+    response = HarborClient.api.get(
+      "projects/#{project_name}/repositories/#{CGI.escape(repository_name)}/artifacts",
+      params
     )
 
     entries = response.body.map do |a|
@@ -68,6 +77,30 @@ class Artifact
     more = page * page_size < total
 
     Collection.new(entries: entries, more: more, total: total, page: page)
+  end
+
+  # 拉取全部制品(客户端排序用)。page_size 上限 100, 固定服务端序保证分页稳定。
+  def self.list_all(project_name:, repository_name:)
+    all = []
+    page = 1
+    total = nil
+
+    loop do
+      collection = list(
+        project_name: project_name,
+        repository_name: repository_name,
+        page: page,
+        page_size: 100,
+        sort: "digest"
+      )
+      total = collection.total
+      all.concat(collection.entries)
+
+      break if all.size >= total || collection.entries.empty?
+      page += 1
+    end
+
+    all
   end
 
   VULN_SEVERITY_ORDER = { "Critical" => 0, "High" => 1, "Medium" => 2, "Low" => 3, "Unknown" => 4 }.freeze
