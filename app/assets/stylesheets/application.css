@@ -105,6 +105,30 @@ html {
     scroll-behavior: smooth;
 }
 
+/* 主题切换：旧主题垫底，新主题在上层按圆形逐渐露出 */
+::view-transition-group(root),
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+    z-index: 1;
+}
+
+::view-transition-new(root) {
+    z-index: 2;
+}
+
+/* 拍快照期间禁用颜色过渡，避免新快照拍到「半深半浅」的中间色 */
+html.theme-switching,
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+    transition: none !important;
+}
+
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-size: 16px;
