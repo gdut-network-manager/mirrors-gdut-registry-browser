@@ -128,6 +128,12 @@ envFromSecrets:
 | `DOMAIN_MIRROR_MAP` | 项目名到子域名的映射,用于镜像模式 | - |
 | `PAGE_SIZE` | 每页条数 | `20` |
 | `NO_SSL_VERIFICATION` | 跳过 SSL 证书验证 | `false` |
+| `HARBOR_TIMEOUT` | Harbor 请求读超时(秒),超时后自动重试 | `10` |
+| `HARBOR_OPEN_TIMEOUT` | Harbor 连接超时(秒) | `5` |
+| `HARBOR_MAX_RETRIES` | Harbor GET 请求超时后的重试次数 | `2` |
+| `HARBOR_LIST_CACHE_TTL` | 仓库/制品列表缓存时长(秒),`0` 为不缓存 | `60` |
+| `HARBOR_META_CACHE_TTL` | 项目/配额/上游仓库等元数据缓存时长(秒),`0` 为不缓存 | `300` |
+| `RAILS_MAX_THREADS` | Puma 线程数 | `16` |
 | `SECRET_KEY_BASE` | Rails 密钥(生产环境必填) | `changeme` |
 
 ## 技术栈

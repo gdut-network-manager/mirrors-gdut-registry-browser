@@ -6,6 +6,16 @@ Rails.application.config.tap do |config|
   config.x.harbor_username     = Config.get(name: "HARBOR_USERNAME", secret: true)
   config.x.harbor_password     = Config.get(name: "HARBOR_PASSWORD", secret: true)
 
+  # Harbor 请求超时与重试(秒)。Harbor 偶发卡顿 60s, 短超时 + 重试可快速绕过
+  config.x.harbor_timeout      = Config.get(name: "HARBOR_TIMEOUT", default: 10).to_i
+  config.x.harbor_open_timeout = Config.get(name: "HARBOR_OPEN_TIMEOUT", default: 5).to_i
+  config.x.harbor_max_retries  = Config.get(name: "HARBOR_MAX_RETRIES", default: 2).to_i
+
+  # Harbor 数据缓存时长(秒), 0 表示不缓存
+  # LIST: 仓库/制品列表等变化较快的数据; META: 项目、配额、上游仓库等元数据
+  config.x.harbor_list_cache_ttl = Config.get(name: "HARBOR_LIST_CACHE_TTL", default: 60).to_i
+  config.x.harbor_meta_cache_ttl = Config.get(name: "HARBOR_META_CACHE_TTL", default: 300).to_i
+
   # Public registry URL for docker pull commands
   config.x.public_registry_url = Config.get(name: "PUBLIC_REGISTRY_URL")
 

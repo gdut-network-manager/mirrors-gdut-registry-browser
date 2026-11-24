@@ -64,16 +64,17 @@ class Artifact
     }
     params[:sort] = sort if SERVER_SORTABLE.include?(sort.to_s.sub(/\A-/, ""))
 
-    response = HarborClient.api.get(
+    response = HarborClient.cached_get(
       "projects/#{project_name}/repositories/#{CGI.escape(repository_name)}/artifacts",
-      params
+      params,
+      expires_in: HarborClient.list_cache_ttl
     )
 
     entries = response.body.map do |a|
       from_api(a, project_name, repository_name)
     end
 
-    total = response.headers["x-total-count"].to_i
+    total = response.total
     more = page * page_size < total
 
     Collection.new(entries: entries, more: more, total: total, page: page)

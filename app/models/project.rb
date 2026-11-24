@@ -32,7 +32,7 @@ class Project
   end
 
   def self.find(name)
-    response = HarborClient.api.get("projects/#{name}")
+    response = HarborClient.cached_get("projects/#{name}", expires_in: HarborClient.meta_cache_ttl)
 
     project = new(
       name: response.body["name"],
@@ -40,9 +40,8 @@ class Project
       repo_count: response.body["repo_count"]
     )
 
-    project.upstream_registry = fetch_registry_for(project) if project.registry_id.present?
-
-    summary = HarborClient.api.get("projects/#{name}/summary").body
+    summary = HarborClient.cached_get("projects/#{name}/summary", expires_in: HarborClient.meta_cache_ttl).body
+    project.upstream_registry = registry_from_summary(summary) if project.registry_id.present?
     project.quota_used = summary.dig("quota", "used", "storage")
     project.quota_hard = summary.dig("quota", "hard", "storage")
 
@@ -65,7 +64,7 @@ class Project
   def self.fetch_registry_map
     {}.tap do |map|
       begin
-        HarborClient.api.get("registries").body.each do |r|
+        HarborClient.cached_get("registries", expires_in: HarborClient.meta_cache_ttl).body.each do |r|
           map[r["id"]] = Registry.new(id: r["id"], name: r["name"], url: r["url"], type: r["type"], status: r["status"])
         end
       rescue Faraday::Error
@@ -76,7 +75,7 @@ class Project
   def self.fetch_quota_map
     {}.tap do |map|
       begin
-        HarborClient.api.get("quotas", page: 1, page_size: 100).body.each do |q|
+        HarborClient.cached_get("quotas", { page: 1, page_size: 100 }, expires_in: HarborClient.meta_cache_ttl).body.each do |q|
           name = q.dig("ref", "name")
           next unless name
           map[name] = {
@@ -89,9 +88,8 @@ class Project
     end
   end
 
-  def self.fetch_registry_for(project)
-    response = HarborClient.api.get("projects/#{project.name}/summary")
-    registry_data = response.body["registry"]
+  def self.registry_from_summary(summary)
+    registry_data = summary["registry"]
     return nil unless registry_data
 
     Registry.new(id: registry_data["id"], name: registry_data["name"], url: registry_data["url"], type: registry_data["type"], status: registry_data["status"])
@@ -101,9 +99,9 @@ class Project
     all = []
     page = 1
     loop do
-      response = HarborClient.api.get("projects", page: page, page_size: 100, with_detail: true)
+      response = HarborClient.cached_get("projects", { page: page, page_size: 100, with_detail: true }, expires_in: HarborClient.meta_cache_ttl)
       all.concat(response.body)
-      total = response.headers["x-total-count"].to_i
+      total = response.total
       break if all.size >= total || response.body.empty?
       page += 1
     end
@@ -136,5 +134,5 @@ class Project
     domain_map
   end
 
-  private_class_method :fetch_registry_map, :fetch_quota_map, :fetch_registry_for, :fetch_all_projects
+  private_class_method :fetch_registry_map, :fetch_quota_map, :registry_from_summary, :fetch_all_projects
 end

@@ -20,7 +20,9 @@
 # Any libraries that use a connection pool or another resource pool should
 # be configured to provide at least as many connections as the number of
 # threads. This includes Active Record's `pool` parameter in `database.yml`.
-threads_count = ENV.fetch("RAILS_MAX_THREADS", 3)
+# 本应用几乎全部时间在等 Harbor API(I/O 密集), 线程太少时少数慢请求就会占满线程,
+# 连 /ping 健康检查都排不上队, 导致探针失败、Pod 被重启(表现为 502)。
+threads_count = ENV.fetch("RAILS_MAX_THREADS", 16)
 threads threads_count, threads_count
 
 # Specifies the `port` that Puma will listen on to receive requests; default is 3000.

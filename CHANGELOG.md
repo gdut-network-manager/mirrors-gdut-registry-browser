@@ -1,5 +1,15 @@
 # Changelog
 
+# v2.9.1
+
+* 修复 Harbor 偶发卡顿 60s 导致页面超时(ingress 504)、Pod 随后不可用(502)的问题
+  - Harbor 请求读超时由 120s 改为 10s(`HARBOR_TIMEOUT`), GET 请求超时后自动重试(`HARBOR_MAX_RETRIES`, 默认 2 次)
+  - 新增 Harbor 数据进程内缓存: 列表 60s(`HARBOR_LIST_CACHE_TTL`), 项目/配额/上游仓库元数据 300s(`HARBOR_META_CACHE_TTL`)
+  - 重试仍失败时回退到最近一次成功的缓存数据(保留 24h), 不再整页报错
+  - 项目详情不再重复请求 `projects/{name}/summary`
+  - Puma 默认线程数 3 → 16, 避免慢请求占满线程导致健康检查失败
+  - 生产环境显式使用 `memory_store`(64MB)
+
 # v2.9.0
 
 * 明暗主题切换改为以切换按钮为圆心的圆形扩散动画 (与镜像站主页一致)

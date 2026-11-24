@@ -39,13 +39,14 @@ class Repository
     params[:q] = "name=~#{query}" if query.present?
     params[:sort] = sort if sort.present?
 
-    response = HarborClient.api.get(
+    response = HarborClient.cached_get(
       "projects/#{project_name}/repositories",
-      params
+      params,
+      expires_in: HarborClient.list_cache_ttl
     )
 
     entries = build_entries(response.body, project_name)
-    total = response.headers["x-total-count"].to_i
+    total = response.total
 
     Collection.new(entries: entries, more: page * page_size < total, total: total, page: page)
   end
@@ -61,11 +62,12 @@ class Repository
       params[:q] = "name=~#{query}" if query.present?
       params[:sort] = "name" # 固定服务端序保证分页稳定, 排序在内存完成
 
-      response = HarborClient.api.get(
+      response = HarborClient.cached_get(
         "projects/#{project_name}/repositories",
-        params
+        params,
+        expires_in: HarborClient.list_cache_ttl
       )
-      total = response.headers["x-total-count"].to_i
+      total = response.total
       all_entries.concat(build_entries(response.body, project_name))
 
       break if all_entries.size >= total || response.body.empty?
@@ -73,7 +75,7 @@ class Repository
     end
 
     all_entries.sort_by! do |r|
-      [r.public_send(sort_field).to_i, r.name.to_s]
+      [ r.public_send(sort_field).to_i, r.name.to_s ]
     end
     all_entries.reverse! if desc
 
@@ -100,7 +102,7 @@ class Repository
   end
 
   def self.find(project_name:, name:)
-    response = HarborClient.api.get("projects/#{project_name}/repositories/#{CGI.escape(name)}")
+    response = HarborClient.cached_get("projects/#{project_name}/repositories/#{CGI.escape(name)}", expires_in: HarborClient.list_cache_ttl)
 
     new(
       name: response.body["name"],
