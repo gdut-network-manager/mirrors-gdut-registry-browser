@@ -1,5 +1,9 @@
 # Changelog
 
+# v2.9.2
+
+* 修复 v2.9.1 镜像构建失败: 生产环境配置中的 `64.megabytes` 在 `assets:precompile` 阶段未加载 ActiveSupport 数值扩展, 改为字面字节数
+
 # v2.9.1
 
 * 修复 Harbor 偶发卡顿 60s 导致页面超时(ingress 504)、Pod 随后不可用(502)的问题
