@@ -70,4 +70,125 @@
   <aside class="homepage-sidebar">
     <%= render "converter" %>
   </aside>
+
+  <button type="button" class="converter-dock" id="converter-dock" title="展开镜像名称转换" aria-label="展开镜像名称转换">
+    <%= render "shared/icon", name: "terminal", size: 20 %>
+    <span class="converter-dock-label">镜像名称转换</span>
+  </button>
 </div>
+
+<script>
+(function() {
+  var STORAGE_KEY = 'converter-collapsed';
+  var SLIDE_MS = 420;
+  var SHIFT_MS = 360;
+
+  var layout = document.querySelector('.homepage-layout');
+  var main = layout.querySelector('.homepage-main');
+  var sidebar = layout.querySelector('.homepage-sidebar');
+  var hideBtn = document.getElementById('converter-hide-btn');
+  var dock = document.getElementById('converter-dock');
+  var desktop = window.matchMedia('(min-width: 1201px)');
+  var busy = false;
+
+  // 先于首帧恢复收起状态, 避免页面加载时卡片闪一下
+  try {
+    if (localStorage.getItem(STORAGE_KEY) === '1') layout.classList.add('converter-collapsed');
+  } catch (e) {}
+
+  function reducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  function save(collapsed) {
+    try { localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0'); } catch (e) {}
+  }
+
+  // 等元素的 transform 过渡结束; 兜底定时器防止 transitionend 丢失
+  function afterTransition(el, ms, done) {
+    var finished = false;
+    function finish(e) {
+      if (finished || (e && (e.target !== el || e.propertyName !== 'transform'))) return;
+      finished = true;
+      el.removeEventListener('transitionend', finish);
+      done();
+    }
+    el.addEventListener('transitionend', finish);
+    setTimeout(finish, ms + 80);
+  }
+
+  // FLIP: 布局切换后, 项目卡片群从旧位置平滑移动到新位置
+  function shiftMain(changeLayout, done) {
+    var before = main.getBoundingClientRect().left;
+    changeLayout();
+    var delta = before - main.getBoundingClientRect().left;
+    if (!delta) { done(); return; }
+    main.style.transition = 'none';
+    main.style.transform = 'translateX(' + delta + 'px)';
+    main.getBoundingClientRect();
+    main.style.transition = 'transform ' + SHIFT_MS + 'ms cubic-bezier(0.4, 0, 0.2, 1)';
+    main.style.transform = '';
+    afterTransition(main, SHIFT_MS, function() {
+      main.style.transition = '';
+      done();
+    });
+  }
+
+  // 卡片右移到视口外需要的距离
+  function setOffscreenShift() {
+    var prev = sidebar.style.transform;
+    sidebar.style.transform = 'none';
+    var left = sidebar.getBoundingClientRect().left;
+    sidebar.style.transform = prev;
+    layout.style.setProperty('--converter-shift', Math.ceil(window.innerWidth - left + 24) + 'px');
+  }
+
+  function collapse() {
+    if (busy || layout.classList.contains('converter-collapsed')) return;
+    save(true);
+    if (!desktop.matches || reducedMotion()) {
+      layout.classList.add('converter-collapsed');
+      return;
+    }
+    busy = true;
+    setOffscreenShift();
+    sidebar.getBoundingClientRect();
+    layout.classList.add('converter-leaving');
+    afterTransition(sidebar, SLIDE_MS, function() {
+      shiftMain(function() {
+        layout.classList.add('converter-collapsed');
+        layout.classList.remove('converter-leaving');
+      }, function() { busy = false; });
+    });
+  }
+
+  function expand() {
+    if (busy || !layout.classList.contains('converter-collapsed')) return;
+    save(false);
+    if (!desktop.matches || reducedMotion()) {
+      layout.classList.remove('converter-collapsed');
+      return;
+    }
+    busy = true;
+    // 卡片先以「已移出视口」的状态就位, 项目卡片群左移让出位置后再滑回来
+    layout.classList.add('converter-leaving', 'converter-no-transition');
+    shiftMain(function() {
+      layout.classList.remove('converter-collapsed');
+      setOffscreenShift();
+    }, function() {
+      sidebar.getBoundingClientRect();
+      layout.classList.remove('converter-no-transition');
+      sidebar.getBoundingClientRect();
+      layout.classList.remove('converter-leaving');
+      afterTransition(sidebar, SLIDE_MS, function() { busy = false; });
+    });
+  }
+
+  hideBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    collapse();
+  });
+  dock.addEventListener('click', expand);
+})();
+</script>
