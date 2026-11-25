@@ -80,15 +80,14 @@
 <script>
 (function() {
   var STORAGE_KEY = 'converter-collapsed';
-  var SLIDE_MS = 420;
-  var SHIFT_MS = 360;
+  var DURATION = 420;
+  var EASE = 'cubic-bezier(0.4, 0, 0.2, 1)';
 
   var layout = document.querySelector('.homepage-layout');
   var main = layout.querySelector('.homepage-main');
   var sidebar = layout.querySelector('.homepage-sidebar');
   var hideBtn = document.getElementById('converter-hide-btn');
   var dock = document.getElementById('converter-dock');
-  var desktop = window.matchMedia('(min-width: 1201px)');
   var busy = false;
 
   // 先于首帧恢复收起状态, 避免页面加载时卡片闪一下
@@ -104,8 +103,8 @@
     try { localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0'); } catch (e) {}
   }
 
-  // 等元素的 transform 过渡结束; 兜底定时器防止 transitionend 丢失
-  function afterTransition(el, ms, done) {
+  // 等 transform 过渡结束; 兜底定时器防止 transitionend 丢失(起止相同或标签页在后台)
+  function afterTransition(el, done) {
     var finished = false;
     function finish(e) {
       if (finished || (e && (e.target !== el || e.propertyName !== 'transform'))) return;
@@ -114,74 +113,102 @@
       done();
     }
     el.addEventListener('transitionend', finish);
-    setTimeout(finish, ms + 80);
+    setTimeout(finish, DURATION + 80);
   }
 
-  // FLIP: 布局切换后, 项目卡片群从旧位置平滑移动到新位置
-  function shiftMain(changeLayout, done) {
-    var before = main.getBoundingClientRect().left;
-    changeLayout();
-    var delta = before - main.getBoundingClientRect().left;
-    if (!delta) { done(); return; }
-    main.style.transition = 'none';
-    main.style.transform = 'translateX(' + delta + 'px)';
-    main.getBoundingClientRect();
-    main.style.transition = 'transform ' + SHIFT_MS + 'ms cubic-bezier(0.4, 0, 0.2, 1)';
-    main.style.transform = '';
-    afterTransition(main, SHIFT_MS, function() {
-      main.style.transition = '';
-      done();
-    });
+  function animate(el, from, to, done) {
+    el.style.transition = 'none';
+    el.style.transform = from;
+    el.getBoundingClientRect();
+    el.style.transition = 'transform ' + DURATION + 'ms ' + EASE;
+    el.style.transform = to;
+    afterTransition(el, done);
+  }
+
+  function resetMotion(el) {
+    el.style.transition = '';
+    el.style.transform = '';
   }
 
   // 卡片右移到视口外需要的距离
-  function setOffscreenShift() {
-    var prev = sidebar.style.transform;
-    sidebar.style.transform = 'none';
-    var left = sidebar.getBoundingClientRect().left;
-    sidebar.style.transform = prev;
-    layout.style.setProperty('--converter-shift', Math.ceil(window.innerWidth - left + 24) + 'px');
+  function offscreen(rect) {
+    return 'translateX(' + Math.ceil(window.innerWidth - rect.left + 24) + 'px)';
   }
+
+  // FLIP: 布局已切换, 项目卡片群从旧位置平滑移到新位置。
+  // 桌面端是横向居中/归位, 移动端卡片在列表上方, 是纵向上移/下移
+  function flipMain(before, done) {
+    var after = main.getBoundingClientRect();
+    var dx = before.left - after.left;
+    var dy = before.top - after.top;
+    if (!dx && !dy) { done(); return; }
+    animate(main, 'translate(' + dx + 'px, ' + dy + 'px)', 'translate(0, 0)', done);
+  }
+
+  // 两段动画都结束后才收尾
+  function whenBoth(done) {
+    var pending = 2;
+    return function() { if (--pending === 0) done(); };
+  }
+
+  var PINNED_PROPS = [ 'position', 'top', 'left', 'width', 'height', 'margin', 'zIndex' ];
 
   function collapse() {
     if (busy || layout.classList.contains('converter-collapsed')) return;
     save(true);
-    if (!desktop.matches || reducedMotion()) {
+    if (reducedMotion()) {
       layout.classList.add('converter-collapsed');
       return;
     }
     busy = true;
-    setOffscreenShift();
-    sidebar.getBoundingClientRect();
-    layout.classList.add('converter-leaving');
-    afterTransition(sidebar, SLIDE_MS, function() {
-      shiftMain(function() {
-        layout.classList.add('converter-collapsed');
-        layout.classList.remove('converter-leaving');
-      }, function() { busy = false; });
+
+    var mainBefore = main.getBoundingClientRect();
+    var side = sidebar.getBoundingClientRect();
+    var box = layout.getBoundingClientRect();
+
+    // 工具卡片脱离文档流并钉在原位, 布局立即切到单栏, 卡片滑出与项目卡片群移动同时进行。
+    // 桌面端卡片是 sticky(相对视口), 钉成 fixed 才不会随滚动漂移; 移动端是普通文档流, 用 absolute
+    var pinToViewport = getComputedStyle(sidebar).position === 'sticky';
+    sidebar.style.position = pinToViewport ? 'fixed' : 'absolute';
+    sidebar.style.top = (pinToViewport ? side.top : side.top - box.top) + 'px';
+    sidebar.style.left = (pinToViewport ? side.left : side.left - box.left) + 'px';
+    sidebar.style.width = side.width + 'px';
+    sidebar.style.height = side.height + 'px';
+    sidebar.style.margin = '0';
+    sidebar.style.zIndex = '5';
+    layout.classList.add('converter-collapsed', 'converter-animating');
+
+    var finish = whenBoth(function() {
+      PINNED_PROPS.forEach(function(p) { sidebar.style[p] = ''; });
+      resetMotion(sidebar);
+      resetMotion(main);
+      layout.classList.remove('converter-animating');
+      busy = false;
     });
+    animate(sidebar, 'translateX(0)', offscreen(side), finish);
+    flipMain(mainBefore, finish);
   }
 
   function expand() {
     if (busy || !layout.classList.contains('converter-collapsed')) return;
     save(false);
-    if (!desktop.matches || reducedMotion()) {
+    if (reducedMotion()) {
       layout.classList.remove('converter-collapsed');
       return;
     }
     busy = true;
-    // 卡片先以「已移出视口」的状态就位, 项目卡片群左移让出位置后再滑回来
-    layout.classList.add('converter-leaving', 'converter-no-transition');
-    shiftMain(function() {
-      layout.classList.remove('converter-collapsed');
-      setOffscreenShift();
-    }, function() {
-      sidebar.getBoundingClientRect();
-      layout.classList.remove('converter-no-transition');
-      sidebar.getBoundingClientRect();
-      layout.classList.remove('converter-leaving');
-      afterTransition(sidebar, SLIDE_MS, function() { busy = false; });
+
+    var mainBefore = main.getBoundingClientRect();
+    layout.classList.remove('converter-collapsed');
+    var side = sidebar.getBoundingClientRect();
+
+    var finish = whenBoth(function() {
+      resetMotion(sidebar);
+      resetMotion(main);
+      busy = false;
     });
+    animate(sidebar, offscreen(side), 'translateX(0)', finish);
+    flipMain(mainBefore, finish);
   }
 
   hideBtn.addEventListener('click', function(e) {
